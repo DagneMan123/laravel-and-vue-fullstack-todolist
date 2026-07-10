@@ -1,0 +1,82 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply transition-colors duration-200;
+  }
+  
+  body {
+    @apply bg-gray-50 dark:bg-gray-900 font-sans antialiased;
+  }
+}
+
+@layer components {
+  .glass {
+    @apply bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl backdrop-saturate-150;
+  }
+  
+  .card {
+    @apply bg-white dark:bg-gray-800 rounded-2xl shadow-card border border-gray-100/50 dark:border-gray-700/50;
+  }
+  
+  .btn-primary {
+    @apply px-6 py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-medium rounded-xl 
+           hover:from-primary-600 hover:to-primary-700 focus:ring-4 focus:ring-primary-300 
+           dark:focus:ring-primary-800 transition-all duration-300 shadow-lg shadow-primary-500/25 
+           hover:shadow-xl hover:shadow-primary-500/30 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  
+  .btn-secondary {
+    @apply px-6 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 
+           font-medium rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 
+           focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-600 transition-all;
+  }
+  
+  .btn-danger {
+    @apply px-6 py-2.5 bg-gradient-to-r from-red-500 to-rose-500 text-white font-medium rounded-xl 
+           hover:from-red-600 hover:to-rose-600 focus:ring-4 focus:ring-red-300 transition-all;
+  }
+  
+  .input-field {
+    @apply w-full px-4 py-2.5 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 
+           rounded-xl focus:ring-4 focus:ring-primary-500/20 focus:border-primary-500 
+           dark:text-white placeholder-gray-400 dark:placeholder-gray-500 transition-all outline-none;
+  }
+  
+  .badge {
+    @apply px-3 py-1 text-xs font-semibold rounded-full uppercase tracking-wider;
+  }
+  
+  .badge-high {
+    @apply bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400;
+  }
+  
+  .badge-medium {
+    @apply bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400;
+  }
+  
+  .badge-low {
+    @apply bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400;
+  }
+  
+  .gradient-text {
+    @apply bg-gradient-to-r from-primary-500 to-primary-600 bg-clip-text text-transparent;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-100 dark:bg-gray-800 rounded-full;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 dark:bg-gray-600 rounded-full hover:bg-gray-400 dark:hover:bg-gray-500;
+}

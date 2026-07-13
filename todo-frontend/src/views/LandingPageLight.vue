@@ -53,7 +53,7 @@
           <div class="nav-actions">
             <button @click="themeStore.toggleTheme" class="theme-toggle" :title="themeStore.isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'">
               <span v-if="!themeStore.isDark" class="theme-icon">🌙</span>
-              <span v-else class="theme-icon">☀️</span>
+              <span v-else class="theme-icon">☀</span>
             </button>
             
             <router-link to="/login" class="nav-btn login-btn">

@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import type { User, LoginCredentials, RegisterData } from '@/types'
 import api from '@/services/api'
 import router from '@/router'
@@ -24,6 +24,7 @@ export const useAuthStore = defineStore('auth', () => {
       user.value = userData
       token.value = authToken
       localStorage.setItem('auth_token', authToken)
+      persistUser(userData)
       
       await router.push('/dashboard')
       return { success: true }
@@ -72,34 +73,74 @@ export const useAuthStore = defineStore('auth', () => {
     user.value = null
     token.value = undefined
     localStorage.removeItem('auth_token')
+    localStorage.removeItem('auth_user')
     isLoading.value = false
     isLoggingOut.value = false
     await router.push('/login')
   }
 
   async function checkAuth(): Promise<void> {
-    if (token.value && !user.value) {
-      try {
-        const response = await api.get<User>('/auth/user')
-        user.value = response.data
-      } catch (err: any) {
-        // 401 means token is invalid
-        // Don't trigger logout here - just clear state silently
-        if (err.response?.status === 401) {
-          console.warn('Token invalid during auth check')
-          user.value = null
-          token.value = undefined
-          localStorage.removeItem('auth_token')
-        } else {
-          // Other errors, also clear but don't spam logs
-          console.error('Auth check error:', err.message)
-          user.value = null
-          token.value = undefined
-          localStorage.removeItem('auth_token')
+    if (token.value) {
+      // First try to restore from localStorage
+      if (!user.value) {
+        const restored = restoreUser()
+        if (restored) {
+          user.value = restored
+        }
+      }
+
+      // Then verify with backend if user is not set
+      if (!user.value) {
+        try {
+          const response = await api.get<User>('/auth/user')
+          user.value = response.data
+          persistUser(response.data)
+        } catch (err: any) {
+          // 401 means token is invalid
+          if (err.response?.status === 401) {
+            console.warn('Token invalid during auth check')
+            user.value = null
+            token.value = undefined
+            localStorage.removeItem('auth_token')
+            localStorage.removeItem('auth_user')
+          } else {
+            console.error('Auth check error:', err.message)
+            user.value = null
+            token.value = undefined
+            localStorage.removeItem('auth_token')
+            localStorage.removeItem('auth_user')
+          }
         }
       }
     }
   }
+
+  // Persist user data to localStorage
+  function persistUser(userData: User) {
+    if (userData) {
+      localStorage.setItem('auth_user', JSON.stringify(userData))
+    }
+  }
+
+  // Restore user data from localStorage
+  function restoreUser(): User | null {
+    try {
+      const stored = localStorage.getItem('auth_user')
+      return stored ? JSON.parse(stored) : null
+    } catch {
+      return null
+    }
+  }
+
+  // Initialize on app startup
+  onMounted(() => {
+    if (token.value && !user.value) {
+      const restored = restoreUser()
+      if (restored) {
+        user.value = restored
+      }
+    }
+  })
 
   return {
     user,
@@ -112,5 +153,7 @@ export const useAuthStore = defineStore('auth', () => {
     register,
     logout,
     checkAuth,
+    persistUser,
+    restoreUser,
   }
 })

@@ -112,8 +112,11 @@ class AuthController extends Controller
         }
 
         $validated = $request->validate([
-            'name' => ['sometimes', 'string', 'max:255'],
+            'name' => ['sometimes', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
             'email' => ['sometimes', 'email', 'unique:users,email,' . $user->id],
+        ], [
+            'name.regex' => 'Full name can only contain letters and spaces',
+            'email.unique' => 'This email is already registered',
         ]);
 
         $user->update($validated);

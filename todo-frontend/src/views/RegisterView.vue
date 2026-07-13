@@ -28,7 +28,11 @@
               class="input-field"
               placeholder="Your name"
               :disabled="authStore.isLoading"
+              @input="validateName"
+              pattern="[a-zA-Z\s]*"
+              title="Full name can only contain letters and spaces"
             />
+            <p v-if="nameError" class="text-xs text-red-600 dark:text-red-400 mt-1">{{ nameError }}</p>
           </div>
 
           <div>
@@ -138,6 +142,7 @@ const authStore = useAuthStore()
 const themeStore = useThemeStore()
 const showPassword = ref(false)
 const showConfirmPassword = ref(false)
+const nameError = ref('')
 
 const formData = reactive<RegisterData>({
   name: '',
@@ -146,7 +151,35 @@ const formData = reactive<RegisterData>({
   password_confirmation: '',
 })
 
+// Validate name - only letters and spaces
+const validateName = (event: Event) => {
+  const input = event.target as HTMLInputElement
+  const name = input.value
+  
+  // Allow only letters (a-z, A-Z) and spaces
+  const isValid = /^[a-zA-Z\s]*$/.test(name)
+  
+  if (!isValid) {
+    nameError.value = 'Full name can only contain letters and spaces'
+    // Remove invalid characters
+    formData.name = name.replace(/[^a-zA-Z\s]/g, '')
+  } else {
+    nameError.value = ''
+  }
+}
+
 const handleRegister = async () => {
+  // Validate name before submitting
+  if (!formData.name.trim()) {
+    notifyError('Full name is required')
+    return
+  }
+  
+  if (!/^[a-zA-Z\s]+$/.test(formData.name.trim())) {
+    notifyError('Full name can only contain letters and spaces')
+    return
+  }
+
   const result = await authStore.register(formData)
   if (result.success) {
     // Silently redirect to login page

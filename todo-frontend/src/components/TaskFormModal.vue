@@ -67,24 +67,27 @@
           </div>
         </div>
 
-        <!-- Start Date -->
+        <!-- Start Date & Time -->
         <div>
-          <label class="block text-sm font-medium mb-1.5" :class="isDark ? 'text-white' : 'text-gray-900'">Start Date</label>
+          <label class="block text-sm font-medium mb-1.5" :class="isDark ? 'text-white' : 'text-gray-900'">Start Date & Time</label>
           <input 
-            v-model="formData.start_date" 
-            type="date" 
+            v-model="formData.start_datetime" 
+            type="datetime-local" 
             class="w-full px-4 py-2.5 rounded-lg border bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
           >
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Optional - When the task begins</p>
         </div>
 
-        <!-- Due Date -->
+        <!-- Due Date & Time -->
         <div>
-          <label class="block text-sm font-medium mb-1.5" :class="isDark ? 'text-white' : 'text-gray-900'">Due Date</label>
+          <label class="block text-sm font-medium mb-1.5" :class="isDark ? 'text-white' : 'text-gray-900'">Due Date & Time</label>
           <input 
-            v-model="formData.due_date" 
-            type="date" 
+            v-model="formData.due_datetime" 
+            type="datetime-local" 
             class="w-full px-4 py-2.5 rounded-lg border bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+            :min="formData.start_datetime || undefined"
           >
+          <p v-if="errors.due_date" class="text-red-500 text-sm mt-1">{{ errors.due_date }}</p>
         </div>
 
         <!-- Action Buttons -->
@@ -139,6 +142,7 @@ const categoryStore = useCategoryStore()
 const isDark = computed(() => themeStore.isDark)
 const loading = ref(false)
 const showCategoryModal = ref(false)
+const errors = ref<Record<string, string>>({})
 
 // ─── Form Data ───
 const formData = ref({
@@ -146,20 +150,37 @@ const formData = ref({
   description: '',
   priority: 'medium',
   category_id: '',
-  start_date: '',
-  due_date: '',
+  start_datetime: '',
+  due_datetime: '',
 })
+
+// ─── Today's date for min attribute ───
+const today = new Date().toISOString().split('T')[0]
 
 // ─── Initialize form with task data ───
 const initializeForm = () => {
   if (props.task) {
+    // Combine start date and time
+    let start_datetime = ''
+    if (props.task.start_date) {
+      const startTime = props.task.start_time || '00:00'
+      start_datetime = `${props.task.start_date}T${startTime}`
+    }
+
+    // Combine due date and time
+    let due_datetime = ''
+    if (props.task.due_date) {
+      const dueTime = props.task.due_time && props.task.due_time !== 'null' ? props.task.due_time : '00:00'
+      due_datetime = `${props.task.due_date}T${dueTime}`
+    }
+
     formData.value = {
       title: props.task.title || '',
       description: props.task.description || '',
       priority: props.task.priority || 'medium',
       category_id: props.task.category_id || '',
-      start_date: props.task.start_date || '',
-      due_date: props.task.due_date || '',
+      start_datetime: start_datetime,
+      due_datetime: due_datetime,
     }
   } else {
     formData.value = {
@@ -167,10 +188,11 @@ const initializeForm = () => {
       description: '',
       priority: 'medium',
       category_id: '',
-      start_date: '',
-      due_date: '',
+      start_datetime: '',
+      due_datetime: '',
     }
   }
+  errors.value = {}
 }
 
 // ─── Watch for task changes ───
@@ -180,9 +202,44 @@ watch(() => props.task, () => {
 
 // ─── Handle Submit ───
 const handleSubmit = async () => {
+  // ─── Clear errors ───
+  errors.value = {}
+  
   // ─── Validation ───
   if (!formData.value.title.trim()) {
-    alert('Please enter a task title')
+    errors.value.title = 'Please enter a task title'
+    return
+  }
+
+  // ─── Parse start datetime ───
+  let start_date = null
+  let start_time = null
+  if (formData.value.start_datetime) {
+    const parts = formData.value.start_datetime.split('T')
+    start_date = parts[0]
+    // Extract HH:MM from datetime-local (format: HH:MM)
+    start_time = parts[1] ? parts[1].substring(0, 5) : null
+  }
+
+  // ─── Parse due datetime ───
+  let due_date = null
+  let due_time = null
+  if (formData.value.due_datetime) {
+    const parts = formData.value.due_datetime.split('T')
+    due_date = parts[0]
+    // Extract HH:MM from datetime-local (format: HH:MM)
+    due_time = parts[1] ? parts[1].substring(0, 5) : null
+  }
+
+  // ─── Validate due date is required ───
+  if (!due_date) {
+    errors.value.due_date = 'Due date is required'
+    return
+  }
+
+  // ─── Validate due date cannot be before start date ───
+  if (start_date && due_date && due_date < start_date) {
+    errors.value.due_date = 'Due date cannot be before start date'
     return
   }
 
@@ -195,8 +252,16 @@ const handleSubmit = async () => {
       description: formData.value.description?.trim() || null,
       priority: formData.value.priority,
       category_id: formData.value.category_id || null,
-      start_date: formData.value.start_date || null,
-      due_date: formData.value.due_date || null,
+      start_date: start_date,
+      due_date: due_date,
+    }
+
+    // Only add times if they have values (not null)
+    if (start_time) {
+      cleanedData.start_time = start_time
+    }
+    if (due_time) {
+      cleanedData.due_time = due_time
     }
 
     console.log('Sending task data:', cleanedData)

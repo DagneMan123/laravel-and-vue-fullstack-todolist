@@ -104,6 +104,7 @@
               <option value="all">All Status</option>
               <option value="pending">Pending</option>
               <option value="completed">Completed</option>
+              <option value="completed">Failed</option>
             </select>
             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
               <svg class="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -987,23 +988,34 @@ const handleDayClick = (dateString: string) => {
 // ─── Task Actions ───
 const handleToggleComplete = async (id: number) => {
   await taskStore.toggleComplete(id)
+  // Sync immediately with database
+  await taskStore.fetchTasks()
+  await taskStore.fetchStats()
   if (showCalendarView.value) {
-    await taskStore.fetchTasks()
+    // Trigger calendar refresh
+    currentDate.value = new Date(currentDate.value)
   }
 }
 
 const deleteTask = async (id: number) => {
   if (confirm('Are you sure you want to delete this task?')) {
-    await taskStore.deleteTask(id)
-    if (showCalendarView.value) {
+    const result = await taskStore.deleteTask(id)
+    if (result.success) {
+      // Immediately update UI
       await taskStore.fetchTasks()
+      if (showCalendarView.value) {
+        // Refresh calendar if in calendar view
+        
+      }
     }
   }
 }
 
 const handleSave = async () => {
   closeCreateModal()
+  // Sync immediately with database
   await taskStore.fetchTasks()
+  await taskStore.fetchStats()
 }
 
 // ─── Lifecycle ───

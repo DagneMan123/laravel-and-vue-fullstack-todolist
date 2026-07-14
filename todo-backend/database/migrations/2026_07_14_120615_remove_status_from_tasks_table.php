@@ -12,10 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('tasks', function (Blueprint $table) {
-            // አምዱ መኖሩን ካረጋገጠ በኋላ ብቻ ነው የሚጨምረው
-            if (!Schema::hasColumn('tasks', 'due_time')) {
-                $table->time('due_time')->nullable();
-            }
+            $table->dropColumn('status');
         });
     }
 
@@ -25,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('tasks', function (Blueprint $table) {
-            $table->dropColumn('due_time');
+            //
         });
     }
 };

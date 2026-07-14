@@ -17,9 +17,11 @@ export interface Task {
   title: string
   description?: string
   notes?: string
+  status?: string
   is_completed: boolean
   priority: 'low' | 'medium' | 'high' | 'urgent'
   start_date?: string
+  start_time?: string
   due_date?: string
   due_time?: string
   completed_at?: string
@@ -169,4 +171,5 @@ export interface TaskFilters {
   search: string
   sort_by: 'created_at' | 'title' | 'priority' | 'due_date' | 'is_completed'
   sort_direction: 'asc' | 'desc'
+  dateFilter: 'all' | 'overdue' | 'today' | 'this_week' | 'next_week' | 'this_month'
 }

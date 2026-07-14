@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia'
 import { ref, computed, onMounted } from 'vue'
 import type { User, LoginCredentials, RegisterData } from '@/types'
+import type { ValidationError } from '@/utils/validation'
+import { validateLoginForm, validateRegisterForm } from '@/utils/validation'
 import api from '@/services/api'
 import router from '@/router'
 
@@ -9,13 +11,24 @@ export const useAuthStore = defineStore('auth', () => {
   const token = ref<string | undefined>(localStorage.getItem('auth_token') ?? undefined)
   const isLoading = ref(false)
   const error = ref<string | undefined>(undefined)
+  const validationErrors = ref<ValidationError[]>([])
   const isLoggingOut = ref(false)
 
   const isAuthenticated = computed(() => !!token.value && !!user.value)
 
   async function login(credentials: LoginCredentials): Promise<{ success: boolean; message?: string }> {
-    isLoading.value = true
+    // Clear previous errors
+    validationErrors.value = []
     error.value = undefined
+
+    // Validate input
+    const validation = validateLoginForm(credentials)
+    if (!validation.isValid) {
+      validationErrors.value = validation.errors
+      return { success: false, message: 'Please fix validation errors' }
+    }
+
+    isLoading.value = true
 
     try {
       const response = await api.post<{ user: User; token: string }>('/auth/login', credentials)
@@ -37,8 +50,18 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function register(data: RegisterData): Promise<{ success: boolean; message?: string }> {
-    isLoading.value = true
+    // Clear previous errors
+    validationErrors.value = []
     error.value = undefined
+
+    // Validate input
+    const validation = validateRegisterForm(data)
+    if (!validation.isValid) {
+      validationErrors.value = validation.errors
+      return { success: false, message: 'Please fix validation errors' }
+    }
+
+    isLoading.value = true
 
     try {
       await api.post('/auth/register', data)
@@ -148,6 +171,7 @@ export const useAuthStore = defineStore('auth', () => {
     isLoading,
     isLoggingOut,
     error,
+    validationErrors,
     isAuthenticated,
     login,
     register,

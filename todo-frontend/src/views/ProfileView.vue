@@ -3,8 +3,8 @@
     <div class="p-4 sm:p-6">
       <!-- Header -->
       <div class="mb-8">
-        <h1 class="text-3xl font-bold" :class="isDark ? 'text-white' : 'text-gray-900'">Profile Settings</h1>
-        <p class="mt-2 text-sm" :class="isDark ? 'text-gray-400' : 'text-gray-600'">Manage your account information and preferences</p>
+        <h1 class="text-3xl font-bold" :class="isDark ? 'text-white' : 'text-gray-900'">Settings</h1>
+        <p class="mt-2 text-sm" :class="isDark ? 'text-gray-400' : 'text-gray-600'">Manage your account settings and preferences</p>
       </div>
 
       <!-- Profile Card -->

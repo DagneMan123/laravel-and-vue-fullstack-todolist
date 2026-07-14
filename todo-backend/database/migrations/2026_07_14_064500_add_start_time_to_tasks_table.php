@@ -6,26 +6,19 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::table('tasks', function (Blueprint $table) {
-            // አምዱ መኖሩን ካረጋገጠ በኋላ ብቻ ነው የሚጨምረው
-            if (!Schema::hasColumn('tasks', 'due_time')) {
-                $table->time('due_time')->nullable();
+            if (!Schema::hasColumn('tasks', 'start_time')) {
+                $table->time('start_time')->nullable()->after('start_date');
             }
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::table('tasks', function (Blueprint $table) {
-            $table->dropColumn('due_time');
+            $table->dropColumn(['start_time']);
         });
     }
 };

@@ -84,15 +84,18 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { reactive, ref, computed } from 'vue'
 import { useAuthStore } from '@/stores/auth'
+import { useFormValidation } from '@/composables/useFormValidation'
 import { useNotification } from '@/composables/useNotification'
 import { useThemeStore } from '@/stores/theme'
+import FormError from '@/components/FormError.vue'
 import type { LoginCredentials } from '@/types'
 
 const { success, error: notifyError } = useNotification()
 const authStore = useAuthStore()
 const themeStore = useThemeStore()
+const validation = useFormValidation()
 const showPassword = ref(false)
 
 const credentials = reactive<LoginCredentials>({
@@ -100,13 +103,27 @@ const credentials = reactive<LoginCredentials>({
   password: '',
 })
 
+// Computed properties for field-specific validation errors
+const emailError = computed(() => validation.getError('email'))
+const passwordError = computed(() => validation.getError('password'))
+
 const handleLogin = async () => {
+  // Validate form before submitting
+  if (!validation.validateLogin(credentials)) {
+    return
+  }
+
   const result = await authStore.login(credentials)
   if (result.success) {
     success('Welcome back! 🎉')
   } else {
     notifyError(result.message || 'Login failed')
   }
+}
+
+// Real-time validation as user types
+const validateOnInput = () => {
+  validation.validateLogin(credentials)
 }
 </script>
 

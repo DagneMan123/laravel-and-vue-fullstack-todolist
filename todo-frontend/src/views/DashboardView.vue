@@ -139,7 +139,7 @@
                 {{ task.title }}
               </p>
               <p v-if="task.due_date" class="text-xs mt-0.5 sm:mt-1 truncate" :class="isDark ? 'text-gray-500' : 'text-gray-500'">
-                Due: {{ new Date(task.due_date).toLocaleDateString() }}
+                Due: {{ formatDateWithTime(task.due_date, task.due_time) }}
               </p>
             </div>
             <span :class="[
@@ -183,6 +183,25 @@ const getGreeting = () => {
   if (hour < 12) return 'Good morning! Let\'s get things done today.'
   if (hour < 18) return 'Good afternoon! Keep up the momentum.'
   return 'Good evening! What\'s on your agenda?'
+}
+
+const formatDateWithTime = (date: string, time: string | null): string => {
+  if (!date) return ''
+  const formattedDate = new Date(date).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  })
+  if (!time) {
+    return `${formattedDate} 12:00 AM`
+  }
+  const [hours, minutes] = time.split(':')
+  const hour = parseInt(hours, 10)
+  const minute = minutes || '00'
+  const period = hour >= 12 ? 'PM' : 'AM'
+  const displayHour = hour % 12 || 12
+  const formattedTime = `${displayHour}:${minute} ${period}`
+  return `${formattedDate} ${formattedTime}`
 }
 
 onMounted(async () => {

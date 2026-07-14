@@ -44,7 +44,7 @@
               {{ task.title }}
             </h3>
             
-            <!-- Action Buttons (Hidden by default, visible on group hover) -->
+            <!-- Action Buttons -->
             <div class="flex items-center gap-0.5 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-all duration-200">
               <button
                 @click="emit('edit', task)"
@@ -69,12 +69,12 @@
             </div>
           </div>
 
-          <!-- Row 2: Description (1 line) -->
+          <!-- Row 2: Description -->
           <p v-if="task.description" class="text-xs text-gray-600 dark:text-gray-300 break-words line-clamp-1">
             {{ task.description }}
           </p>
 
-          <!-- Row 3: Due Date & Time (ALWAYS VISIBLE - PRIMARY) -->
+          <!-- Row 3: Due Date & Time (ALWAYS VISIBLE) -->
           <div v-if="task.due_date" class="flex items-center gap-2">
             <span 
               class="text-xs font-medium px-2.5 py-1 rounded-full border transition-colors duration-200 inline-flex items-center gap-1.5"
@@ -85,14 +85,13 @@
               <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M6 2a1 1 0 000 2h8a1 1 0 100-2H6zM4 5a2 2 0 012-2 1 1 0 000 2h8a1 1 0 100-2 2 2 0 012 2v10a2 2 0 01-2 2H6a2 2 0 01-2-2V5z" />
               </svg>
-              <span>{{ formatDate(task.due_date) }}</span>
-              <span v-if="task.due_time" class="font-semibold">{{ formatTime(task.due_time) }}</span>
+              <span> Due: {{ formatDateWithTime(task.due_date, task.due_time) }}</span>
             </span>
           </div>
 
-          <!-- Row 4: Status & Category & Priority (PROFESSIONAL ORDER) -->
+          <!-- Row 4: Status & Category (ALWAYS VISIBLE) -->
           <div class="flex items-center gap-2 flex-wrap">
-            <!-- Status Badge (Done/Pending) -->
+            <!-- Status Badge -->
             <span 
               class="text-xs px-1.5 py-0.5 rounded-full border font-medium transition-colors"
               :class="task.is_completed
@@ -102,7 +101,7 @@
               {{ task.is_completed ? '✓ Done' : '○ Pending' }}
             </span>
 
-            <!-- Category Badge (Always Show if assigned) -->
+            <!-- Category Badge -->
             <span v-if="categoryName" class="text-xs px-2 py-0.5 rounded-full border font-medium inline-flex items-center gap-1 bg-purple-50 dark:bg-purple-900/25 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800/50 flex-shrink-0">
               <svg class="w-3 h-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM15 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2h-2zM5 13a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5z" />
@@ -110,33 +109,39 @@
               {{ categoryName }}
             </span>
 
-            <!-- Overdue Badge (if applicable) -->
+            <!-- Overdue Badge -->
             <span v-if="task.is_overdue" class="text-xs px-1.5 py-0.5 rounded-full border font-medium bg-red-50 dark:bg-red-900/25 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800/50">
               ⚠️ Overdue
             </span>
           </div>
 
-          <!-- Row 5: Secondary Details (Hidden by default, visible on group hover) -->
+          <!-- Row 5: HOVER SECTION (Priority & Start Date - Hidden by default) -->
           <div class="grid grid-rows-[0fr] group-hover:grid-rows-[1fr] transition-all duration-300 overflow-hidden">
             <div class="overflow-hidden min-h-0 space-y-2 pt-2 border-t border-gray-200 dark:border-gray-700">
-              <!-- Priority & Start Date Row -->
-              <div class="flex items-center gap-2 flex-wrap">
-                <!-- Priority Badge -->
+              
+              <!-- Priority Badge (ON HOVER) -->
+              <div class="flex items-center gap-2">
                 <span class="text-xs font-medium px-2 py-0.5 rounded-full border inline-flex items-center gap-1 flex-shrink-0" :class="priorityClasses">
                   <span>{{ priorityEmoji }}</span>
                   <span class="capitalize">{{ task.priority }}</span>
                 </span>
+              </div>
 
-                <!-- Start Date Badge -->
-                <span v-if="task.start_date" class="text-xs font-medium px-2 py-0.5 rounded-full border inline-flex items-center gap-1 bg-blue-50 dark:bg-blue-900/25 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800/50 flex-shrink-0">
-                  <svg class="w-3 h-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+              <!-- Start Date & Time (ON HOVER) -->
+              <div v-if="task.start_date" class="flex items-center gap-2">
+                <span 
+                  class="text-xs font-medium px-2.5 py-1 rounded-full border transition-colors duration-200 inline-flex items-center gap-1.5 bg-blue-50 dark:bg-blue-900/25 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800/50"
+                >
+                  <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M5.5 13a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1 4.5 4.5 0 11-4.814 6.98z" />
                   </svg>
-                  {{ formatDate(task.start_date) }}
+                  <span>Starts: {{ formatDate(task.start_date) }}</span>
+                  <span v-if="task.start_time" class="font-semibold">{{ formatTime(task.start_time) }}</span>
+                  
                 </span>
               </div>
 
-              <!-- Time Ago -->
+              <!-- Created At -->
               <div class="text-xs text-gray-500 dark:text-gray-400 italic">
                 Created {{ timeAgo(task.created_at) }}
               </div>
@@ -152,16 +157,19 @@
 import { computed } from 'vue'
 import type { Task } from '@/types'
 
+// ─── Props ───
 const props = defineProps<{
   task: Task
 }>()
 
+// ─── Emits ───
 const emit = defineEmits<{
   (e: 'toggle', id: number): void
   (e: 'edit', task: Task): void
   (e: 'delete', id: number): void
 }>()
 
+// ─── Computed ───
 const categoryName = computed(() => props.task.category_name || null)
 
 const priorityClasses = computed(() => {
@@ -169,7 +177,6 @@ const priorityClasses = computed(() => {
     high: 'bg-red-50 dark:bg-red-900/25 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800/50',
     medium: 'bg-yellow-50 dark:bg-yellow-900/25 text-yellow-700 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800/50',
     low: 'bg-green-50 dark:bg-green-900/25 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800/50',
-    urgent: 'bg-red-50 dark:bg-red-900/25 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800/50',
   }
   return classes[props.task.priority] || 'bg-gray-50 dark:bg-gray-900/25 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-800/50'
 })
@@ -179,11 +186,11 @@ const priorityEmoji = computed(() => {
     high: '🔴',
     medium: '🟡',
     low: '🟢',
-    urgent: '🔴',
   }
   return emojis[props.task.priority] || '🟡'
 })
 
+// ─── Date Helpers ───
 const formatDate = (date: string): string => {
   if (!date) return ''
   return new Date(date).toLocaleDateString('en-US', {
@@ -203,7 +210,22 @@ const formatTime = (time: string): string => {
   return `${displayHour}:${minute} ${period}`
 }
 
+const formatDateWithTime = (date: string, time: string | undefined): string => {
+  if (!date) return ''
+  const formattedDate = new Date(date).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  })
+  if (!time) {
+    return `${formattedDate} 12:00 AM`
+  }
+  const formattedTime = formatTime(time)
+  return `${formattedDate} ${formattedTime}`
+}
+
 const timeAgo = (date: string): string => {
+  if (!date) return ''
   const now = new Date()
   const past = new Date(date)
   const diff = now.getTime() - past.getTime()
@@ -219,6 +241,7 @@ const timeAgo = (date: string): string => {
   return formatDate(date)
 }
 
+// ─── Methods ───
 const handleDelete = (): void => {
   if (confirm('Are you sure you want to delete this task?')) {
     emit('delete', props.task.id)

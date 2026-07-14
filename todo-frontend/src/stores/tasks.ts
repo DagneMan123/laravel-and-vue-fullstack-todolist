@@ -1,11 +1,14 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { Task, TaskFormData, TaskFilters, PaginatedResponse, TaskStats } from '@/types'
+import type { ValidationError } from '@/utils/validation'
+import { validateCreateTaskForm } from '@/utils/validation'
 import api from '@/services/api'
 
 export const useTaskStore = defineStore('task', () => {
   const tasks = ref<Task[]>([])
   const stats = ref<TaskStats | null>(null)
+  const validationErrors = ref<ValidationError[]>([])
   const pagination = ref({
     current_page: 1,
     total: 0,
@@ -24,28 +27,70 @@ export const useTaskStore = defineStore('task', () => {
     search: '',
     sort_by: 'created_at',
     sort_direction: 'desc',
+    dateFilter: 'all',
   })
 
   const filteredTasks = computed(() => {
     let filtered = [...tasks.value]
     
+    // Date filter
+    if (filters.value.dateFilter && filters.value.dateFilter !== 'all') {
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+      
+      const tomorrow = new Date(today)
+      tomorrow.setDate(tomorrow.getDate() + 1)
+      
+      const weekEnd = new Date(today)
+      weekEnd.setDate(weekEnd.getDate() + 7)
+      
+      const monthEnd = new Date(today)
+      monthEnd.setMonth(monthEnd.getMonth() + 1)
+      
+      filtered = filtered.filter(task => {
+        if (!task.due_date) return filters.value.dateFilter === 'all'
+        
+        const dueDate = new Date(task.due_date)
+        dueDate.setHours(0, 0, 0, 0)
+        
+        switch (filters.value.dateFilter) {
+          case 'overdue':
+            return dueDate < today && !task.is_completed
+          case 'today':
+            return dueDate.getTime() === today.getTime() && !task.is_completed
+          case 'this_week':
+            return dueDate >= today && dueDate < weekEnd && !task.is_completed
+          case 'next_week':
+            return dueDate >= weekEnd && dueDate < new Date(weekEnd.getTime() + 7 * 24 * 60 * 60 * 1000) && !task.is_completed
+          case 'this_month':
+            return dueDate >= today && dueDate < monthEnd && !task.is_completed
+          default:
+            return true
+        }
+      })
+    }
+    
+    // Status filter
     if (filters.value.status && filters.value.status !== 'all') {
       filtered = filtered.filter(task => 
         filters.value.status === 'completed' ? task.is_completed : !task.is_completed
       )
     }
     
+    // Priority filter
     if (filters.value.priority && filters.value.priority !== 'all') {
       filtered = filtered.filter(task => 
         task.priority === filters.value.priority
       )
     }
     
+    // Search filter
     if (filters.value.search) {
       const search = filters.value.search.toLowerCase()
       filtered = filtered.filter(task =>
         task.title.toLowerCase().includes(search) ||
-        (task.description?.toLowerCase() || '').includes(search)
+        (task.description?.toLowerCase() || '').includes(search) ||
+        (task.notes?.toLowerCase() || '').includes(search)
       )
     }
     
@@ -144,8 +189,18 @@ export const useTaskStore = defineStore('task', () => {
   }
 
   async function createTask(taskData: TaskFormData): Promise<{ success: boolean; task?: Task; message?: string }> {
-    isSubmitting.value = true
+    // Clear previous errors
+    validationErrors.value = []
     error.value = undefined
+
+    // Validate input
+    const validation = validateCreateTaskForm(taskData)
+    if (!validation.isValid) {
+      validationErrors.value = validation.errors
+      return { success: false, message: 'Please fix validation errors' }
+    }
+
+    isSubmitting.value = true
 
     try {
       const response = await api.post<{ task: Task }>('/tasks', taskData)
@@ -270,6 +325,7 @@ export const useTaskStore = defineStore('task', () => {
       search: '',
       sort_by: 'created_at',
       sort_direction: 'desc',
+      dateFilter: 'all',
     }
   }
 
@@ -301,6 +357,7 @@ export const useTaskStore = defineStore('task', () => {
     isLoading,
     isSubmitting,
     error,
+    validationErrors,
     selectedTask,
     selectedIds,
     filters,

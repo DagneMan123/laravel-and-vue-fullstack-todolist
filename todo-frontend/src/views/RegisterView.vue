@@ -18,43 +18,49 @@
           <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Join and start managing your tasks</p>
         </div>
 
-        <form @submit.prevent="handleRegister" class="space-y-4">
+        <form @submit.prevent="handleRegister" class="space-y-4" @input="validateOnInput">
+          <!-- Full Name -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Full Name</label>
             <input
               v-model="formData.name"
               type="text"
-              required
               class="input-field"
-              placeholder="Your name"
+              :class="{ 'border-red-500 dark:border-red-400': nameError }"
+              placeholder="Your full name"
               :disabled="authStore.isLoading"
-              @input="validateName"
-              pattern="[a-zA-Z\s]*"
-              title="Full name can only contain letters and spaces"
             />
-            <p v-if="nameError" class="text-xs text-red-600 dark:text-red-400 mt-1">{{ nameError }}</p>
+            <FormError :message="nameError" />
           </div>
 
+          <!-- Email -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Email Address</label>
             <input
               v-model="formData.email"
               type="email"
-              required
               class="input-field"
+              :class="{ 'border-red-500 dark:border-red-400': emailError }"
               placeholder="your@email.com"
               :disabled="authStore.isLoading"
             />
+            <FormError :message="emailError" />
           </div>
 
+          <!-- Password -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Password</label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+              Password
+              <span v-if="passwordStrengthLabel" :class="{ 'text-red-600': passwordStrength === 1, 'text-yellow-600': passwordStrength === 2, 'text-blue-600': passwordStrength === 3, 'text-green-600': passwordStrength === 4 }" class="text-xs ml-2">
+                {{ passwordStrengthLabel }}
+              </span>
+            </label>
             <div class="relative">
               <input
                 v-model="formData.password"
                 :type="showPassword ? 'text' : 'password'"
-                required
                 class="input-field pr-10"
+                :class="{ 'border-red-500 dark:border-red-400': passwordError }"
                 placeholder="••••••••"
                 :disabled="authStore.isLoading"
               />
@@ -73,16 +79,27 @@
                 </svg>
               </button>
             </div>
+            <!-- Password Strength Indicator -->
+            <div v-if="formData.password" class="mt-2">
+              <div class="flex gap-1">
+                <div class="flex-1 h-1 rounded bg-gray-200 dark:bg-gray-700" :class="{ [passwordStrengthColor]: passwordStrength >= 1 }"></div>
+                <div class="flex-1 h-1 rounded bg-gray-200 dark:bg-gray-700" :class="{ [passwordStrengthColor]: passwordStrength >= 2 }"></div>
+                <div class="flex-1 h-1 rounded bg-gray-200 dark:bg-gray-700" :class="{ [passwordStrengthColor]: passwordStrength >= 3 }"></div>
+                <div class="flex-1 h-1 rounded bg-gray-200 dark:bg-gray-700" :class="{ [passwordStrengthColor]: passwordStrength >= 4 }"></div>
+              </div>
+            </div>
+            <FormError :message="passwordError" />
           </div>
 
+          <!-- Confirm Password -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Confirm Password</label>
             <div class="relative">
               <input
                 v-model="formData.password_confirmation"
                 :type="showConfirmPassword ? 'text' : 'password'"
-                required
                 class="input-field pr-10"
+                :class="{ 'border-red-500 dark:border-red-400': passwordConfirmError }"
                 placeholder="••••••••"
                 :disabled="authStore.isLoading"
               />
@@ -101,16 +118,19 @@
                 </svg>
               </button>
             </div>
+            <FormError :message="passwordConfirmError" />
           </div>
 
+          <!-- API Error -->
           <div v-if="authStore.error" class="p-3 bg-red-50 dark:bg-red-900/20 rounded-xl text-red-600 dark:text-red-400 text-sm">
             {{ authStore.error }}
           </div>
 
+          <!-- Submit Button -->
           <button
             type="submit"
             class="btn-primary w-full py-3 text-base"
-            :disabled="authStore.isLoading"
+            :disabled="authStore.isLoading || validation.hasErrors"
           >
             <span v-if="authStore.isLoading" class="inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></span>
             {{ authStore.isLoading ? 'Creating Account...' : 'Sign Up' }}
@@ -129,20 +149,22 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { reactive, ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useFormValidation } from '@/composables/useFormValidation'
 import { useNotification } from '@/composables/useNotification'
 import { useThemeStore } from '@/stores/theme'
+import FormError from '@/components/FormError.vue'
 import type { RegisterData } from '@/types'
 
 const { success, error: notifyError } = useNotification()
 const router = useRouter()
 const authStore = useAuthStore()
 const themeStore = useThemeStore()
+const validation = useFormValidation()
 const showPassword = ref(false)
 const showConfirmPassword = ref(false)
-const nameError = ref('')
 
 const formData = reactive<RegisterData>({
   name: '',
@@ -151,42 +173,59 @@ const formData = reactive<RegisterData>({
   password_confirmation: '',
 })
 
-// Validate name - only letters and spaces
-const validateName = (event: Event) => {
-  const input = event.target as HTMLInputElement
-  const name = input.value
-  
-  // Allow only letters (a-z, A-Z) and spaces
-  const isValid = /^[a-zA-Z\s]*$/.test(name)
-  
-  if (!isValid) {
-    nameError.value = 'Full name can only contain letters and spaces'
-    // Remove invalid characters
-    formData.name = name.replace(/[^a-zA-Z\s]/g, '')
-  } else {
-    nameError.value = ''
-  }
-}
+// Computed properties for field-specific validation errors
+const nameError = computed(() => validation.getError('name'))
+const emailError = computed(() => validation.getError('email'))
+const passwordError = computed(() => validation.getError('password'))
+const passwordConfirmError = computed(() => validation.getError('password_confirmation'))
+
+// Computed for password strength indicator
+const passwordStrength = computed(() => {
+  const pwd = formData.password
+  let strength = 0
+  if (pwd.length >= 8) strength++
+  if (/[A-Z]/.test(pwd)) strength++
+  if (/[a-z]/.test(pwd)) strength++
+  if (/\d/.test(pwd)) strength++
+  return strength
+})
+
+const passwordStrengthLabel = computed(() => {
+  const strength = passwordStrength.value
+  if (strength === 0) return ''
+  if (strength === 1) return 'Weak'
+  if (strength === 2) return 'Fair'
+  if (strength === 3) return 'Good'
+  return 'Strong'
+})
+
+const passwordStrengthColor = computed(() => {
+  const strength = passwordStrength.value
+  if (strength === 0) return ''
+  if (strength === 1) return 'bg-red-500'
+  if (strength === 2) return 'bg-yellow-500'
+  if (strength === 3) return 'bg-blue-500'
+  return 'bg-green-500'
+})
 
 const handleRegister = async () => {
-  // Validate name before submitting
-  if (!formData.name.trim()) {
-    notifyError('Full name is required')
-    return
-  }
-  
-  if (!/^[a-zA-Z\s]+$/.test(formData.name.trim())) {
-    notifyError('Full name can only contain letters and spaces')
+  // Validate form before submitting
+  if (!validation.validateRegister(formData)) {
     return
   }
 
   const result = await authStore.register(formData)
   if (result.success) {
-    // Silently redirect to login page
-    router.push('/login')
+    success('Account created successfully! Please log in.')
+    await router.push('/login')
   } else {
     notifyError(result.message || 'Registration failed')
   }
+}
+
+// Real-time validation as user types
+const validateOnInput = () => {
+  validation.validateRegister(formData)
 }
 </script>
 

@@ -75,7 +75,6 @@
             showMobileFilters ? 'grid' : 'hidden sm:grid'
           ]"
         >
-          <!-- Search -->
           <div class="relative w-full">
             <input 
               v-model="searchQuery"
@@ -91,7 +90,6 @@
             >
           </div>
           
-          <!-- Status Filter -->
           <div class="relative w-full">
             <select 
               v-model="filterStatus" 
@@ -104,7 +102,6 @@
               <option value="all">All Status</option>
               <option value="pending">Pending</option>
               <option value="completed">Completed</option>
-              <option value="completed">Failed</option>
             </select>
             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
               <svg class="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -113,7 +110,6 @@
             </div>
           </div>
 
-          <!-- Priority Filter -->
           <div class="relative w-full">
             <select 
               v-model="filterPriority" 
@@ -135,7 +131,6 @@
             </div>
           </div>
 
-          <!-- Date Range Filter -->
           <div class="relative w-full">
             <select 
               v-model="filterDateRange" 
@@ -159,7 +154,6 @@
             </div>
           </div>
 
-          <!-- Sort By -->
           <div class="relative w-full">
             <select 
               v-model="sortBy" 
@@ -182,7 +176,6 @@
             </div>
           </div>
 
-          <!-- Reset Button -->
           <button 
             @click="resetFilters" 
             :class="[
@@ -194,7 +187,73 @@
           </button>
         </div>
 
-        <!-- Task List -->
+        <!-- ===== VIEW MODE DROPDOWN ===== -->
+        <div class="flex justify-end mb-6">
+          <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2">
+              <span class="text-sm font-medium text-gray-500 dark:text-gray-400">View:</span>
+              <div class="relative">
+                <select
+                  v-model="viewMode"
+                  @change="handleViewChange"
+                  class="appearance-none px-3 py-1.5 pr-7 rounded-lg border text-sm font-medium transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  :class="[
+                    isDark
+                      ? 'bg-gray-800 border-gray-700 text-white hover:bg-gray-700'
+                      : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
+                  ]"
+                >
+                  <option value="list">📋 List View</option>
+                  <option value="grid">📊 Grid View</option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+              <span 
+                class="text-xs px-2 py-0.5 rounded-full"
+                :class="viewMode === 'list' 
+                  ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' 
+                  : 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'"
+              >
+                {{ viewMode === 'list' ? 'List' : 'Grid' }}
+              </span>
+            </div>
+            <span class="text-xs text-gray-500 dark:text-gray-400">
+              {{ filteredTasks.length }} {{ filteredTasks.length === 1 ? 'task' : 'tasks' }}
+            </span>
+          </div>
+        </div>
+
+        <!-- ===== TASK LIST (LIST VIEW) ===== -->
+        <div v-if="viewMode === 'list' && filteredTasks.length > 0" class="space-y-2.5">
+          <TaskCard
+            v-for="task in filteredTasks"
+            :key="task.id"
+            :task="task"
+            view-mode="list"
+            @toggle="handleToggleComplete"
+            @edit="editTask"
+            @delete="deleteTask"
+          />
+        </div>
+
+        <!-- ===== TASK GRID (GRID VIEW) ===== -->
+        <div v-else-if="viewMode === 'grid' && filteredTasks.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <TaskCard
+            v-for="task in filteredTasks"
+            :key="task.id"
+            :task="task"
+            view-mode="grid"
+            @toggle="handleToggleComplete"
+            @edit="editTask"
+            @delete="deleteTask"
+          />
+        </div>
+
+        <!-- ===== EMPTY STATE ===== -->
         <div v-if="filteredTasks.length === 0" class="text-center py-16 border-2 border-dashed rounded-xl" :class="isDark ? 'border-gray-800' : 'border-gray-100'">
           <svg class="w-12 h-12 mx-auto mb-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7 12a5 5 0 1110 0A5 5 0 017 12z" />
@@ -202,17 +261,6 @@
           <p :class="isDark ? 'text-gray-400' : 'text-gray-600'" class="text-sm">
             No tasks found matching your criteria.
           </p>
-        </div>
-
-        <div v-else class="space-y-2.5">
-          <TaskCard
-            v-for="task in filteredTasks"
-            :key="task.id"
-            :task="task"
-            @toggle="handleToggleComplete"
-            @edit="editTask"
-            @delete="deleteTask"
-          />
         </div>
       </div>
 
@@ -308,7 +356,6 @@
             
             <!-- Calendar Days Grid -->
             <div class="grid grid-cols-7 gap-1.5">
-              <!-- Day Headers -->
               <div 
                 v-for="day in ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']" 
                 :key="day" 
@@ -318,7 +365,6 @@
                 {{ day }}
               </div>
               
-              <!-- Calendar Days -->
               <div 
                 v-for="day in calendarDays" 
                 :key="day.fullDate" 
@@ -354,12 +400,12 @@
                   </span>
                 </div>
                 
-                <!-- Task Indicators -->
+                <!-- Task Indicators - WITH TIME DISPLAY -->
                 <div class="flex-1 space-y-0.5 overflow-hidden mt-1 w-full">
                   <div 
                     v-for="task in day.sortedTasks.slice(0, 3)" 
                     :key="task.id" 
-                    class="text-[9px] px-1 py-0.5 rounded truncate font-medium block w-full border"
+                    class="text-[9px] px-1 py-0.5 rounded truncate font-medium block w-full border cursor-pointer hover:opacity-80 transition-opacity"
                     :class="[
                       day.isToday 
                         ? 'bg-white text-gray-900 border-white' 
@@ -370,13 +416,23 @@
                             : 'bg-blue-600/20 text-blue-400 border-blue-500/30'
                     ]"
                     :title="getTaskTooltip(task)"
-                    @click.stop="editTask(task)"
+                    @click.stop="openTaskDetail(task)"
                   >
                     <span v-if="isStartDate(task, day.fullDate) && isDueDate(task, day.fullDate)" class="mr-0.5">⚡</span>
                     <span v-else-if="isStartDate(task, day.fullDate)" class="mr-0.5">▶</span>
                     <span v-else-if="isDueDate(task, day.fullDate)" class="mr-0.5">●</span>
                     <span v-else class="mr-0.5">━</span>
-                    {{ task.title }}
+                    
+                    <!-- Task Title -->
+                    <span class="truncate">{{ task.title }}</span>
+                    
+                    <!-- ✅ SHOW TIME IF AVAILABLE -->
+                    <span v-if="isDueDate(task, day.fullDate) && task.due_time" class="ml-0.5 text-[7px] opacity-70 font-mono">
+                      {{ formatTimeShort(task.due_time) }}
+                    </span>
+                    <span v-else-if="isStartDate(task, day.fullDate) && task.start_time" class="ml-0.5 text-[7px] opacity-70 font-mono">
+                      {{ formatTimeShort(task.start_time) }}
+                    </span>
                   </div>
                   
                   <div 
@@ -411,10 +467,12 @@
               <div class="flex items-center gap-1.5 ml-0 md:ml-auto">
                 <span class="text-green-400">▶</span>
                 <span>Start Date</span>
+                <span class="text-[10px] text-gray-400">(with time)</span>
               </div>
               <div class="flex items-center gap-1.5">
                 <span class="text-orange-400">●</span>
                 <span>Due Date</span>
+                <span class="text-[10px] text-gray-400">(with time)</span>
               </div>
               <div class="flex items-center gap-1.5">
                 <span class="text-purple-400">⚡</span>
@@ -449,24 +507,28 @@
                       ? 'border-yellow-500/30' 
                       : 'border-blue-500/30'
                 ]"
-                @click="editTask(task)"
+                @click="openTaskDetail(task)"
               >
                 <p class="font-medium truncate" :class="isDark ? 'text-white' : 'text-gray-900'">
                   {{ task.title }}
                 </p>
                 
                 <div class="flex flex-col gap-0.5 mt-1.5 text-xs" :class="isDark ? 'text-gray-400' : 'text-gray-600'">
+                  <!-- ✅ START DATE WITH TIME -->
                   <div v-if="task.start_date" class="flex items-center gap-1.5">
                     <span class="text-green-400">▶</span>
                     <span>Starts: {{ formatDate(task.start_date) }}</span>
+                    <span v-if="task.start_time" class="font-semibold text-gray-400">{{ formatTime(task.start_time) }}</span>
                   </div>
                   
+                  <!-- ✅ DUE DATE WITH TIME -->
                   <div v-if="task.due_date" class="flex items-center gap-1.5">
                     <span :class="isOverdue(task) ? 'text-red-400' : 'text-orange-400'">●</span>
                     <span :class="isOverdue(task) ? 'text-red-400 font-medium' : ''">
                       Due: {{ formatDate(task.due_date) }}
-                      <span v-if="isOverdue(task)" class="text-red-400 font-bold ml-1">⚠️</span>
                     </span>
+                    <span v-if="task.due_time" class="font-semibold text-gray-400">{{ formatTime(task.due_time) }}</span>
+                    <span v-if="isOverdue(task)" class="text-red-400 font-bold ml-1">⚠️</span>
                   </div>
                 </div>
               </div>
@@ -483,18 +545,29 @@
         @save="handleSave"
       />
 
+      <!-- ===== TASK DETAIL MODAL ===== -->
+      <TaskDetailModal
+        :show="showTaskDetail"
+        :task="selectedTask"
+        @close="closeTaskDetail"
+        @toggle="handleToggleComplete"
+        @edit="editTask"
+        @delete="deleteTask"
+      />
+
     </div>
   </AppLayout>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useThemeStore } from '@/stores/theme'
 import { useTaskStore } from '@/stores/tasks'
 import type { Task } from '@/types'
 import AppLayout from '@/layouts/AppLayout.vue'
 import TaskFormModal from '@/components/TaskFormModal.vue'
 import TaskCard from '@/components/TaskCard.vue'
+import TaskDetailModal from '@/components/TaskDetailModal.vue'
 
 // ─── Stores ───
 const themeStore = useThemeStore()
@@ -508,6 +581,24 @@ const showCreateModal = ref(false)
 const showMobileFilters = ref(false)
 const editingTask = ref<Task | null>(null)
 const currentDate = ref(new Date())
+const viewMode = ref<'list' | 'grid'>('list')
+
+// ─── Task Detail Modal State ───
+const showTaskDetail = ref(false)
+const selectedTask = ref<Task | null>(null)
+
+// ─── Load saved view preference ───
+onMounted(() => {
+  const savedMode = localStorage.getItem('taskViewMode') as 'list' | 'grid' | null
+  if (savedMode && (savedMode === 'list' || savedMode === 'grid')) {
+    viewMode.value = savedMode
+  }
+})
+
+// ─── Watch view mode changes ───
+watch(viewMode, (newMode) => {
+  localStorage.setItem('taskViewMode', newMode)
+})
 
 // ─── Filters ───
 const searchQuery = ref('')
@@ -532,18 +623,13 @@ const hasActiveFilters = computed(() => {
          sortBy.value !== 'created_at'
 })
 
-// ─── FIXED: Using is_completed directly - NO task.status references ───
+// ─── Status Helpers ───
 const isTaskPending = (task: Task): boolean => {
   return task.is_completed === false || task.is_completed === undefined
 }
 
 const isTaskCompleted = (task: Task): boolean => {
   return task.is_completed === true
-}
-
-// ─── Get task status as string ───
-const getTaskStatus = (task: Task): string => {
-  return task.is_completed ? 'completed' : 'pending'
 }
 
 // ─── Sort Helpers ───
@@ -556,24 +642,31 @@ const getPriorityWeight = (priority: string): number => {
   return priorityMap[priority?.toLowerCase?.()] ?? 3
 }
 
+// ─── Format Time Short (for calendar) ───
+const formatTimeShort = (time: string): string => {
+  if (!time) return ''
+  const [hours, minutes] = time.split(':')
+  const hour = parseInt(hours, 10)
+  const minute = minutes || '00'
+  const period = hour >= 12 ? 'PM' : 'AM'
+  const displayHour = hour % 12 || 12
+  return `${displayHour}:${minute}${period}`
+}
+
 // ─── Filtered Tasks ───
 const filteredTasks = computed(() => {
   let tasks = [...taskStore.tasks]
 
-  // ─── Status Filter (Using is_completed only) ───
   if (filterStatus.value === 'pending') {
     tasks = tasks.filter(task => isTaskPending(task))
   } else if (filterStatus.value === 'completed') {
     tasks = tasks.filter(task => isTaskCompleted(task))
   }
-  // 'all' shows everything - no filter applied
 
-  // ─── Priority Filter ───
   if (filterPriority.value !== 'all') {
     tasks = tasks.filter(task => task.priority === filterPriority.value)
   }
 
-  // ─── Search Filter ───
   if (searchQuery.value.trim()) {
     const query = searchQuery.value.toLowerCase().trim()
     tasks = tasks.filter(task => 
@@ -582,7 +675,6 @@ const filteredTasks = computed(() => {
     )
   }
 
-  // ─── Date Range Filter ───
   const today = new Date()
   today.setHours(0, 0, 0, 0)
 
@@ -689,7 +781,6 @@ const filteredTasks = computed(() => {
       break
   }
 
-  // ─── Sorting ───
   switch (sortBy.value) {
     case 'created_at':
       tasks.sort((a, b) => {
@@ -716,9 +807,7 @@ const filteredTasks = computed(() => {
       break
 
     case 'priority':
-      tasks.sort((a, b) => 
-        getPriorityWeight(a.priority) - getPriorityWeight(b.priority)
-      )
+      tasks.sort((a, b) => getPriorityWeight(a.priority) - getPriorityWeight(b.priority))
       break
 
     case 'title':
@@ -743,6 +832,16 @@ const formatDate = (dateString: string): string => {
   })
 }
 
+const formatTime = (time: string): string => {
+  if (!time) return ''
+  const [hours, minutes] = time.split(':')
+  const hour = parseInt(hours, 10)
+  const minute = minutes || '00'
+  const period = hour >= 12 ? 'PM' : 'AM'
+  const displayHour = hour % 12 || 12
+  return `${displayHour}:${minute} ${period}`
+}
+
 const isOverdue = (task: Task): boolean => {
   if (!task.due_date || isTaskCompleted(task)) return false
   const dueDate = new Date(task.due_date)
@@ -752,7 +851,6 @@ const isOverdue = (task: Task): boolean => {
   return dueDate < today
 }
 
-// ─── Helper functions to check if date is start or due ───
 const isStartDate = (task: Task, dateString: string): boolean => {
   if (!task.start_date) return false
   const startDate = new Date(task.start_date)
@@ -824,7 +922,6 @@ const calendarDays = computed(() => {
   const priorityWeight: Record<string, number> = { high: 3, medium: 2, low: 1 }
   const days = []
 
-  // Previous month days
   for (let i = firstDay - 1; i >= 0; i--) {
     const date = daysInPrevMonth - i
     const prevMonth = month === 0 ? 11 : month - 1
@@ -845,7 +942,6 @@ const calendarDays = computed(() => {
     })
   }
 
-  // Current month days
   for (let i = 1; i <= daysInMonth; i++) {
     const isToday = today.getDate() === i && 
                     today.getMonth() === month && 
@@ -866,7 +962,6 @@ const calendarDays = computed(() => {
     })
   }
 
-  // Next month days
   const remainingDays = 42 - days.length
   for (let i = 1; i <= remainingDays; i++) {
     const nextMonth = month === 11 ? 0 : month + 1
@@ -941,9 +1036,13 @@ const toggleCalendarView = async () => {
   }
 }
 
+// ─── View Mode ───
+const handleViewChange = () => {
+  localStorage.setItem('taskViewMode', viewMode.value)
+}
+
 // ─── Apply Filters ───
 const applyFilters = () => {
-  // Filtering is handled by computed property
   taskStore.fetchTasks()
 }
 
@@ -957,6 +1056,17 @@ const resetFilters = () => {
   applyFilters()
 }
 
+// ─── Task Detail Modal ───
+const openTaskDetail = (task: Task) => {
+  selectedTask.value = task
+  showTaskDetail.value = true
+}
+
+const closeTaskDetail = () => {
+  showTaskDetail.value = false
+  selectedTask.value = null
+}
+
 // ─── Modal Handlers ───
 const openCreateModal = () => {
   editingTask.value = null
@@ -966,6 +1076,7 @@ const openCreateModal = () => {
 const editTask = (task: Task) => {
   editingTask.value = task
   showCreateModal.value = true
+  closeTaskDetail()
 }
 
 const closeCreateModal = () => {
@@ -988,32 +1099,24 @@ const handleDayClick = (dateString: string) => {
 // ─── Task Actions ───
 const handleToggleComplete = async (id: number) => {
   await taskStore.toggleComplete(id)
-  // Sync immediately with database
   await taskStore.fetchTasks()
   await taskStore.fetchStats()
-  if (showCalendarView.value) {
-    // Trigger calendar refresh
-    currentDate.value = new Date(currentDate.value)
-  }
+  closeTaskDetail()
 }
 
 const deleteTask = async (id: number) => {
   if (confirm('Are you sure you want to delete this task?')) {
     const result = await taskStore.deleteTask(id)
     if (result.success) {
-      // Immediately update UI
       await taskStore.fetchTasks()
-      if (showCalendarView.value) {
-        // Refresh calendar if in calendar view
-        
-      }
+      await taskStore.fetchStats()
+      closeTaskDetail()
     }
   }
 }
 
 const handleSave = async () => {
   closeCreateModal()
-  // Sync immediately with database
   await taskStore.fetchTasks()
   await taskStore.fetchStats()
 }
@@ -1021,6 +1124,7 @@ const handleSave = async () => {
 // ─── Lifecycle ───
 onMounted(() => {
   taskStore.fetchTasks()
+  taskStore.fetchStats()
 })
 </script>
 
@@ -1040,7 +1144,6 @@ onMounted(() => {
   }
 }
 
-/* ─── Custom Select Styling ─── */
 select {
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -1052,14 +1155,12 @@ select::-ms-expand {
   display: none;
 }
 
-/* ─── Mobile Optimizations ─── */
 @media (max-width: 640px) {
   select, input, button {
     min-height: 44px;
   }
 }
 
-/* ─── Scrollbar Styling ─── */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;

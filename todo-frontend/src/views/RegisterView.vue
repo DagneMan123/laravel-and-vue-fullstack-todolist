@@ -130,7 +130,7 @@
           <button
             type="submit"
             class="btn-primary w-full py-3 text-base"
-            :disabled="authStore.isLoading || validation.hasErrors"
+            :disabled="authStore.isLoading"
           >
             <span v-if="authStore.isLoading" class="inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></span>
             {{ authStore.isLoading ? 'Creating Account...' : 'Sign Up' }}

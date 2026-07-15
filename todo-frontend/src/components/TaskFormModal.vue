@@ -10,7 +10,7 @@
         <button @click="$emit('close')" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">✕</button>
       </div>
 
-      <form @submit.prevent="handleSubmit" class="p-6 space-y-4">
+      <form @submit.prevent="handleSubmit" class="p-6 space-y-4" @input="validateOnInput">
         
         <!-- Task Title -->
         <div>
@@ -18,19 +18,34 @@
           <input 
             v-model="formData.title" 
             type="text" 
-            required 
             class="w-full px-4 py-2.5 rounded-lg border bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+            :class="{ 'border-red-500 dark:border-red-400': titleError }"
+            placeholder="Enter task title"
           >
+          <FormError :message="titleError" />
         </div>
 
         <!-- Description -->
         <div>
-          <label class="block text-sm font-medium mb-1.5" :class="isDark ? 'text-white' : 'text-gray-900'">Description</label>
+          <label class="block text-sm font-medium mb-1.5" :class="isDark ? 'text-white' : 'text-gray-900'">
+            Description
+            <span v-if="shouldShowDescriptionWarning" class="text-red-500">*</span>
+          </label>
           <textarea 
             v-model="formData.description" 
             rows="3" 
             class="w-full px-4 py-2.5 rounded-lg border bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+            :class="{ 'border-red-500 dark:border-red-400': descriptionError }"
+            placeholder="Add task description (optional)"
           ></textarea>
+          <FormError :message="descriptionError" />
+          <!-- Warning for High/Urgent priority without description -->
+          <div v-if="shouldShowDescriptionWarning && !hasDescription" class="mt-2 p-2 bg-yellow-50 dark:bg-yellow-900/20 rounded border border-yellow-200 dark:border-yellow-700">
+            <p class="text-xs text-yellow-700 dark:text-yellow-300">
+              ⚠️ {{ formData.priority.charAt(0).toUpperCase() + formData.priority.slice(1) }} priority tasks should have a description for clarity
+            </p>
+          </div>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Max 1000 characters</p>
         </div>
 
         <!-- Priority -->
@@ -43,6 +58,7 @@
             <option value="low">Low</option>
             <option value="medium">Medium</option>
             <option value="high">High</option>
+            <option value="urgent">Urgent</option>
           </select>
         </div>
 
@@ -74,20 +90,39 @@
             v-model="formData.start_datetime" 
             type="datetime-local" 
             class="w-full px-4 py-2.5 rounded-lg border bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+            :class="{ 'border-red-500 dark:border-red-400': startDateError }"
+            :min="today + 'T00:00'"
           >
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Optional - When the task begins</p>
+          <FormError :message="startDateError" />
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Optional - When the task begins (cannot be in the past)</p>
         </div>
 
         <!-- Due Date & Time -->
         <div>
-          <label class="block text-sm font-medium mb-1.5" :class="isDark ? 'text-white' : 'text-gray-900'">Due Date & Time</label>
+          <label class="block text-sm font-medium mb-1.5" :class="isDark ? 'text-white' : 'text-gray-900'">
+            Due Date & Time *
+            <span v-if="formData.priority === 'urgent'" class="text-red-500 text-xs ml-1">(48-hour rule)</span>
+          </label>
           <input 
             v-model="formData.due_datetime" 
             type="datetime-local" 
             class="w-full px-4 py-2.5 rounded-lg border bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
-            :min="formData.start_datetime || undefined"
+            :class="{ 'border-red-500 dark:border-red-400': dueDateError }"
+            :min="formData.start_datetime || (today + 'T00:00')"
           >
-          <p v-if="errors.due_date" class="text-red-500 text-sm mt-1">{{ errors.due_date }}</p>
+          <FormError :message="dueDateError" />
+          
+          <!-- Urgent task deadline hint -->
+          <div v-if="formData.priority === 'urgent'" :class="['mt-2 p-2 rounded border', hoursUntilDeadline !== null && hoursUntilDeadline <= 48 && hoursUntilDeadline > 0 ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-700' : 'bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-700']">
+            <p :class="['text-xs', hoursUntilDeadline !== null && hoursUntilDeadline <= 48 && hoursUntilDeadline > 0 ? 'text-green-700 dark:text-green-300' : 'text-orange-700 dark:text-orange-300']">
+              ⏰ {{ urgentDeadlineMessage }}
+            </p>
+          </div>
+          
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            Required - Must be after start date
+            <span v-if="formData.priority === 'urgent'" class="block text-orange-600 dark:text-orange-400">Urgent tasks deadline: within 48 hours</span>
+          </p>
         </div>
 
         <!-- Action Buttons -->
@@ -104,7 +139,7 @@
             :disabled="loading" 
             class="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {{ loading ? 'Saving...' : 'Save Task' }}
+            {{ loading ? 'Saving...' : (task ? 'Update Task' : 'Create Task') }}
           </button>
         </div>
       </form>
@@ -124,6 +159,13 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useThemeStore } from '@/stores/theme'
 import { useTaskStore } from '@/stores/tasks'
 import { useCategoryStore } from '@/stores/categories'
+import { useFormValidation } from '@/composables/useFormValidation'
+import { 
+  calculateHoursUntilDeadline, 
+  getUrgentDeadlineHint,
+  shouldShowDescriptionWarning as checkShouldShowDescriptionWarning
+} from '@/utils/validation'
+import FormError from './FormError.vue'
 import CategoryModal from './CategoryModal.vue'
 
 // ─── Props ───
@@ -134,15 +176,15 @@ const props = defineProps<{
 // ─── Emits ───
 const emit = defineEmits(['close', 'save'])
 
-// ─── Stores ───
+// ─── Stores & Composables ───
 const themeStore = useThemeStore()
 const taskStore = useTaskStore()
 const categoryStore = useCategoryStore()
+const validation = useFormValidation()
 
 const isDark = computed(() => themeStore.isDark)
 const loading = ref(false)
 const showCategoryModal = ref(false)
-const errors = ref<Record<string, string>>({})
 
 // ─── Form Data ───
 const formData = ref({
@@ -154,20 +196,48 @@ const formData = ref({
   due_datetime: '',
 })
 
+// ─── Computed validation errors ───
+const titleError = computed(() => validation.getError('title'))
+const descriptionError = computed(() => validation.getError('description'))
+const dueDateError = computed(() => validation.getError('due_date'))
+const startDateError = computed(() => validation.getError('start_date'))
+
+// ─── Computed warnings and helpers ───
+const urgentDeadlineHint = computed(() => getUrgentDeadlineHint())
+const hoursUntilDeadline = computed(() => {
+  if (!formData.value.due_datetime) return null
+  const dueDate = formData.value.due_datetime.split('T')[0]
+  return calculateHoursUntilDeadline(dueDate)
+})
+
+const shouldShowDescriptionWarning = computed(() => {
+  return checkShouldShowDescriptionWarning(formData.value.priority)
+})
+
+const hasDescription = computed(() => {
+  return formData.value.description && formData.value.description.trim() !== ''
+})
+
+const urgentDeadlineMessage = computed(() => {
+  if (formData.value.priority !== 'urgent') return ''
+  if (hoursUntilDeadline.value === null) return 'Please set a deadline'
+  if (hoursUntilDeadline.value > 48) return `Must be within 48 hours (Deadline hint: ${urgentDeadlineHint.value})`
+  if (hoursUntilDeadline.value > 0) return `${hoursUntilDeadline.value} hours until deadline`
+  return 'Deadline has passed!'
+})
+
 // ─── Today's date for min attribute ───
 const today = new Date().toISOString().split('T')[0]
 
 // ─── Initialize form with task data ───
 const initializeForm = () => {
   if (props.task) {
-    // Combine start date and time
     let start_datetime = ''
     if (props.task.start_date) {
       const startTime = props.task.start_time || '00:00'
       start_datetime = `${props.task.start_date}T${startTime}`
     }
 
-    // Combine due date and time
     let due_datetime = ''
     if (props.task.due_date) {
       const dueTime = props.task.due_time && props.task.due_time !== 'null' ? props.task.due_time : '00:00'
@@ -192,7 +262,7 @@ const initializeForm = () => {
       due_datetime: '',
     }
   }
-  errors.value = {}
+  validation.clearErrors()
 }
 
 // ─── Watch for task changes ───
@@ -200,52 +270,60 @@ watch(() => props.task, () => {
   initializeForm()
 }, { immediate: true })
 
+// ─── Real-time validation with advanced business rules ───
+const validateOnInput = () => {
+  const startDate = formData.value.start_datetime ? formData.value.start_datetime.split('T')[0] : ''
+  const dueDate = formData.value.due_datetime ? formData.value.due_datetime.split('T')[0] : ''
+  
+  validation.validateCreateTask({
+    title: formData.value.title,
+    description: formData.value.description,
+    priority: formData.value.priority,
+    due_date: dueDate,
+    start_date: startDate,
+  })
+}
+
 // ─── Handle Submit ───
 const handleSubmit = async () => {
-  // ─── Clear errors ───
-  errors.value = {}
+  // ─── Comprehensive validation with all business rules ───
+  const startDate = formData.value.start_datetime ? formData.value.start_datetime.split('T')[0] : ''
+  const dueDate = formData.value.due_datetime ? formData.value.due_datetime.split('T')[0] : ''
   
-  // ─── Validation ───
-  if (!formData.value.title.trim()) {
-    errors.value.title = 'Please enter a task title'
-    return
+  const taskValidation = {
+    title: formData.value.title,
+    description: formData.value.description,
+    priority: formData.value.priority,
+    due_date: dueDate,
+    start_date: startDate,
+    start_time: formData.value.start_datetime ? formData.value.start_datetime.split('T')[1]?.substring(0, 5) : '',
+    due_time: formData.value.due_datetime ? formData.value.due_datetime.split('T')[1]?.substring(0, 5) : '',
   }
 
-  // ─── Parse start datetime ───
-  let start_date = null
-  let start_time = null
-  if (formData.value.start_datetime) {
-    const parts = formData.value.start_datetime.split('T')
-    start_date = parts[0]
-    // Extract HH:MM from datetime-local (format: HH:MM)
-    start_time = parts[1] ? parts[1].substring(0, 5) : null
-  }
-
-  // ─── Parse due datetime ───
-  let due_date = null
-  let due_time = null
-  if (formData.value.due_datetime) {
-    const parts = formData.value.due_datetime.split('T')
-    due_date = parts[0]
-    // Extract HH:MM from datetime-local (format: HH:MM)
-    due_time = parts[1] ? parts[1].substring(0, 5) : null
-  }
-
-  // ─── Validate due date is required ───
-  if (!due_date) {
-    errors.value.due_date = 'Due date is required'
-    return
-  }
-
-  // ─── Validate due date cannot be before start date ───
-  if (start_date && due_date && due_date < start_date) {
-    errors.value.due_date = 'Due date cannot be before start date'
+  if (!validation.validateCreateTask(taskValidation)) {
     return
   }
 
   loading.value = true
   
   try {
+    // ─── Parse datetime fields ───
+    let start_date = null
+    let start_time = null
+    if (formData.value.start_datetime) {
+      const parts = formData.value.start_datetime.split('T')
+      start_date = parts[0]
+      start_time = parts[1] ? parts[1].substring(0, 5) : null
+    }
+
+    let due_date = null
+    let due_time = null
+    if (formData.value.due_datetime) {
+      const parts = formData.value.due_datetime.split('T')
+      due_date = parts[0]
+      due_time = parts[1] ? parts[1].substring(0, 5) : null
+    }
+
     // ─── Build clean data object ───
     const cleanedData: any = {
       title: formData.value.title.trim(),
@@ -256,7 +334,6 @@ const handleSubmit = async () => {
       due_date: due_date,
     }
 
-    // Only add times if they have values (not null)
     if (start_time) {
       cleanedData.start_time = start_time
     }
@@ -264,9 +341,6 @@ const handleSubmit = async () => {
       cleanedData.due_time = due_time
     }
 
-    console.log('Sending task data:', cleanedData)
-    
-    // ─── Save task ───
     let result
     if (props.task?.id) {
       result = await taskStore.updateTask(props.task.id, cleanedData)
@@ -274,20 +348,15 @@ const handleSubmit = async () => {
       result = await taskStore.createTask(cleanedData)
     }
     
-    // ─── Check result ───
     if (!result || !result.success) {
-      console.error('Task save failed:', taskStore.error)
-      alert(`Error: ${taskStore.error || 'Failed to save task'}`)
       return
     }
     
-    // ─── Success ───
     emit('save')
     emit('close')
     
   } catch (error: any) {
     console.error('Error saving task:', error)
-    alert(`Error: ${error.message || 'Something went wrong'}`)
   } finally {
     loading.value = false
   }

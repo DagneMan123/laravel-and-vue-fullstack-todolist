@@ -17,16 +17,14 @@ class Task extends Model
         'category_id',
         'title',
         'description',
-
         'notes',
         'is_completed',
         'priority',
-        'start_date',
+        'start_date', // 💡 አዲሱ የ start_date መስመር እዚህ ተጨምሯል
         'start_time',
         'due_date',
         'due_time',
         'completed_at',
-        'is_overdue',
     ];
 
     protected $casts = [
@@ -41,23 +39,6 @@ class Task extends Model
     protected $attributes = [
         'priority' => 'medium',
     ];
-
-    // Append computed properties to JSON
-    protected $appends = [
-        'is_overdue',
-    ];
-
-    // Computed property for is_overdue
-    public function getIsOverdueAttribute()
-    {
-        if ($this->is_completed) {
-            return false;
-        }
-        if (!$this->due_date) {
-            return false;
-        }
-        return $this->due_date < now()->toDateString();
-    }
 
     public function user()
     {

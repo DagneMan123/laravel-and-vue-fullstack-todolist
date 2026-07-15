@@ -337,7 +337,134 @@ export function validateProfileForm(data: {
 }
 
 /**
- * Validate Create Task Form
+ * Validate start date is not in the past
+ */
+export function validateStartDateNotInPast(startDate: string): ValidationError[] {
+  const errors: ValidationError[] = []
+  
+  if (!startDate) {
+    return errors // Optional field
+  }
+  
+  const dateObj = new Date(startDate)
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  
+  if (dateObj < today) {
+    errors.push({ field: 'start_date', message: 'Start date cannot be in the past' })
+  }
+  
+  return errors
+}
+
+/**
+ * Validate due date is after or equal to start date
+ */
+export function validateDueDateAfterStartDate(startDate: string, dueDate: string): ValidationError[] {
+  const errors: ValidationError[] = []
+  
+  if (!startDate || !dueDate) {
+    return errors
+  }
+  
+  const start = new Date(startDate)
+  const due = new Date(dueDate)
+  
+  if (due < start) {
+    errors.push({ field: 'due_date', message: 'Due date must be after or equal to start date' })
+  }
+  
+  return errors
+}
+
+/**
+ * Validate urgent task deadline (within 48 hours)
+ */
+export function validateUrgentDeadline(priority: string, dueDate: string): ValidationError[] {
+  const errors: ValidationError[] = []
+  
+  if (priority !== 'urgent' || !dueDate) {
+    return errors
+  }
+  
+  const due = new Date(dueDate)
+  const now = new Date()
+  const hoursUntilDue = (due.getTime() - now.getTime()) / (1000 * 60 * 60)
+  
+  if (hoursUntilDue > 48 * 24) { // More than 48 days in the future
+    errors.push({ 
+      field: 'due_date', 
+      message: 'Urgent tasks must have a deadline within 48 hours' 
+    })
+  }
+  
+  return errors
+}
+
+/**
+ * Validate high/urgent priority requires description
+ */
+export function validateHighPriorityDescription(priority: string, description: string): ValidationError[] {
+  const errors: ValidationError[] = []
+  
+  if ((priority === 'high' || priority === 'urgent') && (!description || description.trim() === '')) {
+    errors.push({ 
+      field: 'description', 
+      message: `${priority.charAt(0).toUpperCase() + priority.slice(1)} priority tasks require a description` 
+    })
+  }
+  
+  return errors
+}
+
+/**
+ * Validate restricted keywords in title
+ */
+export function validateRestrictedKeywords(title: string): ValidationError[] {
+  const errors: ValidationError[] = []
+  
+  // List of restricted/offensive keywords
+  const restrictedKeywords = [
+    'spam',
+    'scam',
+    'inappropriate',
+    'offensive',
+    'banned',
+  ]
+  
+  const lowerTitle = title.toLowerCase()
+  for (const keyword of restrictedKeywords) {
+    if (lowerTitle.includes(keyword)) {
+      errors.push({ 
+        field: 'title', 
+        message: `Title contains restricted content. Please revise.` 
+      })
+      break
+    }
+  }
+  
+  return errors
+}
+
+/**
+ * Validate no special characters except basic punctuation
+ */
+export function validateTitleCharacters(title: string): ValidationError[] {
+  const errors: ValidationError[] = []
+  
+  // Allow alphanumeric, spaces, and basic punctuation (. , - ')
+  if (!/^[a-zA-Z0-9\s\.\,\-\'!?]*$/.test(title)) {
+    errors.push({ 
+      field: 'title', 
+      message: 'Title contains invalid characters. Only letters, numbers, and basic punctuation allowed.' 
+    })
+  }
+  
+  return errors
+}
+
+/**
+ * Validate Create Task Form (Advanced with Business Rules)
  */
 export function validateCreateTaskForm(data: {
   title?: string
@@ -346,10 +473,16 @@ export function validateCreateTaskForm(data: {
   priority?: string
   due_date?: string
   due_time?: string
+  start_date?: string
+  start_time?: string
+  category_id?: string | number
 }): ValidationResult {
   const errors: ValidationError[] = []
   
+  // Basic validations
   errors.push(...validateTaskTitle(data.title || ''))
+  errors.push(...validateRestrictedKeywords(data.title || ''))
+  errors.push(...validateTitleCharacters(data.title || ''))
   
   if (data.description) {
     errors.push(...validateTaskDescription(data.description))
@@ -361,8 +494,29 @@ export function validateCreateTaskForm(data: {
   
   errors.push(...validatePriority(data.priority || ''))
   
+  // Date validations
   if (data.due_date) {
     errors.push(...validateDate(data.due_date, 'Due date'))
+  }
+  
+  // Business rule: Start date cannot be in the past
+  if (data.start_date) {
+    errors.push(...validateStartDateNotInPast(data.start_date))
+  }
+  
+  // Business rule: Due date must be after or equal to start date
+  if (data.start_date && data.due_date) {
+    errors.push(...validateDueDateAfterStartDate(data.start_date, data.due_date))
+  }
+  
+  // Business rule: Urgent tasks must have a near deadline
+  if (data.priority && data.due_date) {
+    errors.push(...validateUrgentDeadline(data.priority, data.due_date))
+  }
+  
+  // Business rule: High/Urgent priority requires description
+  if (data.priority && data.priority !== 'low' && data.priority !== 'medium') {
+    errors.push(...validateHighPriorityDescription(data.priority, data.description || ''))
   }
   
   return {
@@ -372,11 +526,36 @@ export function validateCreateTaskForm(data: {
 }
 
 /**
- * Get error message for a specific field
+ * Get urgent deadline hint (48 hours from now)
  */
-export function getFieldError(errors: ValidationError[], fieldName: string): string | null {
+export function getUrgentDeadlineHint(): string {
+  const in48Hours = new Date(Date.now() + 48 * 60 * 60 * 1000)
+  return in48Hours.toISOString().split('T')[0]
+}
+
+/**
+ * Calculate hours until deadline
+ */
+export function calculateHoursUntilDeadline(dueDate: string): number {
+  const due = new Date(dueDate)
+  const now = new Date()
+  return Math.ceil((due.getTime() - now.getTime()) / (1000 * 60 * 60))
+}
+
+/**
+ * Check if description warning should show (for high/urgent priority)
+ */
+export function shouldShowDescriptionWarning(priority: string): boolean {
+  return priority === 'high' || priority === 'urgent'
+}
+
+
+/**
+ * Get first error message for a field
+ */
+export function getFieldError(errors: ValidationError[], fieldName: string): string {
   const error = errors.find(e => e.field === fieldName)
-  return error ? error.message : null
+  return error?.message || ''
 }
 
 /**

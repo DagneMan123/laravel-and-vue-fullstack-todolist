@@ -12,7 +12,7 @@ import {
 export function useFormValidation() {
   const errors = ref<ValidationError[]>([])
   
-  const hasErrors = computed(() => errors.length > 0)
+  const hasErrors = computed(() => errors.value.length > 0)
   
   const clearErrors = () => {
     errors.value = []

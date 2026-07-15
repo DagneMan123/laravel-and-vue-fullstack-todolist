@@ -17,27 +17,30 @@
           <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Sign in to continue managing your tasks</p>
         </div>
 
-        <form @submit.prevent="handleLogin" class="space-y-4">
+        <form @submit.prevent="handleLogin" class="space-y-4" @input="validateOnInput">
+          <!-- Email -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Email Address</label>
             <input
               v-model="credentials.email"
               type="email"
-              required
               class="input-field"
+              :class="{ 'border-red-500 dark:border-red-400': emailError }"
               placeholder="you@example.com"
               :disabled="authStore.isLoading"
             />
+            <FormError :message="emailError" />
           </div>
 
+          <!-- Password -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Password</label>
             <div class="relative">
               <input
                 v-model="credentials.password"
                 :type="showPassword ? 'text' : 'password'"
-                required
                 class="input-field pr-10"
+                :class="{ 'border-red-500 dark:border-red-400': passwordError }"
                 placeholder="Enter your password"
                 :disabled="authStore.isLoading"
               />
@@ -56,12 +59,15 @@
                 </svg>
               </button>
             </div>
+            <FormError :message="passwordError" />
           </div>
 
+          <!-- API Error -->
           <div v-if="authStore.error" class="p-3 bg-red-50 dark:bg-red-900/20 rounded-xl text-red-600 dark:text-red-400 text-sm">
             {{ authStore.error }}
           </div>
 
+          <!-- Submit Button -->
           <button
             type="submit"
             class="btn-primary w-full py-3 text-base"

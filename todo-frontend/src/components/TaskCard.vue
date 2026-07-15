@@ -1,17 +1,20 @@
 <template>
   <div
-    class="card card-hover p-4 group transition-all duration-300"
-    :class="task.is_completed ? 'opacity-60' : ''"
+    class="task-card group transition-all duration-300"
+    :class="[
+      task.is_completed ? 'opacity-60' : '',
+      viewMode === 'grid' ? 'task-card-grid' : 'task-card-list'
+    ]"
   >
-    <div class="flex items-start gap-3">
+    <div class="flex items-start gap-3" :class="viewMode === 'grid' ? 'flex-col' : ''">
       <!-- Checkbox -->
-      <div class="pt-1 flex-shrink-0">
+      <div class="pt-1 flex-shrink-0" :class="viewMode === 'grid' ? 'self-start' : ''">
         <label class="relative cursor-pointer">
           <input
             type="checkbox"
             :checked="task.is_completed"
             @change="emit('toggle', task.id)"
-            class="sr-only"
+            class="sr-only peer"
           />
           <div
             class="w-5 h-5 rounded-md border-2 transition-all flex items-center justify-center"
@@ -33,13 +36,16 @@
       </div>
 
       <!-- Main Content -->
-      <div class="flex-1 min-w-0">
+      <div class="flex-1 min-w-0" :class="viewMode === 'grid' ? 'w-full' : ''">
         <div class="space-y-2">
-          <!-- Row 1: Title with Edit/Delete Buttons -->
+          <!-- Title -->
           <div class="flex items-start justify-between gap-3">
             <h3
               class="text-sm font-semibold text-gray-900 dark:text-gray-50 break-words leading-tight flex-1"
-              :class="{ 'line-through text-gray-400 dark:text-gray-600': task.is_completed }"
+              :class="[
+                { 'line-through text-gray-400 dark:text-gray-600': task.is_completed },
+                viewMode === 'grid' ? 'text-base' : ''
+              ]"
             >
               {{ task.title }}
             </h3>
@@ -50,7 +56,6 @@
                 @click="emit('edit', task)"
                 class="p-1.5 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-150"
                 title="Edit task"
-                aria-label="Edit task"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -60,7 +65,6 @@
                 @click="handleDelete"
                 class="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-150"
                 title="Delete task"
-                aria-label="Delete task"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -69,12 +73,12 @@
             </div>
           </div>
 
-          <!-- Row 2: Description -->
+          <!-- Description -->
           <p v-if="task.description" class="text-xs text-gray-600 dark:text-gray-300 break-words line-clamp-1">
             {{ task.description }}
           </p>
 
-          <!-- Row 3: Due Date & Time (ALWAYS VISIBLE) -->
+          <!-- Due Date & Time (ALWAYS VISIBLE) -->
           <div v-if="task.due_date" class="flex items-center gap-2">
             <span 
               class="text-xs font-medium px-2.5 py-1 rounded-full border transition-colors duration-200 inline-flex items-center gap-1.5"
@@ -85,11 +89,13 @@
               <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M6 2a1 1 0 000 2h8a1 1 0 100-2H6zM4 5a2 2 0 012-2 1 1 0 000 2h8a1 1 0 100-2 2 2 0 012 2v10a2 2 0 01-2 2H6a2 2 0 01-2-2V5z" />
               </svg>
-              <span> Due: {{ formatDateWithTime(task.due_date, task.due_time) }}</span>
+              <span>Due: {{ formatDate(task.due_date) }}</span>
+              <span v-if="task.due_time" class="font-semibold">{{ formatTime(task.due_time) }}</span>
+              <span v-else class="text-gray-400 dark:text-gray-500">No time set</span>
             </span>
           </div>
 
-          <!-- Row 4: Status & Category (ALWAYS VISIBLE) -->
+          <!-- Status & Category Badges (ALWAYS VISIBLE) -->
           <div class="flex items-center gap-2 flex-wrap">
             <!-- Status Badge -->
             <span 
@@ -115,9 +121,9 @@
             </span>
           </div>
 
-          <!-- Row 5: HOVER SECTION (Priority & Start Date - Hidden by default) -->
-          <div class="grid grid-rows-[0fr] group-hover:grid-rows-[1fr] transition-all duration-300 overflow-hidden">
-            <div class="overflow-hidden min-h-0 space-y-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+          <!-- HOVER SECTION: Priority & Start Date (Hidden by default) -->
+          <div class="overflow-hidden transition-all duration-300 max-h-0 group-hover:max-h-40">
+            <div class="pt-2 border-t border-gray-200 dark:border-gray-700 space-y-2">
               
               <!-- Priority Badge (ON HOVER) -->
               <div class="flex items-center gap-2">
@@ -137,12 +143,15 @@
                   </svg>
                   <span>Starts: {{ formatDate(task.start_date) }}</span>
                   <span v-if="task.start_time" class="font-semibold">{{ formatTime(task.start_time) }}</span>
-                  
+                  <span v-else class="text-gray-400 dark:text-gray-500">No time set</span>
                 </span>
               </div>
 
               <!-- Created At -->
-              <div class="text-xs text-gray-500 dark:text-gray-400 italic">
+              <div class="text-xs text-gray-500 dark:text-gray-400 italic flex items-center gap-1">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
                 Created {{ timeAgo(task.created_at) }}
               </div>
             </div>
@@ -160,6 +169,7 @@ import type { Task } from '@/types'
 // ─── Props ───
 const props = defineProps<{
   task: Task
+  viewMode?: 'list' | 'grid'
 }>()
 
 // ─── Emits ───
@@ -210,20 +220,6 @@ const formatTime = (time: string): string => {
   return `${displayHour}:${minute} ${period}`
 }
 
-const formatDateWithTime = (date: string, time: string | undefined): string => {
-  if (!date) return ''
-  const formattedDate = new Date(date).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  })
-  if (!time) {
-    return `${formattedDate} 12:00 AM`
-  }
-  const formattedTime = formatTime(time)
-  return `${formattedDate} ${formattedTime}`
-}
-
 const timeAgo = (date: string): string => {
   if (!date) return ''
   const now = new Date()
@@ -248,3 +244,74 @@ const handleDelete = (): void => {
   }
 }
 </script>
+
+<style scoped>
+/* ─── Base Card Styles ─── */
+.task-card {
+  background: white;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+  transition: all 0.3s ease;
+}
+
+.dark .task-card {
+  background: #1a1f2e;
+  border-color: #374151;
+}
+
+.task-card:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border-color: #3b82f6;
+}
+
+.dark .task-card:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.15);
+}
+
+.task-card-list {
+  width: 100%;
+}
+
+.task-card-grid {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── Hover Section ─── */
+.max-h-0 {
+  max-height: 0;
+}
+
+.group-hover\:max-h-40:hover {
+  max-height: 10rem;
+}
+
+/* ─── Line Clamp ─── */
+.line-clamp-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ─── Checkbox Animation ─── */
+.peer:checked ~ div {
+  animation: checkPop 0.2s ease-in-out;
+}
+
+@keyframes checkPop {
+  0% { transform: scale(0.8); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+</style>

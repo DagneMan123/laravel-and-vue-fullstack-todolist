@@ -11,7 +11,7 @@
               All Tasks
             </h1>
             <p class="mt-1 text-sm" :class="isDark ? 'text-gray-400' : 'text-gray-600'">
-              Manage all your tasks in one place
+              Manage your tasks and stay organized
             </p>
           </div>
           

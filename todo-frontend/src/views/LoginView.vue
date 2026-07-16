@@ -14,10 +14,10 @@
             </svg>
           </div>
           <h2 class="mt-4 text-3xl font-bold gradient-text">Welcome Back</h2>
-          <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Sign in to continue managing your tasks</p>
+          <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Sign in to your account</p>
         </div>
 
-        <form @submit.prevent="handleLogin" class="space-y-4" @input="validateOnInput">
+        <form @submit.prevent="handleLogin" class="space-y-4">
           <!-- Email -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Email Address</label>
@@ -26,10 +26,11 @@
               type="email"
               class="input-field"
               :class="{ 'border-red-500 dark:border-red-400': emailError }"
-              placeholder="you@example.com"
+              placeholder="Enter your email"
               :disabled="authStore.isLoading"
+              @input="validateOnInput"
             />
-            <FormError :message="emailError" />
+            <p v-if="emailError" class="mt-1 text-sm text-red-500 dark:text-red-400">{{ emailError }}</p>
           </div>
 
           <!-- Password -->
@@ -43,6 +44,7 @@
                 :class="{ 'border-red-500 dark:border-red-400': passwordError }"
                 placeholder="Enter your password"
                 :disabled="authStore.isLoading"
+                @input="validateOnInput"
               />
               <button
                 type="button"
@@ -59,7 +61,49 @@
                 </svg>
               </button>
             </div>
-            <FormError :message="passwordError" />
+            <p v-if="passwordError" class="mt-1 text-sm text-red-500 dark:text-red-400">{{ passwordError }}</p>
+          </div>
+
+          <!-- Remember Me & Forgot Password -->
+          <div class="flex items-center justify-between">
+            <label class="flex items-center cursor-pointer group">
+              <div class="relative">
+                <input 
+                  type="checkbox" 
+                  v-model="rememberMe" 
+                  class="sr-only"
+                />
+                <div 
+                  class="w-5 h-5 border-2 rounded transition-all duration-200 flex items-center justify-center"
+                  :class="[
+                    rememberMe 
+                      ? 'bg-primary-500 border-primary-500' 
+                      : 'border-gray-300 dark:border-gray-600 group-hover:border-primary-400'
+                  ]"
+                >
+                  <svg 
+                    v-if="rememberMe" 
+                    class="w-3 h-3 text-white" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+              </div>
+              <span class="ml-2 text-sm text-gray-600 dark:text-gray-400 group-hover:text-gray-800 dark:group-hover:text-gray-200 transition">
+                Remember me
+              </span>
+            </label>
+            
+            <button 
+              type="button"
+              @click="showForgotPassword = true"
+              class="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium transition hover:underline"
+            >
+              Forgot password?
+            </button>
           </div>
 
           <!-- API Error -->
@@ -86,53 +130,116 @@
         </form>
       </div>
     </div>
+
+    <!-- Forgot Password Modal -->
+    <ForgotPasswordModal 
+      :show="showForgotPassword" 
+      @close="showForgotPassword = false"
+      @success="showForgotPassword = false"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, computed } from 'vue'
+import { reactive, ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { useFormValidation } from '@/composables/useFormValidation'
-import { useNotification } from '@/composables/useNotification'
 import { useThemeStore } from '@/stores/theme'
-import FormError from '@/components/FormError.vue'
+import ForgotPasswordModal from '@/components/ForgotPasswordModal.vue'
 import type { LoginCredentials } from '@/types'
 
-const { success, error: notifyError } = useNotification()
+const router = useRouter()
 const authStore = useAuthStore()
 const themeStore = useThemeStore()
-const validation = useFormValidation()
 const showPassword = ref(false)
+const rememberMe = ref(false)
+const showForgotPassword = ref(false)
 
+// Form validation errors
+const emailError = ref('')
+const passwordError = ref('')
+
+// Credentials
 const credentials = reactive<LoginCredentials>({
   email: '',
   password: '',
 })
 
-// Computed properties for field-specific validation errors
-const emailError = computed(() => validation.getError('email'))
-const passwordError = computed(() => validation.getError('password'))
+// Load saved credentials
+onMounted(() => {
+  const savedEmail = localStorage.getItem('remembered_email')
+  const savedRemember = localStorage.getItem('remember_me')
+  
+  if (savedRemember === 'true' && savedEmail) {
+    credentials.email = savedEmail
+    rememberMe.value = true
+  }
+})
 
+// Validation function
+const validateOnInput = () => {
+  emailError.value = ''
+  passwordError.value = ''
+  
+  if (credentials.email && !isValidEmail(credentials.email)) {
+    emailError.value = 'Please enter a valid email address'
+  }
+  
+  if (credentials.password && credentials.password.length < 6) {
+    passwordError.value = 'Password must be at least 6 characters'
+  }
+}
+
+const isValidEmail = (email: string): boolean => {
+  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  return regex.test(email)
+}
+
+// Handle login
 const handleLogin = async () => {
-  // Validate form before submitting
-  if (!validation.validateLogin(credentials)) {
+  // Clear previous errors
+  emailError.value = ''
+  passwordError.value = ''
+  
+  // Validate email
+  if (!credentials.email) {
+    emailError.value = 'Email is required'
     return
   }
-
-  const result = await authStore.login(credentials)
-  if (result.success) {
-    success('Welcome back! 🎉')
+  
+  if (!isValidEmail(credentials.email)) {
+    emailError.value = 'Please enter a valid email address'
+    return
+  }
+  
+  // Validate password
+  if (!credentials.password) {
+    passwordError.value = 'Password is required'
+    return
+  }
+  
+  if (credentials.password.length < 6) {
+    passwordError.value = 'Password must be at least 6 characters'
+    return
+  }
+  
+  // Handle remember me
+  if (rememberMe.value) {
+    localStorage.setItem('remembered_email', credentials.email)
+    localStorage.setItem('remember_me', 'true')
   } else {
-    notifyError(result.message || 'Login failed')
+    localStorage.removeItem('remembered_email')
+    localStorage.removeItem('remember_me')
+  }
+  
+  // Attempt login
+  const result = await authStore.login(credentials)
+  
+  if (result.success) {
+    router.push('/tasks')
   }
 }
-
-// Real-time validation as user types
-const validateOnInput = () => {
-  validation.validateLogin(credentials)
-}
 </script>
-
 
 <style scoped>
 .login-container {
@@ -252,5 +359,17 @@ const validateOnInput = () => {
 .btn-primary:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+/* Custom checkbox styling */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
 }
 </style>

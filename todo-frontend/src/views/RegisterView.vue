@@ -15,7 +15,7 @@
             </svg>
           </div>
           <h1 class="text-3xl font-bold gradient-text">Create Account</h1>
-          <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Join and start managing your tasks</p>
+          <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Join us and start managing your tasks</p>
         </div>
 
         <form @submit.prevent="handleRegister" class="space-y-4" @input="validateOnInput">
@@ -27,7 +27,7 @@
               type="text"
               class="input-field"
               :class="{ 'border-red-500 dark:border-red-400': nameError }"
-              placeholder="Your full name"
+              placeholder="Enter your full name"
               :disabled="authStore.isLoading"
             />
             <FormError :message="nameError" />
@@ -41,7 +41,7 @@
               type="email"
               class="input-field"
               :class="{ 'border-red-500 dark:border-red-400': emailError }"
-              placeholder="your@email.com"
+              placeholder="Enter your email"
               :disabled="authStore.isLoading"
             />
             <FormError :message="emailError" />
@@ -61,7 +61,7 @@
                 :type="showPassword ? 'text' : 'password'"
                 class="input-field pr-10"
                 :class="{ 'border-red-500 dark:border-red-400': passwordError }"
-                placeholder="••••••••"
+                placeholder="Enter your password"
                 :disabled="authStore.isLoading"
               />
               <button
@@ -100,7 +100,7 @@
                 :type="showConfirmPassword ? 'text' : 'password'"
                 class="input-field pr-10"
                 :class="{ 'border-red-500 dark:border-red-400': passwordConfirmError }"
-                placeholder="••••••••"
+                placeholder="Confirm your password"
                 :disabled="authStore.isLoading"
               />
               <button
@@ -139,7 +139,7 @@
           <p class="text-center text-sm text-gray-600 dark:text-gray-400">
             Already have an account?
             <router-link to="/login" class="text-primary-600 dark:text-primary-400 font-medium hover:underline">
-              Sign In
+              Sign in
             </router-link>
           </p>
         </form>
@@ -216,7 +216,7 @@ const handleRegister = async () => {
 
   const result = await authStore.register(formData)
   if (result.success) {
-    success('Account created successfully! Please log in.')
+    success('Account created successfully!')
     await router.push('/login')
   } else {
     notifyError(result.message || 'Registration failed')

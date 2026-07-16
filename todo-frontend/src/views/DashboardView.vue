@@ -139,8 +139,8 @@
                 {{ task.title }}
               </p>
               <p v-if="task.due_date" class="text-xs mt-0.5 sm:mt-1 truncate" :class="isDark ? 'text-gray-500' : 'text-gray-500'">
-                Due: {{ formatDateWithTime(task.due_date, task.due_time) }}
-              </p>
+              Due: {{ formatDateWithTime(task.due_date, task.due_time || '') }} 
+            </p>
             </div>
             <span :class="[
               'px-2 py-0.5 sm:py-1 rounded text-xs font-medium flex-shrink-0',
@@ -162,6 +162,7 @@ import {  computed, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useThemeStore } from '@/stores/theme'
 import { useTaskStore } from '@/stores/tasks'
+import { useToast } from '@/composables/useToast'
 import AppLayout from '@/layouts/AppLayout.vue'
 import TasksLineChart from '@/components/TasksLineChart.vue'
 import TasksBarChart from '@/components/TasksBarChart.vue'
@@ -170,6 +171,7 @@ import TasksStatusChart from '@/components/TasksStatusChart.vue'
 const authStore = useAuthStore()
 const themeStore = useThemeStore()
 const taskStore = useTaskStore()
+const toast = useToast()
 
 const isDark = computed(() => themeStore.isDark)
 
@@ -180,9 +182,9 @@ const completionRate = computed(() => {
 
 const getGreeting = () => {
   const hour = new Date().getHours()
-  if (hour < 12) return 'Good morning! Let\'s get things done today.'
-  if (hour < 18) return 'Good afternoon! Keep up the momentum.'
-  return 'Good evening! What\'s on your agenda?'
+  if (hour < 12) return "Good morning! Let's get things done today."
+  if (hour < 18) return "Good afternoon! Keep up the momentum."
+  return "Good evening! What's on your agenda?"
 }
 
 const formatDateWithTime = (date: string, time: string | null): string => {
@@ -205,7 +207,12 @@ const formatDateWithTime = (date: string, time: string | null): string => {
 }
 
 onMounted(async () => {
-  await taskStore.fetchStats()
-  await taskStore.fetchTasks()
+  try {
+    await taskStore.fetchStats()
+    await taskStore.fetchTasks()
+  } catch (err) {
+    toast.showError('Failed to load dashboard data')
+    console.error('Dashboard error:', err)
+  }
 })
 </script>

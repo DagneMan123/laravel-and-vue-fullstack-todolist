@@ -40,10 +40,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('categories', CategoryController::class);
 
     // Notifications
-    Route::apiResource('notifications', NotificationController::class, ['except' => ['store', 'update']]);
-    Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markAsRead']);
-    Route::patch('/notifications/{notification}/unread', [NotificationController::class, 'markAsUnread']);
     Route::get('/notifications/unread/count', [NotificationController::class, 'unreadCount']);
     Route::patch('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead']);
     Route::delete('/notifications/delete-all-read', [NotificationController::class, 'deleteAllRead']);
+    Route::apiResource('notifications', NotificationController::class, ['except' => ['store', 'update']]);
+    Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markAsRead']);
+    Route::patch('/notifications/{notification}/unread', [NotificationController::class, 'markAsUnread']);
 });

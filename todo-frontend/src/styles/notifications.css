@@ -1,0 +1,88 @@
+/* Shared Notification Styles */
+
+/* Line clamping utility for notification messages */
+.line-clamp-2 {
+  display: -webkit-box;
+ 
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Dropdown menu transitions */
+.dropdown-enter-active,
+.dropdown-leave-active {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dropdown-enter-from {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+
+.dropdown-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+
+/* Backdrop transitions */
+.backdrop-enter-active,
+.backdrop-leave-active {
+  transition: opacity 0.2s;
+}
+
+.backdrop-enter-from,
+.backdrop-leave-to {
+  opacity: 0;
+}
+
+/* Notification item transitions */
+.notification-enter-active,
+.notification-leave-active {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.notification-enter-from {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.notification-leave-to {
+  opacity: 0;
+  transform: translateX(100px);
+}
+
+.notification-move {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Notification item list transitions */
+.notification-item-enter-active,
+.notification-item-leave-active {
+  transition: all 0.2s ease;
+}
+
+.notification-item-enter-from {
+  opacity: 0;
+  transform: translateX(10px);
+}
+
+.notification-item-leave-to {
+  opacity: 0;
+  transform: translateX(-10px);
+}
+
+.notification-item-move {
+  transition: transform 0.2s ease;
+}
+
+/* Badge animations */
+.badge-enter-active,
+.badge-leave-active {
+  transition: all 0.2s ease;
+}
+
+.badge-enter-from,
+.badge-leave-to {
+  opacity: 0;
+  transform: scale(0.5);
+}

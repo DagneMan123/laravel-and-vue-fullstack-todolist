@@ -167,69 +167,8 @@
           </svg>
             </button>
 
-            <div class="relative">
-              <button 
-                @click="showNotifications = !showNotifications"
-                :class="[
-                  'p-2 rounded-lg transition-colors relative block focus:outline-none',
-                  isDark ? 'hover:bg-gray-800 text-gray-300' : 'hover:bg-gray-100 text-gray-600'
-                ]"
-                title="Notifications"
-              >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                </svg>
-                <span 
-                  v-if="notificationStore.unreadCount > 0" 
-                  class="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1 animate-pulse"
-                >
-                  {{ notificationStore.unreadCount }}
-                </span>
-              </button>
-
-              <div 
-                v-if="showNotifications" 
-                :class="[
-                  'absolute right-0 mt-2 w-80 rounded-xl shadow-lg border overflow-hidden z-50',
-                  isDark ? 'bg-[#1a1f2e] border-gray-700 text-white' : 'bg-white border-gray-200 text-gray-900'
-                ]"
-              >
-                <div class="p-3 border-b flex items-center justify-between" :class="isDark ? 'border-gray-700' : 'border-gray-200'">
-                  <span class="font-semibold text-sm">Notifications</span>
-                  <button @click="notificationStore.markAllAsRead()" class="text-xs text-blue-500 hover:underline">
-                    Mark all as read
-                  </button>
-                </div>
-
-                <div class="max-h-64 overflow-y-auto">
-                  <div v-if="!notificationStore.notifications || notificationStore.notifications.length === 0" class="p-6 text-center text-sm text-gray-400">
-                    No notifications yet
-                  </div>
-                  <div 
-                    v-else
-                    v-for="notification in notificationStore.notifications.slice(0, 5)" 
-                    :key="notification.id"
-                    :class="[
-                      'p-3 border-b text-xs flex flex-col gap-1 transition-colors',
-                      !notification.is_read ? (isDark ? 'bg-blue-600/10' : 'bg-blue-50') : '',
-                      isDark ? 'border-gray-700 hover:bg-gray-800' : 'border-gray-100 hover:bg-gray-50'
-                    ]"
-                  >
-                    <p class="font-medium">{{ notification.title }}</p>
-                    <p :class="isDark ? 'text-gray-400' : 'text-gray-500'">{{ notification.message }}</p>
-                  </div>
-                </div>
-
-                <router-link 
-                  to="/notifications" 
-                  @click="showNotifications = false"
-                  class="block p-2 text-center text-xs text-blue-500 font-medium hover:bg-gray-50 dark:hover:bg-gray-800 border-t"
-                  :class="isDark ? 'border-gray-700' : 'border-gray-200'"
-                >
-                  View all notifications
-                </router-link>
-              </div>
-            </div>
+            <!-- Notification Dropdown Component -->
+            <NotificationDropdown />
 
             <div class="relative group">
               <router-link 
@@ -249,17 +188,17 @@
       </div>
     </div>
 
-    <div v-if="showNotifications" @click="showNotifications = false" class="fixed inset-0 z-40 bg-transparent" />
     <div v-if="sidebarOpen" @click="sidebarOpen = false" class="fixed inset-0 bg-black/50 md:hidden z-30" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useThemeStore } from '@/stores/theme'
 import { useNotificationStore } from '@/stores/notifications'
+import NotificationDropdown from '@/components/NotificationDropdown.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -267,16 +206,45 @@ const themeStore = useThemeStore()
 const notificationStore = useNotificationStore()
 
 const sidebarOpen = ref(false)
-const showNotifications = ref(false)
-const isDark = ref(themeStore.isDark)
+const isDark = computed(() => themeStore.isDark)
+
+// Polling interval reference
+let pollInterval: ReturnType<typeof setInterval> | null = null
 
 const toggleTheme = () => {
   themeStore.toggleTheme()
-  isDark.value = themeStore.isDark
 }
 
 const handleLogout = async () => {
+  if (pollInterval) clearInterval(pollInterval)
   await authStore.logout()
   router.push('/')
 }
+
+// Initialize notifications and set up polling
+const initializeNotifications = async () => {
+  // Load notifications on mount
+  await notificationStore.fetchNotifications()
+  
+  // Poll for unread count every 60 seconds (reduced from 30s to reduce server load)
+  pollInterval = setInterval(async () => {
+    await notificationStore.fetchUnreadCount()
+  }, 60000)
+}
+
+// Cleanup on unmount
+const cleanup = () => {
+  if (pollInterval) {
+    clearInterval(pollInterval)
+    pollInterval = null
+  }
+}
+
+onMounted(() => {
+  initializeNotifications()
+})
+
+onUnmounted(() => {
+  cleanup()
+})
 </script>

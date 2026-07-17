@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { Notification, PaginatedResponse } from '@/types'
+import type { Notification } from '@/types'
 import api from '@/services/api'
 
 export const useNotificationStore = defineStore('notification', () => {
@@ -15,6 +15,10 @@ export const useNotificationStore = defineStore('notification', () => {
   const isLoading = ref(false)
   const isSubmitting = ref(false)
   const error = ref<string | undefined>(undefined)
+
+  // Cache tracking to prevent excessive API calls
+  const lastUnreadCountFetch = ref<number>(0)
+  const UNREAD_COUNT_CACHE_DURATION = 30000 // 30 seconds
 
   const filters = ref({
     is_read: null as boolean | null,
@@ -38,14 +42,22 @@ export const useNotificationStore = defineStore('notification', () => {
         sort_direction: filters.value.sort_direction,
       }
 
-      const response = await api.get<PaginatedResponse<Notification>>('/notifications', { params })
-      notifications.value = response.data.data
-      pagination.value = {
-        current_page: response.data.current_page,
-        total: response.data.total,
-        per_page: response.data.per_page,
-        last_page: response.data.last_page,
+      const response = await api.get('/notifications', { params })
+      
+      // Handle paginated response
+      if (response.data && response.data.data) {
+        notifications.value = response.data.data
+        pagination.value = {
+          current_page: response.data.current_page || 1,
+          total: response.data.total || 0,
+          per_page: response.data.per_page || pagination.value.per_page,
+          last_page: response.data.last_page || 1,
+        }
+      } else {
+        // Handle direct array response
+        notifications.value = Array.isArray(response.data) ? response.data : []
       }
+      
       await fetchUnreadCount()
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to fetch notifications'
@@ -55,10 +67,21 @@ export const useNotificationStore = defineStore('notification', () => {
     }
   }
 
+  /**
+   * Fetch unread count with caching to prevent excessive API calls
+   */
   async function fetchUnreadCount(): Promise<void> {
+    const now = Date.now()
+    
+    // Skip if cache is still valid (within 30 seconds)
+    if (now - lastUnreadCountFetch.value < UNREAD_COUNT_CACHE_DURATION) {
+      return
+    }
+
     try {
-      const response = await api.get<{ unread_count: number }>('/notifications/unread/count')
-      unreadCount.value = response.data.unread_count
+      const response = await api.get<{ count: number }>('/notifications/unread/count')
+      unreadCount.value = response.data.count
+      lastUnreadCountFetch.value = now
     } catch (err: any) {
       console.error('Error fetching unread count:', err)
     }
@@ -74,7 +97,8 @@ export const useNotificationStore = defineStore('notification', () => {
       if (index !== -1) {
         notifications.value[index] = response.data.notification
       }
-      await fetchUnreadCount()
+      // Reset cache to force fresh count on next poll
+      lastUnreadCountFetch.value = 0
       return { success: true, notification: response.data.notification }
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to mark notification as read'
@@ -94,7 +118,8 @@ export const useNotificationStore = defineStore('notification', () => {
       if (index !== -1) {
         notifications.value[index] = response.data.notification
       }
-      await fetchUnreadCount()
+      // Reset cache to force fresh count on next poll
+      lastUnreadCountFetch.value = 0
       return { success: true, notification: response.data.notification }
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to mark notification as unread'
@@ -112,7 +137,8 @@ export const useNotificationStore = defineStore('notification', () => {
       await api.delete(`/notifications/${id}`)
       notifications.value = notifications.value.filter(n => n.id !== id)
       pagination.value.total -= 1
-      await fetchUnreadCount()
+      // Reset cache to force fresh count on next poll
+      lastUnreadCountFetch.value = 0
       return { success: true }
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to delete notification'
@@ -134,6 +160,8 @@ export const useNotificationStore = defineStore('notification', () => {
         read_at: new Date().toISOString(),
       }))
       unreadCount.value = 0
+      // Reset cache after mutation
+      lastUnreadCountFetch.value = 0
       return { success: true }
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to mark all notifications as read'
@@ -148,10 +176,13 @@ export const useNotificationStore = defineStore('notification', () => {
     error.value = undefined
 
     try {
-      const response = await api.delete<{ deleted_count: number }>('/notifications/delete-all-read')
+      const response = await api.delete('/notifications/delete-all-read')
+      const deletedCount = response.data.deleted_count || notifications.value.filter(n => n.is_read).length
       notifications.value = notifications.value.filter(n => !n.is_read)
-      pagination.value.total -= response.data.deleted_count
-      return { success: true, message: response.data.deleted_count + ' notifications deleted' }
+      pagination.value.total = Math.max(0, pagination.value.total - deletedCount)
+      // Reset cache after mutation
+      lastUnreadCountFetch.value = 0
+      return { success: true, message: deletedCount + ' notifications deleted' }
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to delete read notifications'
       return { success: false, message: error.value }

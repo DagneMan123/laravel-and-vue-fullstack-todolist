@@ -3,8 +3,8 @@
     <div class="p-4 sm:p-6">
       <!-- Header -->
       <div class="mb-8">
-        <h1 class="text-3xl font-bold" :class="isDark ? 'text-white' : 'text-gray-900'">Settings</h1>
-        <p class="mt-2 text-sm" :class="isDark ? 'text-gray-400' : 'text-gray-600'">Manage your account settings and preferences</p>
+        <h1 class="text-3xl font-bold" :class="isDark ? 'text-white' : 'text-gray-900'">User Profile</h1>
+        <p class="mt-2 text-sm" :class="isDark ? 'text-gray-400' : 'text-gray-600'">View and manage your profile information</p>
       </div>
 
       <!-- Profile Card -->
@@ -57,7 +57,7 @@
 
               <!-- Member Since -->
               <div>
-                <label :class="['block text-sm font-medium mb-2', isDark ? 'text-gray-300' : 'text-gray-700']">Member Since</label>
+                <label :class="['block text-sm font-medium mb-2', isDark ? 'text-gray-300' : 'text-gray-700']">Account Created</label>
                 <div :class="[
                   'w-full px-4 py-2 rounded-lg border bg-opacity-50',
                   isDark ? 'bg-gray-800 border-gray-700 text-gray-400' : 'bg-gray-50 border-gray-300 text-gray-600'
@@ -135,7 +135,7 @@
             
             <!-- Badge -->
             <div class="mt-4 inline-block px-3 py-1 rounded-full text-xs font-medium" :class="isDark ? 'bg-blue-600/20 text-blue-400' : 'bg-blue-100 text-blue-600'">
-              Active Member
+              Active User
             </div>
           </div>
 

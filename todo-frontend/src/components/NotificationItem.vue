@@ -109,6 +109,7 @@
 
 <script setup lang="ts">
 import type { Notification } from '@/types'
+import { useNotificationUtils } from '@/composables/useNotificationUtils'
 
 interface Props {
   notification: Notification
@@ -126,44 +127,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<Emits>()
 
-const getTypeClasses = (type: string) => {
-  const classes = {
-    success: {
-      badge: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400',
-    },
-    error: {
-      badge: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400',
-    },
-    warning: {
-      badge: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400',
-    },
-    info: {
-      badge: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400',
-    },
-  }
-  return classes[type as keyof typeof classes] || classes.info
-}
-
-const formatType = (type: string): string => {
-  return type.charAt(0).toUpperCase() + type.slice(1)
-}
-
-const formatTime = (dateString: string): string => {
-  const date = new Date(dateString)
-  const now = new Date()
-  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000)
-
-  if (seconds < 60) return 'just now'
-  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`
-  if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`
-  if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`
-
-  return date.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    ...(date.getFullYear() !== now.getFullYear() && { year: 'numeric' }),
-  })
-}
+const { getTypeClasses, formatType, formatTime } = useNotificationUtils()
 
 const toggleRead = () => {
   emit('toggle-read', props.notification.id, props.notification.is_read)
@@ -172,13 +136,12 @@ const toggleRead = () => {
 const deleteItem = () => {
   emit('delete', props.notification.id)
 }
-
 </script>
 
 <style scoped>
 .line-clamp-2 {
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  
   -webkit-box-orient: vertical;
   overflow: hidden;
 }

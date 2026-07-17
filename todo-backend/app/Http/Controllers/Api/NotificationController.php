@@ -19,7 +19,11 @@ class NotificationController extends Controller
 
     public function index(Request $request): AnonymousResourceCollection
     {
-        $notifications = $request->user()->notifications()->latest()->get();
+        $perPage = $request->get('per_page', 20);
+        $notifications = $request->user()
+            ->notifications()
+            ->latest()
+            ->paginate($perPage);
         return NotificationResource::collection($notifications);
     }
 
@@ -88,7 +92,12 @@ class NotificationController extends Controller
 
     public function unreadCount(Request $request): JsonResponse
     {
-        $count = $request->user()->notifications()->unread()->count();
+        // Use COUNT(*) for better performance on large datasets
+        $count = $request->user()
+            ->notifications()
+            ->unread()
+            ->count();
+        
         return response()->json(['count' => $count]);
     }
 
@@ -110,9 +119,10 @@ class NotificationController extends Controller
     public function deleteAllRead(Request $request): JsonResponse
     {
         try {
+            $deletedCount = $request->user()->notifications()->read()->count();
             $request->user()->notifications()->read()->delete();
 
-            return $this->successResponse([], 'All read notifications deleted');
+            return $this->successResponse(['deleted_count' => $deletedCount], 'All read notifications deleted');
         } catch (\Exception $e) {
             Log::error('Delete all read notifications error: ' . $e->getMessage());
             return $this->errorResponse('Failed to delete all read notifications', $e->getMessage());

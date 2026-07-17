@@ -49,5 +49,8 @@ class DatabaseSeeder extends Seeder
                 'due_date' => now()->addDays(7),
             ],
         ]);
+
+        // Seed notifications
+        $this->call(NotificationSeeder::class);
     }
 }

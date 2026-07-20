@@ -29,21 +29,69 @@
             <option value="month">📅 This Month</option>
           </select>
 
-          <button 
-            @click="exportReport"
-            :class="[
-              'px-3 py-2 rounded-lg border text-sm font-medium transition-colors flex items-center gap-2 whitespace-nowrap',
-              isDark 
-                ? 'bg-[#1a1f2e] border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-white' 
-                : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-            ]"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-            </svg>
-            <span class="hidden sm:inline">Export CSV</span>
-            <span class="sm:hidden">Export</span>
-          </button>
+          <!-- Export Dropdown -->
+          <div class="relative" ref="exportDropdownRef">
+            <button 
+              @click="toggleExportDropdown"
+              :class="[
+                'px-3 py-2 rounded-lg border text-sm font-medium transition-colors flex items-center gap-2 whitespace-nowrap',
+                isDark 
+                  ? 'bg-[#1a1f2e] border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-white' 
+                  : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+              ]"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              <span>Export</span>
+              <svg class="w-4 h-4 transition-transform duration-200" :class="{ 'rotate-180': showExportDropdown }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            
+            <!-- Export Dropdown Menu -->
+            <div 
+              v-if="showExportDropdown" 
+              class="absolute right-0 mt-2 w-48 rounded-lg shadow-2xl border z-50 overflow-hidden"
+              :class="isDark ? 'bg-[#1a1f2e] border-gray-700' : 'bg-white border-gray-200'"
+            >
+              <button 
+                @click="exportPDF" 
+                class="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-3"
+                :class="isDark ? 'text-gray-200' : 'text-gray-700'"
+              >
+                <span class="text-lg">📄</span> PDF Report
+              </button>
+              <button 
+                @click="exportCSV" 
+                class="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-3"
+                :class="isDark ? 'text-gray-200' : 'text-gray-700'"
+              >
+                <span class="text-lg">📊</span> CSV Data
+              </button>
+              <button 
+                @click="exportExcel" 
+                class="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-3"
+                :class="isDark ? 'text-gray-200' : 'text-gray-700'"
+              >
+                <span class="text-lg">📈</span> Excel Export
+              </button>
+              <button 
+                @click="printReport" 
+                class="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-3 border-t"
+                :class="isDark ? 'border-gray-700 text-gray-200' : 'border-gray-200 text-gray-700'"
+              >
+                <span class="text-lg">🖨️</span> Print
+              </button>
+              <button 
+                @click="shareReport" 
+                class="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-3"
+                :class="isDark ? 'text-gray-200' : 'text-gray-700'"
+              >
+                <span class="text-lg">🔗</span> Share Report
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -212,10 +260,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useThemeStore } from '@/stores/theme'
 import { useTaskStore } from '@/stores/tasks'
 import AppLayout from '@/layouts/AppLayout.vue'
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
 
 // ─── Stores ───
 const themeStore = useThemeStore()
@@ -225,6 +275,8 @@ const isDark = computed(() => themeStore.isDark)
 
 // ─── State ───
 const selectedTimeRange = ref('all')
+const showExportDropdown = ref(false)
+const exportDropdownRef = ref<HTMLElement | null>(null)
 
 // ─── Date Helper ───
 const formatDate = (dateString: string): string => {
@@ -290,7 +342,6 @@ const filteredTasks = computed(() => {
 
     case 'all':
     default:
-      // Show all tasks
       break
   }
 
@@ -324,7 +375,7 @@ const completionRate = computed(() => {
 
 // ─── Priority Counts ───
 const priorityCounts = computed(() => {
-  const counts = { low: 0, medium: 0, high: 0 }
+  const counts: Record<string, number> = { low: 0, medium: 0, high: 0 }
   filteredTasks.value.forEach(task => {
     if (task.priority in counts) {
       counts[task.priority as keyof typeof counts]++
@@ -357,8 +408,13 @@ const handleFilterChange = async () => {
   await taskStore.fetchTasks()
 }
 
-// ─── Export Report to CSV ───
-const exportReport = () => {
+// ─── Toggle Export Dropdown ───
+const toggleExportDropdown = () => {
+  showExportDropdown.value = !showExportDropdown.value
+}
+
+// ─── Export to CSV ───
+const exportCSV = () => {
   const tasks = filteredTasks.value
   if (tasks.length === 0) {
     alert('No data available to export for the selected time range.')
@@ -381,16 +437,259 @@ const exportReport = () => {
   const link = document.createElement("a")
   link.setAttribute("href", encodedUri)
   const rangeLabel = selectedTimeRange.value === 'all' ? 'AllTime' : selectedTimeRange.value
-  link.setAttribute("download", `TodoList_Report_${rangeLabel}_${new Date().toISOString().split('T')[0]}.csv`)
+  link.setAttribute("download", `TaskFlow_Report_${rangeLabel}_${new Date().toISOString().split('T')[0]}.csv`)
   document.body.appendChild(link)
   link.click()
   document.body.removeChild(link)
+  showExportDropdown.value = false
+}
+
+// ─── Export to Excel ───
+const exportExcel = () => {
+  const tasks = filteredTasks.value
+  if (tasks.length === 0) {
+    alert('No data available to export.')
+    return
+  }
+
+  const headers = ['Task Title', 'Priority', 'Status', 'Due Date', 'Created At']
+  const rows = tasks.map(t => [
+    `"${t.title.replace(/"/g, '""')}"`,
+    t.priority,
+    t.is_completed ? 'Completed' : 'Pending',
+    t.due_date || 'N/A',
+    t.created_at ? new Date(t.created_at).toLocaleDateString() : 'N/A'
+  ])
+
+  const csvContent = "data:text/csv;charset=utf-8," 
+    + [headers.join(','), ...rows.map(e => e.join(','))].join('\n')
+  
+  const encodedUri = encodeURI(csvContent)
+  const link = document.createElement("a")
+  link.setAttribute("href", encodedUri)
+  const rangeLabel = selectedTimeRange.value === 'all' ? 'AllTime' : selectedTimeRange.value
+  link.setAttribute("download", `TaskFlow_Report_${rangeLabel}_${new Date().toISOString().split('T')[0]}.xls`)
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  showExportDropdown.value = false
+}
+
+// ─── Print Report ───
+const printReport = () => {
+  window.print()
+  showExportDropdown.value = false
+}
+
+// ─── Share Report ───
+const shareReport = () => {
+  if (navigator.share) {
+    navigator.share({
+      title: 'TaskFlow Report',
+      text: `TaskFlow Report - ${filteredStats.value.total} tasks, ${filteredStats.value.completed} completed, ${completionRate.value}% completion rate`,
+      url: window.location.href
+    }).catch(() => {})
+  } else {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      alert('Link copied to clipboard!')
+    }).catch(() => {
+      alert('Share not supported. Please copy the URL manually.')
+    })
+  }
+  showExportDropdown.value = false
+}
+
+// ─── Export to PDF ───
+const exportPDF = () => {
+  try {
+    const tasks = filteredTasks.value
+    if (tasks.length === 0) {
+      alert('No data available to export for the selected time range.')
+      return
+    }
+
+    const doc = new jsPDF('landscape', 'pt', 'a4')
+    const pageWidth = doc.internal.pageSize.getWidth()
+    
+    // Header
+    doc.setFillColor(59, 130, 246)
+    doc.rect(0, 0, pageWidth, 100, 'F')
+    
+    doc.setTextColor(255, 255, 255)
+    doc.setFontSize(28)
+    doc.setFont('helvetica', 'bold')
+    doc.text('📊 TaskFlow Report', 40, 50)
+    
+    doc.setFontSize(12)
+    doc.setFont('helvetica', 'normal')
+    const now = new Date()
+    const dateStr = now.toLocaleDateString('en-US', { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    })
+    doc.text(`Generated: ${dateStr}`, 40, 75)
+
+    // Stats
+    const statsY = 130
+    const stats = [
+      { label: 'Total Tasks', value: filteredStats.value.total },
+      { label: 'Completed', value: filteredStats.value.completed },
+      { label: 'Pending', value: filteredStats.value.pending },
+      { label: 'Overdue', value: filteredStats.value.overdue }
+    ]
+    
+    stats.forEach((stat, index) => {
+      const x = 40 + (index * 200)
+      doc.setFillColor(248, 250, 252)
+      doc.rect(x, statsY, 170, 70, 'F')
+      doc.setDrawColor(229, 231, 235)
+      doc.rect(x, statsY, 170, 70, 'S')
+      
+      doc.setTextColor(0, 0, 0)
+      doc.setFontSize(28)
+      doc.setFont('helvetica', 'bold')
+      doc.text(String(stat.value), x + 15, statsY + 40)
+      
+      doc.setFontSize(10)
+      doc.setFont('helvetica', 'normal')
+      doc.setTextColor(100, 116, 139)
+      doc.text(stat.label, x + 15, statsY + 18)
+    })
+
+    // Completion Rate
+    const rateY = 230
+    doc.setFontSize(14)
+    doc.setFont('helvetica', 'bold')
+    doc.setTextColor(0, 0, 0)
+    doc.text(`Completion Rate: ${completionRate.value}%`, 40, rateY)
+    
+    const barX = 40
+    const barY = rateY + 12
+    const barWidth = 500
+    const barHeight = 24
+    
+    doc.setFillColor(229, 231, 235)
+    doc.rect(barX, barY, barWidth, barHeight, 'F')
+    doc.setFillColor(59, 130, 246)
+    doc.rect(barX, barY, (barWidth * completionRate.value) / 100, barHeight, 'F')
+    
+    doc.setTextColor(0, 0, 0)
+    doc.setFontSize(12)
+    doc.setFont('helvetica', 'bold')
+    const percentText = `${completionRate.value}%`
+    const textWidth = doc.getTextWidth(percentText)
+    doc.text(percentText, barX + barWidth / 2 - textWidth / 2, barY + 18)
+
+    // Priority Distribution
+    const priorityY = 310
+    doc.setFontSize(14)
+    doc.setFont('helvetica', 'bold')
+    doc.text('Priority Distribution', 40, priorityY)
+    
+    const priorities = [
+      { label: 'High', color: [239, 68, 68], count: priorityCounts.value.high || 0 },
+      { label: 'Medium', color: [245, 158, 11], count: priorityCounts.value.medium || 0 },
+      { label: 'Low', color: [59, 130, 246], count: priorityCounts.value.low || 0 }
+    ]
+    
+    let pY = priorityY + 20
+    priorities.forEach(p => {
+      const total = filteredStats.value.total || 1
+      const percentage = (p.count / total) * 100
+      
+      doc.setFontSize(10)
+      doc.setFont('helvetica', 'bold')
+      doc.setTextColor(0, 0, 0)
+      doc.text(p.label, 40, pY + 8)
+      
+      doc.setFillColor(229, 231, 235)
+      doc.rect(100, pY, 400, 18, 'F')
+      doc.setFillColor(p.color[0], p.color[1], p.color[2])
+      doc.rect(100, pY, (400 * percentage) / 100, 18, 'F')
+      
+      doc.setFontSize(9)
+      doc.setFont('helvetica', 'normal')
+      doc.setTextColor(100, 116, 139)
+      doc.text(`${p.count} (${Math.round(percentage)}%)`, 520, pY + 13)
+      pY += 32
+    })
+
+    // Recent Tasks
+    const tableY = pY + 20
+    const recentTasks = completedTasks.value.slice(0, 8)
+    
+    if (recentTasks.length > 0) {
+      doc.setFontSize(14)
+      doc.setFont('helvetica', 'bold')
+      doc.setTextColor(0, 0, 0)
+      doc.text('Recent Completed Tasks', 40, tableY)
+      
+      const tableRows = recentTasks.map(task => [
+        task.title.length > 50 ? task.title.substring(0, 47) + '...' : task.title,
+        task.priority.charAt(0).toUpperCase() + task.priority.slice(1),
+        task.due_date ? formatDate(task.due_date) : 'N/A',
+        task.updated_at ? formatDate(task.updated_at) : 'N/A'
+      ])
+
+      autoTable(doc, {
+        startY: tableY + 15,
+        head: [['Task Title', 'Priority', 'Due Date', 'Completed On']],
+        body: tableRows,
+        theme: 'striped',
+        headStyles: {
+          fillColor: [59, 130, 246],
+          textColor: [255, 255, 255],
+          fontSize: 10,
+          fontStyle: 'bold'
+        },
+        bodyStyles: { fontSize: 9, cellPadding: 6 },
+        columnStyles: {
+          0: { cellWidth: 280 },
+          1: { cellWidth: 80 },
+          2: { cellWidth: 120 },
+          3: { cellWidth: 120 }
+        },
+        margin: { left: 40, right: 40 }
+      })
+    }
+
+    // Footer
+    const finalY = (doc as any).lastAutoTable?.finalY || doc.internal.pageSize.getHeight() - 60
+    doc.setDrawColor(229, 231, 235)
+    doc.line(40, finalY + 30, pageWidth - 40, finalY + 30)
+    doc.setFontSize(8)
+    doc.setFont('helvetica', 'italic')
+    doc.setTextColor(128, 128, 128)
+    doc.text(`Generated by TaskFlow • ${now.toLocaleString()}`, 40, finalY + 45)
+
+    const rangeLabel = selectedTimeRange.value === 'all' ? 'AllTime' : selectedTimeRange.value
+    doc.save(`TaskFlow_Report_${rangeLabel}_${new Date().toISOString().split('T')[0]}.pdf`)
+    showExportDropdown.value = false
+    
+  } catch (error) {
+    console.error('PDF Export Error:', error)
+    alert('Failed to generate PDF. Please check console for details.')
+  }
+}
+
+// ─── Click outside to close dropdown ───
+const handleClickOutside = (event: MouseEvent) => {
+  if (exportDropdownRef.value && !exportDropdownRef.value.contains(event.target as Node)) {
+    showExportDropdown.value = false
+  }
 }
 
 // ─── Lifecycle ───
 onMounted(async () => {
   await taskStore.fetchStats()
   await taskStore.fetchTasks()
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
 })
 </script>
 
@@ -411,16 +710,18 @@ select {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%239CA3AF' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
 }
 
+/* ─── Print Styles ─── */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
+
 /* ─── Animation ─── */
 .transition-all {
   transition-property: all;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 300ms;
-}
-
-/* ─── Dark Mode Background ─── */
-.dark .bg-gray-850 {
-  background-color: #1a1f2e;
 }
 
 /* ─── Scrollbar Styling ─── */

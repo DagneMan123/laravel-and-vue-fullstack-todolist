@@ -4,7 +4,7 @@
     isDark ? 'bg-[#1a1f2e] border-gray-700' : 'bg-white border-gray-200'
   ]">
     <h3 class="text-base sm:text-lg font-bold mb-3 sm:mb-4" :class="isDark ? 'text-white' : 'text-gray-900'">
-      Tasks by Priority
+      {{ $t('charts.tasksByPriority') }}
     </h3>
     
     <div v-if="loading" class="flex items-center justify-center h-48 sm:h-80">
@@ -25,6 +25,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { Bar } from 'vue-chartjs'
 import {
   Chart as ChartJS,
@@ -47,6 +48,7 @@ ChartJS.register(
   Legend
 )
 
+const { t } = useI18n()
 const themeStore = useThemeStore()
 const isDark = computed(() => themeStore.isDark)
 
@@ -70,22 +72,21 @@ async function fetchPriorityData() {
 const chartData = computed(() => {
   if (!priorityData.value) {
     return {
-      labels: ['High', 'Medium', 'Low'],
+      labels: [t('tasks.high'), t('tasks.medium'), t('tasks.low')],
       datasets: [],
     }
   }
 
   return {
-    labels: ['High', 'Medium', 'Low'],
+    labels: [t('tasks.high'), t('tasks.medium'), t('tasks.low')],
     datasets: [
       {
-        label: 'Total Tasks',
+        label: t('charts.totalTasks'),
         data: [
           priorityData.value.high.total,
           priorityData.value.medium.total,
           priorityData.value.low.total,
         ],
-        // 🔴 ማብራሪያው (Legend) ላይ ካለው ጋር እንዲገጥም ሁሉም ቱታል ታስኮች ቀይ ብቻ ሆኑ
         backgroundColor: '#ef4444',
         borderColor: '#dc2626',
         borderWidth: 1.5,
@@ -93,13 +94,12 @@ const chartData = computed(() => {
         hoverBackgroundColor: '#dc2626',
       },
       {
-        label: 'Completed',
+        label: t('charts.completed'),
         data: [
           priorityData.value.high.completed,
           priorityData.value.medium.completed,
           priorityData.value.low.completed,
         ],
-        // 🟢 ማብራሪያው (Legend) ላይ ካለው ጋር እንዲገጥም ሁሉም የተጠናቀቁት አረንጓዴ ብቻ ሆኑ
         backgroundColor: '#10b981',
         borderColor: '#059669',
         borderWidth: 1.5,
@@ -140,7 +140,7 @@ const chartOptions = computed(() => {
         displayColors: true,
         callbacks: {
           label: function(context: any) {
-            return ' ' + context.dataset.label + ': ' + context.parsed.y + ' tasks'
+            return ' ' + context.dataset.label + ': ' + context.parsed.y + ' ' + t('charts.tasks')
           }
         }
       },

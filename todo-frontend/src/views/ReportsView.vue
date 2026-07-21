@@ -5,10 +5,10 @@
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
           <h1 class="text-2xl sm:text-3xl font-bold" :class="isDark ? 'text-white' : 'text-gray-900'">
-            Reports & Analytics
+            📊 {{ $t('reports.title') }}
           </h1>
           <p class="mt-2 text-sm" :class="isDark ? 'text-gray-400' : 'text-gray-600'">
-            Track your productivity and progress
+            {{ $t('reports.subtitle') }}
           </p>
         </div>
         
@@ -23,10 +23,10 @@
                 : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
             ]"
           >
-            <option value="all">📊 All Time</option>
-            <option value="today">📆 Today</option>
-            <option value="week">📅 This Week</option>
-            <option value="month">📅 This Month</option>
+            <option value="all">📊 {{ $t('reports.all_time') }}</option>
+            <option value="today">📆 {{ $t('reports.today') }}</option>
+            <option value="week">📅 {{ $t('reports.this_week') }}</option>
+            <option value="month">📅 {{ $t('reports.this_month') }}</option>
           </select>
 
           <!-- Export Dropdown -->
@@ -43,7 +43,7 @@
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
               </svg>
-              <span>Export</span>
+              <span>{{ $t('common.export') }}</span>
               <svg class="w-4 h-4 transition-transform duration-200" :class="{ 'rotate-180': showExportDropdown }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
               </svg>
@@ -60,35 +60,35 @@
                 class="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-3"
                 :class="isDark ? 'text-gray-200' : 'text-gray-700'"
               >
-                <span class="text-lg">📄</span> PDF Report
+                <span class="text-lg">📄</span> {{ $t('reports.pdf_report') }}
               </button>
               <button 
                 @click="exportCSV" 
                 class="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-3"
                 :class="isDark ? 'text-gray-200' : 'text-gray-700'"
               >
-                <span class="text-lg">📊</span> CSV Data
+                <span class="text-lg">📊</span> {{ $t('reports.csv_data') }}
               </button>
               <button 
                 @click="exportExcel" 
                 class="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-3"
                 :class="isDark ? 'text-gray-200' : 'text-gray-700'"
               >
-                <span class="text-lg">📈</span> Excel Export
+                <span class="text-lg">📈</span> {{ $t('reports.excel_export') }}
               </button>
               <button 
                 @click="printReport" 
                 class="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-3 border-t"
                 :class="isDark ? 'border-gray-700 text-gray-200' : 'border-gray-200 text-gray-700'"
               >
-                <span class="text-lg">🖨️</span> Print
+                <span class="text-lg">🖨️</span> {{ $t('reports.print') }}
               </button>
               <button 
                 @click="shareReport" 
                 class="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-3"
                 :class="isDark ? 'text-gray-200' : 'text-gray-700'"
               >
-                <span class="text-lg">🔗</span> Share Report
+                <span class="text-lg">🔗</span> {{ $t('reports.share') }}
               </button>
             </div>
           </div>
@@ -98,34 +98,42 @@
       <!-- ===== STATS CARDS ===== -->
       <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
         <div :class="['p-4 sm:p-6 rounded-lg border transition-all', isDark ? 'bg-[#1a1f2e] border-gray-700' : 'bg-white border-gray-200']">
-          <p class="text-xs sm:text-sm font-medium mb-2" :class="isDark ? 'text-gray-400' : 'text-gray-600'">Total Tasks</p>
+          <p class="text-xs sm:text-sm font-medium mb-2" :class="isDark ? 'text-gray-400' : 'text-gray-600'">
+            {{ $t('stats.total_tasks') }}
+          </p>
           <p class="text-2xl sm:text-3xl font-bold" :class="isDark ? 'text-white' : 'text-gray-900'">
             {{ filteredStats.total || 0 }}
           </p>
           <p class="text-xs mt-1 text-gray-500">
-            {{ selectedTimeRange === 'all' ? 'All time' : selectedTimeRange }}
+            {{ selectedTimeRange === 'all' ? $t('reports.all_time') : selectedTimeRange }}
           </p>
         </div>
 
         <div :class="['p-4 sm:p-6 rounded-lg border transition-all', isDark ? 'bg-[#1a1f2e] border-gray-700' : 'bg-white border-gray-200']">
-          <p class="text-xs sm:text-sm font-medium mb-2" :class="isDark ? 'text-gray-400' : 'text-gray-600'">Completed</p>
+          <p class="text-xs sm:text-sm font-medium mb-2" :class="isDark ? 'text-gray-400' : 'text-gray-600'">
+            {{ $t('stats.completed_tasks') }}
+          </p>
           <p class="text-2xl sm:text-3xl font-bold text-green-600 dark:text-green-400">
             {{ filteredStats.completed || 0 }}
           </p>
           <p class="text-xs mt-1 font-semibold text-blue-500">
-            {{ completionRate }}% Efficiency
+            {{ completionRate }}% {{ $t('common.efficiency') }}
           </p>
         </div>
 
         <div :class="['p-4 sm:p-6 rounded-lg border transition-all', isDark ? 'bg-[#1a1f2e] border-gray-700' : 'bg-white border-gray-200']">
-          <p class="text-xs sm:text-sm font-medium mb-2" :class="isDark ? 'text-gray-400' : 'text-gray-600'">Pending</p>
+          <p class="text-xs sm:text-sm font-medium mb-2" :class="isDark ? 'text-gray-400' : 'text-gray-600'">
+            {{ $t('stats.pending_tasks') }}
+          </p>
           <p class="text-2xl sm:text-3xl font-bold text-yellow-600 dark:text-yellow-400">
             {{ filteredStats.pending || 0 }}
           </p>
         </div>
 
         <div :class="['p-4 sm:p-6 rounded-lg border transition-all', isDark ? 'bg-[#1a1f2e] border-gray-700' : 'bg-white border-gray-200']">
-          <p class="text-xs sm:text-sm font-medium mb-2" :class="isDark ? 'text-gray-400' : 'text-gray-600'">Overdue</p>
+          <p class="text-xs sm:text-sm font-medium mb-2" :class="isDark ? 'text-gray-400' : 'text-gray-600'">
+            {{ $t('stats.overdue_tasks') }}
+          </p>
           <p class="text-2xl sm:text-3xl font-bold text-red-600 dark:text-red-400">
             {{ filteredStats.overdue || 0 }}
           </p>
@@ -136,7 +144,9 @@
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <!-- Completion Rate Chart -->
         <div :class="['p-4 sm:p-6 rounded-lg border', isDark ? 'bg-[#1a1f2e] border-gray-700' : 'bg-white border-gray-200']">
-          <h3 class="text-lg font-bold mb-4" :class="isDark ? 'text-white' : 'text-gray-900'">Completion Rate</h3>
+          <h3 class="text-lg font-bold mb-4" :class="isDark ? 'text-white' : 'text-gray-900'">
+            {{ $t('reports.completion_rate') }}
+          </h3>
           <div class="flex items-center justify-center py-4">
             <div class="relative w-40 h-40 sm:w-48 sm:h-48">
               <svg viewBox="0 0 200 200" class="transform -rotate-90 w-full h-full">
@@ -157,7 +167,7 @@
                     {{ completionRate }}%
                   </p>
                   <p class="text-[10px] sm:text-xs font-medium mt-1" :class="isDark ? 'text-gray-400' : 'text-gray-500'">
-                    Completed
+                    {{ $t('stats.completed_tasks') }}
                   </p>
                 </div>
               </div>
@@ -166,22 +176,24 @@
           <div class="flex justify-center gap-4 text-xs mt-2">
             <span class="flex items-center gap-1">
               <span class="w-3 h-3 rounded-full bg-blue-500"></span>
-              Completed
+              {{ $t('stats.completed_tasks') }}
             </span>
             <span class="flex items-center gap-1">
               <span class="w-3 h-3 rounded-full" :class="isDark ? 'bg-gray-700' : 'bg-gray-200'"></span>
-              Pending
+              {{ $t('stats.pending_tasks') }}
             </span>
           </div>
         </div>
 
         <!-- Priority Distribution -->
         <div :class="['p-4 sm:p-6 rounded-lg border', isDark ? 'bg-[#1a1f2e] border-gray-700' : 'bg-white border-gray-200']">
-          <h3 class="text-lg font-bold mb-4" :class="isDark ? 'text-white' : 'text-gray-900'">By Priority</h3>
+          <h3 class="text-lg font-bold mb-4" :class="isDark ? 'text-white' : 'text-gray-900'">
+            {{ $t('tasks.priority') }}
+          </h3>
           <div class="space-y-4 py-2">
             <div v-for="(count, priority) in priorityCounts" :key="priority" class="flex items-center gap-3">
               <span class="capitalize text-sm font-semibold w-16 sm:w-20" :class="isDark ? 'text-gray-400' : 'text-gray-600'">
-                {{ priority }}
+                {{ $t('tasks.' + priority) }}
               </span>
               <div class="flex-1 h-3 rounded-full overflow-hidden" :class="isDark ? 'bg-gray-700' : 'bg-gray-200'">
                 <div 
@@ -200,15 +212,15 @@
           <div class="flex justify-center gap-4 text-xs mt-4">
             <span class="flex items-center gap-1">
               <span class="w-3 h-3 rounded-full bg-red-500"></span>
-              High
+              {{ $t('tasks.high') }}
             </span>
             <span class="flex items-center gap-1">
               <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
-              Medium
+              {{ $t('tasks.medium') }}
             </span>
             <span class="flex items-center gap-1">
               <span class="w-3 h-3 rounded-full bg-blue-500"></span>
-              Low
+              {{ $t('tasks.low') }}
             </span>
           </div>
         </div>
@@ -217,9 +229,11 @@
       <!-- ===== RECENT COMPLETED TASKS ===== -->
       <div :class="['p-4 sm:p-6 rounded-lg border', isDark ? 'bg-[#1a1f2e] border-gray-700' : 'bg-white border-gray-200']">
         <div class="flex items-center justify-between mb-4">
-          <h3 class="text-lg font-bold" :class="isDark ? 'text-white' : 'text-gray-900'">Recent Completed Tasks</h3>
+          <h3 class="text-lg font-bold" :class="isDark ? 'text-white' : 'text-gray-900'">
+            {{ $t('reports.recent_completed') }}
+          </h3>
           <span class="text-xs px-2 py-1 rounded-full" :class="isDark ? 'bg-gray-800 text-gray-400' : 'bg-gray-100 text-gray-600'">
-            {{ completedTasks.length }} completed
+            {{ completedTasks.length }} {{ $t('stats.completed_tasks') }}
           </span>
         </div>
         
@@ -238,10 +252,10 @@
             </div>
             <div class="flex items-center gap-3 mt-2 sm:mt-0 ml-7 sm:ml-0">
               <span class="text-[10px] sm:text-xs px-2 py-0.5 rounded-full" :class="isDark ? 'bg-gray-700 text-gray-300' : 'bg-gray-200 text-gray-600'">
-                {{ task.priority }}
+                {{ $t('tasks.' + task.priority) }}
               </span>
               <span class="text-[10px] sm:text-xs opacity-60">
-                {{ task.due_date ? formatDate(task.due_date) : 'No due date' }}
+                {{ task.due_date ? formatDate(task.due_date) : $t('common.no_due_date') }}
               </span>
             </div>
           </div>
@@ -251,8 +265,12 @@
           <svg class="mx-auto h-12 w-12 text-gray-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
           </svg>
-          <p class="text-sm font-medium" :class="isDark ? 'text-gray-400' : 'text-gray-500'">No completed tasks yet</p>
-          <p class="text-xs mt-1" :class="isDark ? 'text-gray-600' : 'text-gray-400'">Finish your pending tasks to see them listed here!</p>
+          <p class="text-sm font-medium" :class="isDark ? 'text-gray-400' : 'text-gray-500'">
+            {{ $t('reports.no_completed') }}
+          </p>
+          <p class="text-xs mt-1" :class="isDark ? 'text-gray-600' : 'text-gray-400'">
+            {{ $t('reports.complete_first') }}
+          </p>
         </div>
       </div>
     </div>
@@ -261,24 +279,36 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useThemeStore } from '@/stores/theme'
 import { useTaskStore } from '@/stores/tasks'
 import AppLayout from '@/layouts/AppLayout.vue'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 
-// ─── Stores ───
+// ============================================
+// I18N - Translation Function
+// ============================================
+const { t } = useI18n()
+
+// ============================================
+// STORES
+// ============================================
 const themeStore = useThemeStore()
 const taskStore = useTaskStore()
 
 const isDark = computed(() => themeStore.isDark)
 
-// ─── State ───
+// ============================================
+// STATE
+// ============================================
 const selectedTimeRange = ref('all')
 const showExportDropdown = ref(false)
 const exportDropdownRef = ref<HTMLElement | null>(null)
 
-// ─── Date Helper ───
+// ============================================
+// DATE HELPER
+// ============================================
 const formatDate = (dateString: string): string => {
   if (!dateString) return ''
   const date = new Date(dateString)
@@ -289,7 +319,9 @@ const formatDate = (dateString: string): string => {
   })
 }
 
-// ─── Filtered Tasks Based on Time Range ───
+// ============================================
+// FILTERED TASKS
+// ============================================
 const filteredTasks = computed(() => {
   const today = new Date()
   today.setHours(0, 0, 0, 0)
@@ -348,7 +380,9 @@ const filteredTasks = computed(() => {
   return tasks
 })
 
-// ─── Filtered Stats ───
+// ============================================
+// STATS
+// ============================================
 const filteredStats = computed(() => {
   const tasks = filteredTasks.value
   const total = tasks.length
@@ -366,14 +400,18 @@ const filteredStats = computed(() => {
   return { total, completed, pending, overdue }
 })
 
-// ─── Completion Rate ───
+// ============================================
+// COMPLETION RATE
+// ============================================
 const completionRate = computed(() => {
   const { total, completed } = filteredStats.value
   if (total === 0) return 0
   return Math.round((completed / total) * 100)
 })
 
-// ─── Priority Counts ───
+// ============================================
+// PRIORITY COUNTS
+// ============================================
 const priorityCounts = computed(() => {
   const counts: Record<string, number> = { low: 0, medium: 0, high: 0 }
   filteredTasks.value.forEach(task => {
@@ -384,14 +422,18 @@ const priorityCounts = computed(() => {
   return counts
 })
 
-// ─── Get Priority Percentage ───
+// ============================================
+// GET PRIORITY PERCENTAGE
+// ============================================
 const getPriorityPercentage = (count: number) => {
   const total = filteredStats.value.total
   if (total === 0) return 0
   return (count / total) * 100
 }
 
-// ─── Completed Tasks ───
+// ============================================
+// COMPLETED TASKS
+// ============================================
 const completedTasks = computed(() => {
   return filteredTasks.value
     .filter(t => t.is_completed)
@@ -402,116 +444,160 @@ const completedTasks = computed(() => {
     })
 })
 
-// ─── Handle Filter Change ───
+// ============================================
+// HANDLE FILTER CHANGE
+// ============================================
 const handleFilterChange = async () => {
   await taskStore.fetchStats()
   await taskStore.fetchTasks()
 }
 
-// ─── Toggle Export Dropdown ───
+// ============================================
+// TOGGLE EXPORT DROPDOWN
+// ============================================
 const toggleExportDropdown = () => {
   showExportDropdown.value = !showExportDropdown.value
 }
 
-// ─── Export to CSV ───
+// ============================================
+// EXPORT CSV
+// ============================================
 const exportCSV = () => {
   const tasks = filteredTasks.value
   if (tasks.length === 0) {
-    alert('No data available to export for the selected time range.')
+    alert(t('reports.no_data_export'))
     return
   }
 
-  const headers = ['Task Title', 'Priority', 'Status', 'Due Date', 'Created At']
-  const rows = tasks.map(t => [
-    `"${t.title.replace(/"/g, '""')}"`,
-    t.priority,
-    t.is_completed ? 'Completed' : 'Pending',
-    t.due_date || 'N/A',
-    t.created_at ? new Date(t.created_at).toLocaleDateString() : 'N/A'
+  // ✅ Pre-fetch translations to avoid variable conflict
+  const completedText = t('tasks.completed')
+  const pendingText = t('tasks.pending')
+  const noDataText = t('common.n/a')
+  
+  const headers = [
+    t('tasks.task_title'),
+    t('tasks.priority'),
+    t('tasks.status'),
+    t('tasks.due_date'),
+    t('common.created_at')
+  ]
+  
+  // ✅ Using 'task' instead of 't' to avoid conflict with translation function
+  const rows = tasks.map((task: any) => [
+    `"${task.title.replace(/"/g, '""')}"`,
+    task.priority,
+    task.is_completed ? completedText : pendingText,
+    task.due_date || noDataText,
+    task.created_at ? new Date(task.created_at).toLocaleDateString() : 'N/A'
   ])
 
   const csvContent = "data:text/csv;charset=utf-8," 
-    + [headers.join(','), ...rows.map(e => e.join(','))].join('\n')
+    + [headers.join(','), ...rows.map((row: any) => row.join(','))].join('\n')
   
   const encodedUri = encodeURI(csvContent)
-  const link = document.createElement("a")
-  link.setAttribute("href", encodedUri)
+  const link = document.createElement('a')
+  link.setAttribute('href', encodedUri)
   const rangeLabel = selectedTimeRange.value === 'all' ? 'AllTime' : selectedTimeRange.value
-  link.setAttribute("download", `TaskFlow_Report_${rangeLabel}_${new Date().toISOString().split('T')[0]}.csv`)
+  link.setAttribute('download', `TaskFlow_Report_${rangeLabel}_${new Date().toISOString().split('T')[0]}.csv`)
   document.body.appendChild(link)
   link.click()
   document.body.removeChild(link)
   showExportDropdown.value = false
 }
 
-// ─── Export to Excel ───
+// ============================================
+// EXPORT EXCEL
+// ============================================
 const exportExcel = () => {
   const tasks = filteredTasks.value
   if (tasks.length === 0) {
-    alert('No data available to export.')
+    alert(t('reports.no_data_export'))
     return
   }
 
-  const headers = ['Task Title', 'Priority', 'Status', 'Due Date', 'Created At']
-  const rows = tasks.map(t => [
-    `"${t.title.replace(/"/g, '""')}"`,
-    t.priority,
-    t.is_completed ? 'Completed' : 'Pending',
-    t.due_date || 'N/A',
-    t.created_at ? new Date(t.created_at).toLocaleDateString() : 'N/A'
+  const completedText = t('tasks.completed')
+  const pendingText = t('tasks.pending')
+  const noDataText = t('common.n/a')
+  
+  const headers = [
+    t('tasks.task_title'),
+    t('tasks.priority'),
+    t('tasks.status'),
+    t('tasks.due_date'),
+    t('common.created_at')
+  ]
+  
+  const rows = tasks.map((task: any) => [
+    `"${task.title.replace(/"/g, '""')}"`,
+    task.priority,
+    task.is_completed ? completedText : pendingText,
+    task.due_date || noDataText,
+    task.created_at ? new Date(task.created_at).toLocaleDateString() : 'N/A'
   ])
 
   const csvContent = "data:text/csv;charset=utf-8," 
-    + [headers.join(','), ...rows.map(e => e.join(','))].join('\n')
+    + [headers.join(','), ...rows.map((row: any) => row.join(','))].join('\n')
   
   const encodedUri = encodeURI(csvContent)
-  const link = document.createElement("a")
-  link.setAttribute("href", encodedUri)
+  const link = document.createElement('a')
+  link.setAttribute('href', encodedUri)
   const rangeLabel = selectedTimeRange.value === 'all' ? 'AllTime' : selectedTimeRange.value
-  link.setAttribute("download", `TaskFlow_Report_${rangeLabel}_${new Date().toISOString().split('T')[0]}.xls`)
+  link.setAttribute('download', `TaskFlow_Report_${rangeLabel}_${new Date().toISOString().split('T')[0]}.xls`)
   document.body.appendChild(link)
   link.click()
   document.body.removeChild(link)
   showExportDropdown.value = false
 }
 
-// ─── Print Report ───
+// ============================================
+// PRINT REPORT
+// ============================================
 const printReport = () => {
   window.print()
   showExportDropdown.value = false
 }
 
-// ─── Share Report ───
+// ============================================
+// SHARE REPORT
+// ============================================
 const shareReport = () => {
+  const shareText = t('reports.share_text', {
+    total: filteredStats.value.total,
+    completed: filteredStats.value.completed,
+    rate: completionRate.value
+  })
+  
   if (navigator.share) {
     navigator.share({
-      title: 'TaskFlow Report',
-      text: `TaskFlow Report - ${filteredStats.value.total} tasks, ${filteredStats.value.completed} completed, ${completionRate.value}% completion rate`,
+      title: t('reports.share_title'),
+      text: shareText,
       url: window.location.href
     }).catch(() => {})
   } else {
     navigator.clipboard.writeText(window.location.href).then(() => {
-      alert('Link copied to clipboard!')
+      alert(t('common.copied'))
     }).catch(() => {
-      alert('Share not supported. Please copy the URL manually.')
+      alert(t('common.share_not_supported'))
     })
   }
   showExportDropdown.value = false
 }
 
-// ─── Export to PDF ───
+// ============================================
+// EXPORT PDF
+// ============================================
 const exportPDF = () => {
   try {
     const tasks = filteredTasks.value
     if (tasks.length === 0) {
-      alert('No data available to export for the selected time range.')
+      alert(t('reports.no_data_export'))
       return
     }
 
     const doc = new jsPDF('landscape', 'pt', 'a4')
     const pageWidth = doc.internal.pageSize.getWidth()
     
-    // Header
+    // ─── HEADER ───
     doc.setFillColor(59, 130, 246)
     doc.rect(0, 0, pageWidth, 100, 'F')
     
@@ -531,13 +617,13 @@ const exportPDF = () => {
     })
     doc.text(`Generated: ${dateStr}`, 40, 75)
 
-    // Stats
+    // ─── STATS ───
     const statsY = 130
     const stats = [
-      { label: 'Total Tasks', value: filteredStats.value.total },
-      { label: 'Completed', value: filteredStats.value.completed },
-      { label: 'Pending', value: filteredStats.value.pending },
-      { label: 'Overdue', value: filteredStats.value.overdue }
+      { label: t('stats.total_tasks'), value: filteredStats.value.total },
+      { label: t('stats.completed_tasks'), value: filteredStats.value.completed },
+      { label: t('stats.pending_tasks'), value: filteredStats.value.pending },
+      { label: t('stats.overdue_tasks'), value: filteredStats.value.overdue }
     ]
     
     stats.forEach((stat, index) => {
@@ -558,12 +644,12 @@ const exportPDF = () => {
       doc.text(stat.label, x + 15, statsY + 18)
     })
 
-    // Completion Rate
+    // ─── COMPLETION RATE ───
     const rateY = 230
     doc.setFontSize(14)
     doc.setFont('helvetica', 'bold')
     doc.setTextColor(0, 0, 0)
-    doc.text(`Completion Rate: ${completionRate.value}%`, 40, rateY)
+    doc.text(`${t('stats.completion_rate')}: ${completionRate.value}%`, 40, rateY)
     
     const barX = 40
     const barY = rateY + 12
@@ -582,20 +668,21 @@ const exportPDF = () => {
     const textWidth = doc.getTextWidth(percentText)
     doc.text(percentText, barX + barWidth / 2 - textWidth / 2, barY + 18)
 
-    // Priority Distribution
+    // ─── PRIORITY DISTRIBUTION ───
     const priorityY = 310
     doc.setFontSize(14)
     doc.setFont('helvetica', 'bold')
-    doc.text('Priority Distribution', 40, priorityY)
+    doc.setTextColor(0, 0, 0)
+    doc.text(t('tasks.priority'), 40, priorityY)
     
     const priorities = [
-      { label: 'High', color: [239, 68, 68], count: priorityCounts.value.high || 0 },
-      { label: 'Medium', color: [245, 158, 11], count: priorityCounts.value.medium || 0 },
-      { label: 'Low', color: [59, 130, 246], count: priorityCounts.value.low || 0 }
+      { label: t('tasks.high'), color: [239, 68, 68], count: priorityCounts.value.high || 0 },
+      { label: t('tasks.medium'), color: [245, 158, 11], count: priorityCounts.value.medium || 0 },
+      { label: t('tasks.low'), color: [59, 130, 246], count: priorityCounts.value.low || 0 }
     ]
     
     let pY = priorityY + 20
-    priorities.forEach(p => {
+    priorities.forEach((p: any) => {
       const total = filteredStats.value.total || 1
       const percentage = (p.count / total) * 100
       
@@ -616,7 +703,7 @@ const exportPDF = () => {
       pY += 32
     })
 
-    // Recent Tasks
+    // ─── RECENT TASKS ───
     const tableY = pY + 20
     const recentTasks = completedTasks.value.slice(0, 8)
     
@@ -624,18 +711,20 @@ const exportPDF = () => {
       doc.setFontSize(14)
       doc.setFont('helvetica', 'bold')
       doc.setTextColor(0, 0, 0)
-      doc.text('Recent Completed Tasks', 40, tableY)
+      doc.text(t('reports.recent_completed'), 40, tableY)
       
-      const tableRows = recentTasks.map(task => [
+      const tableRows = recentTasks.map((task: any) => [
         task.title.length > 50 ? task.title.substring(0, 47) + '...' : task.title,
-        task.priority.charAt(0).toUpperCase() + task.priority.slice(1),
-        task.due_date ? formatDate(task.due_date) : 'N/A',
-        task.updated_at ? formatDate(task.updated_at) : 'N/A'
+        t('tasks.' + task.priority),
+        task.due_date ? formatDate(task.due_date) : t('common.n/a'),
+        task.updated_at ? formatDate(task.updated_at) : t('common.n/a')
       ])
 
       autoTable(doc, {
         startY: tableY + 15,
-        head: [['Task Title', 'Priority', 'Due Date', 'Completed On']],
+        head: [
+          [t('tasks.task_title'), t('tasks.priority'), t('tasks.due_date'), t('common.completed_at')]
+        ],
         body: tableRows,
         theme: 'striped',
         headStyles: {
@@ -655,7 +744,7 @@ const exportPDF = () => {
       })
     }
 
-    // Footer
+    // ─── FOOTER ───
     const finalY = (doc as any).lastAutoTable?.finalY || doc.internal.pageSize.getHeight() - 60
     doc.setDrawColor(229, 231, 235)
     doc.line(40, finalY + 30, pageWidth - 40, finalY + 30)
@@ -670,18 +759,22 @@ const exportPDF = () => {
     
   } catch (error) {
     console.error('PDF Export Error:', error)
-    alert('Failed to generate PDF. Please check console for details.')
+    alert(t('common.error'))
   }
 }
 
-// ─── Click outside to close dropdown ───
+// ============================================
+// CLICK OUTSIDE TO CLOSE DROPDOWN
+// ============================================
 const handleClickOutside = (event: MouseEvent) => {
   if (exportDropdownRef.value && !exportDropdownRef.value.contains(event.target as Node)) {
     showExportDropdown.value = false
   }
 }
 
-// ─── Lifecycle ───
+// ============================================
+// LIFECYCLE
+// ============================================
 onMounted(async () => {
   await taskStore.fetchStats()
   await taskStore.fetchTasks()

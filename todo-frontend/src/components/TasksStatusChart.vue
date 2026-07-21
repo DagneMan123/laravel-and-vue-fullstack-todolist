@@ -4,7 +4,7 @@
     isDark ? 'bg-[#1a1f2e] border-gray-700' : 'bg-white border-gray-200'
   ]">
     <h3 class="text-base sm:text-lg font-bold mb-3 sm:mb-4" :class="isDark ? 'text-white' : 'text-gray-900'">
-      Task Status Overview
+      {{ $t('charts.taskStatusOverview') }}
     </h3>
     <div class="flex items-center justify-center">
       <div class="w-full">
@@ -20,6 +20,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { Doughnut } from 'vue-chartjs'
 import {
   Chart as ChartJS,
@@ -32,6 +33,7 @@ import { useTaskStore } from '@/stores/tasks'
 
 ChartJS.register(ArcElement, Tooltip, Legend)
 
+const { t } = useI18n()
 const themeStore = useThemeStore()
 const taskStore = useTaskStore()
 
@@ -43,7 +45,7 @@ const chartData = computed(() => {
   const overdue = taskStore.stats?.overdue || 0
 
   return {
-    labels: ['Completed', 'Pending', 'Overdue'],
+    labels: [t('dashboard.completed'), t('dashboard.pending'), t('dashboard.overdue')],
     datasets: [
       {
         data: [completed, pending, overdue],

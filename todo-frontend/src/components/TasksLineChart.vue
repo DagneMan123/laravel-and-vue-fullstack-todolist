@@ -4,7 +4,7 @@
     isDark ? 'bg-[#1a1f2e] border-gray-700' : 'bg-white border-gray-200'
   ]">
     <h3 class="text-base sm:text-lg font-bold mb-3 sm:mb-4" :class="isDark ? 'text-white' : 'text-gray-900'">
-      Task Completion Trend
+      {{ $t('charts.taskCompletionTrend') }}
     </h3>
     
     <div v-if="loading" class="flex items-center justify-center h-48 sm:h-80">
@@ -25,6 +25,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { Line } from 'vue-chartjs'
 import {
   Chart as ChartJS,
@@ -51,6 +52,7 @@ ChartJS.register(
   Filler
 )
 
+const { t } = useI18n()
 const themeStore = useThemeStore()
 const isDark = computed(() => themeStore.isDark)
 
@@ -80,7 +82,7 @@ const chartData = computed(() => {
     labels,
     datasets: [
       {
-        label: 'Completed Tasks',
+        label: t('charts.completedTasks'),
         data: completedData,
         borderColor: '#10b981',
         backgroundColor: 'rgba(16, 185, 129, 0.1)',
@@ -93,7 +95,7 @@ const chartData = computed(() => {
         pointHoverRadius: 7,
       },
       {
-        label: 'Pending Tasks',
+        label: t('charts.pendingTasks'),
         data: pendingData,
         borderColor: '#f59e0b',
         backgroundColor: 'rgba(245, 158, 11, 0.1)',

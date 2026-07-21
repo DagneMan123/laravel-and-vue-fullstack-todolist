@@ -14,20 +14,20 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
           </div>
-          <h1 class="text-3xl font-bold gradient-text">Create Account</h1>
-          <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Join us and start managing your tasks</p>
+          <h1 class="text-3xl font-bold gradient-text">{{ $t('auth.registerTitle') }}</h1>
+          <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">{{ $t('auth.registerDescription') }}</p>
         </div>
 
         <form @submit.prevent="handleRegister" class="space-y-4" @input="validateOnInput">
           <!-- Full Name -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Full Name</label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">{{ $t('auth.firstName') }}</label>
             <input
               v-model="formData.name"
               type="text"
               class="input-field"
               :class="{ 'border-red-500 dark:border-red-400': nameError }"
-              placeholder="Enter your full name"
+              :placeholder="$t('auth.enterFirstName')"
               :disabled="authStore.isLoading"
             />
             <FormError :message="nameError" />
@@ -35,13 +35,13 @@
 
           <!-- Email -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Email Address</label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">{{ $t('auth.emailAddress') }}</label>
             <input
               v-model="formData.email"
               type="email"
               class="input-field"
               :class="{ 'border-red-500 dark:border-red-400': emailError }"
-              placeholder="Enter your email"
+              :placeholder="$t('auth.enterEmail')"
               :disabled="authStore.isLoading"
             />
             <FormError :message="emailError" />
@@ -50,9 +50,9 @@
           <!-- Password -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-              Password
+              {{ $t('auth.password') }}
               <span v-if="passwordStrengthLabel" :class="{ 'text-red-600': passwordStrength === 1, 'text-yellow-600': passwordStrength === 2, 'text-blue-600': passwordStrength === 3, 'text-green-600': passwordStrength === 4 }" class="text-xs ml-2">
-                {{ passwordStrengthLabel }}
+                {{ getPasswordStrengthLabel() }}
               </span>
             </label>
             <div class="relative">
@@ -61,7 +61,7 @@
                 :type="showPassword ? 'text' : 'password'"
                 class="input-field pr-10"
                 :class="{ 'border-red-500 dark:border-red-400': passwordError }"
-                placeholder="Enter your password"
+                :placeholder="$t('auth.enterPassword')"
                 :disabled="authStore.isLoading"
               />
               <button
@@ -93,14 +93,14 @@
 
           <!-- Confirm Password -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Confirm Password</label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">{{ $t('auth.confirmPassword') }}</label>
             <div class="relative">
               <input
                 v-model="formData.password_confirmation"
                 :type="showConfirmPassword ? 'text' : 'password'"
                 class="input-field pr-10"
                 :class="{ 'border-red-500 dark:border-red-400': passwordConfirmError }"
-                placeholder="Confirm your password"
+                :placeholder="$t('auth.enterConfirmPassword')"
                 :disabled="authStore.isLoading"
               />
               <button
@@ -133,13 +133,13 @@
             :disabled="authStore.isLoading"
           >
             <span v-if="authStore.isLoading" class="inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></span>
-            {{ authStore.isLoading ? 'Creating Account...' : 'Sign Up' }}
+            {{ authStore.isLoading ? $t('auth.signingUp') : $t('auth.signUp') }}
           </button>
 
           <p class="text-center text-sm text-gray-600 dark:text-gray-400">
-            Already have an account?
+            {{ $t('auth.alreadyHaveAccount') }}
             <router-link to="/login" class="text-primary-600 dark:text-primary-400 font-medium hover:underline">
-              Sign in
+              {{ $t('auth.signInHere') }}
             </router-link>
           </p>
         </form>
@@ -151,6 +151,7 @@
 <script setup lang="ts">
 import { reactive, ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import { useFormValidation } from '@/composables/useFormValidation'
 import { useNotification } from '@/composables/useNotification'
@@ -158,6 +159,7 @@ import { useThemeStore } from '@/stores/theme'
 import FormError from '@/components/FormError.vue'
 import type { RegisterData } from '@/types'
 
+const { t } = useI18n()
 const { success, error: notifyError } = useNotification()
 const router = useRouter()
 const authStore = useAuthStore()
@@ -193,11 +195,20 @@ const passwordStrength = computed(() => {
 const passwordStrengthLabel = computed(() => {
   const strength = passwordStrength.value
   if (strength === 0) return ''
-  if (strength === 1) return 'Weak'
-  if (strength === 2) return 'Fair'
-  if (strength === 3) return 'Good'
-  return 'Strong'
+  if (strength === 1) return t('validation.weak')
+  if (strength === 2) return t('validation.fair')
+  if (strength === 3) return t('validation.good')
+  return t('validation.strong')
 })
+
+const getPasswordStrengthLabel = () => {
+  const strength = passwordStrength.value
+  if (strength === 0) return ''
+  if (strength === 1) return t('validation.weak')
+  if (strength === 2) return t('validation.fair')
+  if (strength === 3) return t('validation.good')
+  return t('validation.strong')
+}
 
 const passwordStrengthColor = computed(() => {
   const strength = passwordStrength.value
@@ -216,10 +227,10 @@ const handleRegister = async () => {
 
   const result = await authStore.register(formData)
   if (result.success) {
-    success('Account created successfully!')
+    success(t('auth.registerSuccess') || 'Account created successfully!')
     await router.push('/login')
   } else {
-    notifyError(result.message || 'Registration failed')
+    notifyError(result.message || t('auth.registerFailed') || 'Registration failed')
   }
 }
 

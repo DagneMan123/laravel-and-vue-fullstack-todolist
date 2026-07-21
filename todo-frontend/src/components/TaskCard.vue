@@ -55,7 +55,7 @@
               <button
                 @click="emit('edit', task)"
                 class="p-1.5 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-150"
-                title="Edit task"
+                title="Edit Task"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -64,7 +64,7 @@
               <button
                 @click="handleDelete"
                 class="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-150"
-                title="Delete task"
+                title="Delete Task"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -104,7 +104,7 @@
                 ? 'bg-emerald-50 dark:bg-emerald-900/25 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/50'
                 : 'bg-blue-50 dark:bg-blue-900/25 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800/50'"
             >
-              {{ task.is_completed ? '✓ Done' : '○ Pending' }}
+              {{ task.is_completed ? '✓ Completed' : '○ Pending' }}
             </span>
 
             <!-- Category Badge -->
@@ -141,7 +141,7 @@
                   <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M5.5 13a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1 4.5 4.5 0 11-4.814 6.98z" />
                   </svg>
-                  <span>Starts: {{ formatDate(task.start_date) }}</span>
+                  <span>Started: {{ formatDate(task.start_date) }}</span>
                   <span v-if="task.start_time" class="font-semibold">{{ formatTime(task.start_time) }}</span>
                   <span v-else class="text-gray-400 dark:text-gray-500">No time set</span>
                 </span>
@@ -152,7 +152,7 @@
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                Created {{ timeAgo(task.created_at) }}
+                Created: {{ timeAgo(task.created_at) }}
               </div>
             </div>
           </div>
@@ -313,5 +313,16 @@ const handleDelete = (): void => {
   0% { transform: scale(0.8); }
   50% { transform: scale(1.1); }
   100% { transform: scale(1); }
+}
+
+/* ─── Mobile Responsive ─── */
+@media (max-width: 640px) {
+  .task-card {
+    padding: 0.75rem;
+  }
+  
+  .task-card-grid {
+    height: auto;
+  }
 }
 </style>

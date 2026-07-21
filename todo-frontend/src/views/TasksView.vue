@@ -8,10 +8,10 @@
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
           <div>
             <h1 class="text-2xl sm:text-3xl font-bold" :class="isDark ? 'text-white' : 'text-gray-900'">
-              All Tasks
+              {{ t('tasks.allTasks') }}
             </h1>
             <p class="mt-1 text-sm" :class="isDark ? 'text-gray-400' : 'text-gray-600'">
-              Manage your tasks and stay organized
+              {{ t('layout.searchProjectsAndTasks') }}
             </p>
           </div>
           
@@ -28,7 +28,7 @@
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
               </svg>
-              Calendar View
+              {{ t('tasks.calendar') }}
             </button>
 
             <button 
@@ -38,7 +38,7 @@
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
               </svg>
-              New Task
+              {{ t('tasks.addNewTask') }}
             </button>
           </div>
         </div>
@@ -58,8 +58,8 @@
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />
               </svg>
-              Filters & Sorting
-              <span v-if="hasActiveFilters" class="ml-1 px-1.5 py-0.5 text-[10px] bg-blue-600 text-white rounded-full">Active</span>
+              {{ t('tasks.filterBy') }} & {{ t('tasks.sortBy') }}
+              <span v-if="hasActiveFilters" class="ml-1 px-1.5 py-0.5 text-[10px] bg-blue-600 text-white rounded-full">{{ t('common.error') }}</span>
             </span>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 transition-transform" :class="{ 'rotate-180': showMobileFilters }">
               <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
@@ -80,7 +80,7 @@
               v-model="searchQuery"
               @input="applyFilters"
               type="search"
-              placeholder="Search tasks..."
+              :placeholder="t('layout.searchProjectsAndTasks')"
               :class="[
                 'w-full px-4 py-2 text-sm rounded-lg border transition-colors',
                 isDark
@@ -99,9 +99,9 @@
                 isDark ? 'bg-gray-800 border-gray-700 text-white' : 'bg-white border-gray-200 text-gray-900'
               ]"
             >
-              <option value="all">All Status</option>
-              <option value="pending">Pending</option>
-              <option value="completed">Completed</option>
+              <option value="all">{{ t('common.noData') }}</option>
+              <option value="pending">{{ t('tasks.pending') }}</option>
+              <option value="completed">{{ t('tasks.completed') }}</option>
             </select>
             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
               <svg class="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -119,10 +119,10 @@
                 isDark ? 'bg-gray-800 border-gray-700 text-white' : 'bg-white border-gray-200 text-gray-900'
               ]"
             >
-              <option value="all">All Priority</option>
-              <option value="low">Low</option>
-              <option value="medium">Medium</option>
-              <option value="high">High</option>
+              <option value="all">{{ t('common.Priority') }}</option>
+              <option value="low">{{ t('tasks.low') }}</option>
+              <option value="medium">{{ t('tasks.medium') }}</option>
+              <option value="high">{{ t('tasks.high') }}</option>
             </select>
             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
               <svg class="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -140,12 +140,12 @@
                 isDark ? 'bg-gray-800 border-gray-700 text-white' : 'bg-white border-gray-200 text-gray-900'
               ]"
             >
-              <option value="all">All Dates</option>
-              <option value="overdue">Overdue</option>
-              <option value="today">Today</option>
-              <option value="this_week">This Week</option>
-              <option value="next_week">Next Week</option>
-              <option value="this_month">This Month</option>
+              <option value="all">{{ t('common.All Date') }}</option>
+              <option value="overdue">{{ t('tasks.overdue') }}</option>
+              <option value="today">{{ t('tasks.today') }}</option>
+              <option value="this_week">{{ t('tasks.thisWeek') }}</option>
+              <option value="next_week">{{ t('tasks.nextweek') }}</option>
+              <option value="this_month">{{ t('tasks.thisMonth') }}</option>
             </select>
             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
               <svg class="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -163,11 +163,11 @@
                 isDark ? 'bg-gray-800 border-gray-700 text-white' : 'bg-white border-gray-200 text-gray-900'
               ]"
             >
-              <option value="created_at">Newest</option>
-              <option value="due_date">Due Date</option>
-              <option value="start_date">Start Date</option>
-              <option value="priority">Priority</option>
-              <option value="title">Name</option>
+              <option value="created_at">{{ t('common.newest') }}</option>
+              <option value="due_date">{{ t('tasks.dueDate') }}</option>
+              <option value="start_date">{{ t('tasks.startdate') }}</option>
+              <option value="priority">{{ t('tasks.priority') }}</option>
+              <option value="title">{{ t('tasks.taskTitle') }}</option>
             </select>
             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
               <svg class="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -183,7 +183,7 @@
               isDark ? 'bg-gray-800 border-gray-700 text-white hover:bg-gray-700' : 'bg-white border-gray-200 text-gray-900 hover:bg-gray-50'
             ]"
           >
-            Reset Filters
+            {{ t('common.reset') }} {{ t('tasks.filterBy') }}
           </button>
         </div>
 
@@ -191,7 +191,7 @@
         <div class="flex justify-end mb-6">
           <div class="flex items-center gap-3">
             <div class="flex items-center gap-2">
-              <span class="text-sm font-medium text-gray-500 dark:text-gray-400">View:</span>
+              <span class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ t('tasks.view') }}:</span>
               <div class="relative">
                 <select
                   v-model="viewMode"
@@ -203,8 +203,8 @@
                       : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
                   ]"
                 >
-                  <option value="list">📋 List View</option>
-                  <option value="grid">📊 Grid View</option>
+                  <option value="list">📋 {{ t('tasks.listview') }}</option>
+                  <option value="grid">📊 {{ t('tasks.gridview') }}</option>
                 </select>
                 <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
                   <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -218,12 +218,12 @@
                   ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' 
                   : 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'"
               >
-                {{ viewMode === 'list' ? 'List' : 'Grid' }}
+               {{ viewMode === 'list' ? '📋 ' + $t('tasks.list') : '📊 ' + $t('tasks.grid') }}
               </span>
             </div>
             <span class="text-xs text-gray-500 dark:text-gray-400">
-              {{ filteredTasks.length }} {{ filteredTasks.length === 1 ? 'task' : 'tasks' }}
-            </span>
+           {{ filteredTasks.length }} {{ filteredTasks.length === 1 ? t('tasks.filterBy') : t('tasks.tasks') }}
+           </span>
           </div>
         </div>
 
@@ -259,7 +259,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7 12a5 5 0 1110 0A5 5 0 017 12z" />
           </svg>
           <p :class="isDark ? 'text-gray-400' : 'text-gray-600'" class="text-sm">
-            No tasks found matching your criteria.
+            {{ t('tasks.noTasks') }}
           </p>
         </div>
       </div>
@@ -270,7 +270,7 @@
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <div>
             <h1 class="text-3xl font-bold" :class="isDark ? 'text-white' : 'text-gray-900'">
-              Calendar
+              {{ t('calendar.calendar') }}
             </h1>
             <p class="mt-1 text-sm" :class="isDark ? 'text-gray-400' : 'text-gray-600'">
               View your tasks with start and due dates
@@ -290,7 +290,7 @@
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3" />
               </svg>
-              List View
+              {{ t('tasks.allTasks') }}
             </button>
 
             <button 
@@ -300,7 +300,7 @@
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
               </svg>
-              New Task
+              {{ t('tasks.addNewTask') }}
             </button>
           </div>
         </div>
@@ -327,7 +327,7 @@
                       : 'bg-gray-100 border-gray-200 text-gray-700 hover:bg-gray-200'
                   ]"
                 >
-                  Today
+                  {{ t('tasks.today') }}
                 </button>
                 <button 
                   @click="prevMonth" 
@@ -357,12 +357,12 @@
             <!-- Calendar Days Grid -->
             <div class="grid grid-cols-7 gap-1.5">
               <div 
-                v-for="day in ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']" 
+                v-for="day in [t('calendar.sunday'), t('calendar.monday'), t('calendar.tuesday'), t('calendar.wednesday'), t('calendar.thursday'), t('calendar.friday'), t('calendar.saturday')]" 
                 :key="day" 
                 class="text-center text-xs font-bold uppercase tracking-wider py-1"
                 :class="isDark ? 'text-gray-400' : 'text-gray-500'"
               >
-                {{ day }}
+                {{ day.substring(0, 3) }}
               </div>
               
               <div 
@@ -450,19 +450,19 @@
             <div class="mt-4 pt-4 border-t flex flex-wrap gap-4 text-xs" :class="isDark ? 'border-gray-700 text-gray-400' : 'border-gray-200 text-gray-600'">
               <div class="flex items-center gap-1.5">
                 <span class="inline-block w-3 h-3 rounded-full bg-red-500/40 border border-red-500/30"></span>
-                <span>High Priority</span>
+                <span>{{ t('tasks.high') }} Priority</span>
               </div>
               <div class="flex items-center gap-1.5">
                 <span class="inline-block w-3 h-3 rounded-full bg-yellow-500/40 border border-yellow-500/30"></span>
-                <span>Medium Priority</span>
+                <span>{{ t('tasks.medium') }} Priority</span>
               </div>
               <div class="flex items-center gap-1.5">
                 <span class="inline-block w-3 h-3 rounded-full bg-blue-500/40 border border-blue-500/30"></span>
-                <span>Low Priority</span>
+                <span>{{ t('tasks.low') }} Priority</span>
               </div>
               <div class="flex items-center gap-1.5">
                 <span class="inline-block w-3 h-3 rounded-full bg-blue-600"></span>
-                <span>Today</span>
+                <span>{{ t('tasks.today') }}</span>
               </div>
               <div class="flex items-center gap-1.5 ml-0 md:ml-auto">
                 <span class="text-green-400">▶</span>
@@ -491,7 +491,7 @@
             </h3>
             
             <div v-if="upcomingTasks.length === 0" class="text-center text-sm py-12" :class="isDark ? 'text-gray-400' : 'text-gray-500'">
-              No upcoming tasks
+              {{ t('tasks.noTasks') }}
             </div>
             
             <div v-else class="space-y-3 max-h-[500px] overflow-y-auto pr-1">
@@ -561,6 +561,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useThemeStore } from '@/stores/theme'
 import { useTaskStore } from '@/stores/tasks'
 import type { Task } from '@/types'
@@ -568,6 +569,9 @@ import AppLayout from '@/layouts/AppLayout.vue'
 import TaskFormModal from '@/components/TaskFormModal.vue'
 import TaskCard from '@/components/TaskCard.vue'
 import TaskDetailModal from '@/components/TaskDetailModal.vue'
+
+// ─── i18n ───
+const { t } = useI18n()
 
 // ─── Stores ───
 const themeStore = useThemeStore()
@@ -1105,7 +1109,7 @@ const handleToggleComplete = async (id: number) => {
 }
 
 const deleteTask = async (id: number) => {
-  if (confirm('Are you sure you want to delete this task?')) {
+  if (confirm(t('tasks.deleteConfirmation'))) {
     const result = await taskStore.deleteTask(id)
     if (result.success) {
       await taskStore.fetchTasks()

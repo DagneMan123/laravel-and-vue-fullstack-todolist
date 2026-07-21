@@ -13,20 +13,20 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
           </div>
-          <h2 class="mt-4 text-3xl font-bold gradient-text">Welcome Back</h2>
-          <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Sign in to your account</p>
+          <h2 class="mt-4 text-3xl font-bold gradient-text">{{ $t('auth.welcomeBack') }}</h2>
+          <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">{{ $t('auth.signInToAccount') }}</p>
         </div>
 
         <form @submit.prevent="handleLogin" class="space-y-4">
           <!-- Email -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Email Address</label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">{{ $t('auth.emailAddress') }}</label>
             <input
               v-model="credentials.email"
               type="email"
               class="input-field"
               :class="{ 'border-red-500 dark:border-red-400': emailError }"
-              placeholder="Enter your email"
+              :placeholder="$t('auth.enterEmail')"
               :disabled="authStore.isLoading"
               @input="validateOnInput"
             />
@@ -35,14 +35,14 @@
 
           <!-- Password -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Password</label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">{{ $t('auth.password') }}</label>
             <div class="relative">
               <input
                 v-model="credentials.password"
                 :type="showPassword ? 'text' : 'password'"
                 class="input-field pr-10"
                 :class="{ 'border-red-500 dark:border-red-400': passwordError }"
-                placeholder="Enter your password"
+                :placeholder="$t('auth.enterPassword')"
                 :disabled="authStore.isLoading"
                 @input="validateOnInput"
               />
@@ -93,7 +93,7 @@
                 </div>
               </div>
               <span class="ml-2 text-sm text-gray-600 dark:text-gray-400 group-hover:text-gray-800 dark:group-hover:text-gray-200 transition">
-                Remember me
+                {{ $t('common.rememberMe') }}
               </span>
             </label>
             
@@ -102,7 +102,7 @@
               @click="showForgotPassword = true"
               class="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium transition hover:underline"
             >
-              Forgot password?
+              {{ $t('common.forgotPassword') }}
             </button>
           </div>
 
@@ -118,13 +118,13 @@
             :disabled="authStore.isLoading"
           >
             <span v-if="authStore.isLoading" class="inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></span>
-            {{ authStore.isLoading ? 'Signing in...' : 'Sign In' }}
+            {{ authStore.isLoading ? $t('auth.signingIn') : $t('auth.signIn') }}
           </button>
 
           <p class="text-center text-sm text-gray-600 dark:text-gray-400">
-            Don't have an account?
+            {{ $t('auth.dontHaveAccount') }}
             <router-link to="/register" class="text-primary-600 dark:text-primary-400 font-medium hover:underline">
-              Create one
+              {{ $t('auth.createOne') }}
             </router-link>
           </p>
         </form>
@@ -143,6 +143,7 @@
 <script setup lang="ts">
 import { reactive, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import { useThemeStore } from '@/stores/theme'
 import ForgotPasswordModal from '@/components/ForgotPasswordModal.vue'

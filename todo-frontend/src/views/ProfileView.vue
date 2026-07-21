@@ -3,8 +3,8 @@
     <div class="p-4 sm:p-6">
       <!-- Header -->
       <div class="mb-8">
-        <h1 class="text-3xl font-bold" :class="isDark ? 'text-white' : 'text-gray-900'">User Profile</h1>
-        <p class="mt-2 text-sm" :class="isDark ? 'text-gray-400' : 'text-gray-600'">View and manage your profile information</p>
+        <h1 class="text-3xl font-bold" :class="isDark ? 'text-white' : 'text-gray-900'">{{ $t('profile.myProfile') }}</h1>
+        <p class="mt-2 text-sm" :class="isDark ? 'text-gray-400' : 'text-gray-600'">{{ $t('profile.personalInformation') }}</p>
       </div>
 
       <!-- Profile Card -->
@@ -13,19 +13,19 @@
         <div class="lg:col-span-2">
           <!-- Personal Information Section -->
           <div :class="['rounded-xl border shadow-sm p-6 mb-6', isDark ? 'bg-[#1a1f2e] border-gray-700' : 'bg-white border-gray-200']">
-            <h2 class="text-lg font-bold mb-6" :class="isDark ? 'text-white' : 'text-gray-900'">Personal Information</h2>
+            <h2 class="text-lg font-bold mb-6" :class="isDark ? 'text-white' : 'text-gray-900'">{{ $t('profile.personalInformation') }}</h2>
 
             <div class="space-y-4">
               <!-- Name Field -->
               <div>
-                <label :class="['block text-sm font-medium mb-2', isDark ? 'text-gray-300' : 'text-gray-700']">Full Name</label>
+                <label :class="['block text-sm font-medium mb-2', isDark ? 'text-gray-300' : 'text-gray-700']">{{ $t('profile.firstName') }}</label>
                 <input 
                   v-model="form.name"
                   type="text"
-                  placeholder="Enter your full name"
+                  :placeholder="$t('auth.enterFirstName')"
                   @input="validateName"
                   pattern="[a-zA-Z\s]*"
-                  title="Full name can only contain letters and spaces"
+                  :title="$t('validation.invalidName')"
                   :class="[
                     'w-full px-4 py-2 rounded-lg border transition-colors',
                     nameError ? 'border-red-500' : isDark
@@ -38,11 +38,11 @@
 
               <!-- Email Field -->
               <div>
-                <label :class="['block text-sm font-medium mb-2', isDark ? 'text-gray-300' : 'text-gray-700']">Email Address</label>
+                <label :class="['block text-sm font-medium mb-2', isDark ? 'text-gray-300' : 'text-gray-700']">{{ $t('profile.email') }}</label>
                 <input 
                   v-model="form.email"
                   type="email"
-                  placeholder="Enter your email"
+                  :placeholder="$t('auth.enterEmail')"
                   :class="[
                     'w-full px-4 py-2 rounded-lg border transition-colors',
                     isDark
@@ -51,13 +51,13 @@
                   ]"
                 />
                 <p v-if="form.email !== authStore.user?.email" class="text-xs mt-1" :class="isDark ? 'text-yellow-400' : 'text-yellow-600'">
-                  Email will be updated after you save changes
+                  {{ $t('profile.emailWillUpdate') }}
                 </p>
               </div>
 
               <!-- Member Since -->
               <div>
-                <label :class="['block text-sm font-medium mb-2', isDark ? 'text-gray-300' : 'text-gray-700']">Account Created</label>
+                <label :class="['block text-sm font-medium mb-2', isDark ? 'text-gray-300' : 'text-gray-700']">{{ $t('profile.accountCreated') }}</label>
                 <div :class="[
                   'w-full px-4 py-2 rounded-lg border bg-opacity-50',
                   isDark ? 'bg-gray-800 border-gray-700 text-gray-400' : 'bg-gray-50 border-gray-300 text-gray-600'
@@ -73,14 +73,14 @@
                   :disabled="isLoading"
                   class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {{ isLoading ? 'Saving...' : 'Save Changes' }}
+                  {{ isLoading ? $t('profile.saving') : $t('profile.updateProfile') }}
                 </button>
                 <button 
                   @click="resetForm"
                   class="px-6 py-2 border rounded-lg font-medium text-sm transition-colors"
                   :class="isDark ? 'bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700' : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'"
                 >
-                  Cancel
+                  {{ $t('common.cancel') }}
                 </button>
               </div>
 
@@ -96,24 +96,24 @@
 
           <!-- Account Statistics Section -->
           <div :class="['rounded-xl border shadow-sm p-6', isDark ? 'bg-[#1a1f2e] border-gray-700' : 'bg-white border-gray-200']">
-            <h2 class="text-lg font-bold mb-6" :class="isDark ? 'text-white' : 'text-gray-900'">Account Activity</h2>
+            <h2 class="text-lg font-bold mb-6" :class="isDark ? 'text-white' : 'text-gray-900'">{{ $t('profile.accountActivity') }}</h2>
             
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
               <!-- Total Tasks -->
               <div :class="['p-4 rounded-lg', isDark ? 'bg-gray-800/50' : 'bg-gray-50']">
-                <p class="text-xs font-medium uppercase tracking-wide" :class="isDark ? 'text-gray-400' : 'text-gray-600'">Total Tasks</p>
+                <p class="text-xs font-medium uppercase tracking-wide" :class="isDark ? 'text-gray-400' : 'text-gray-600'">{{ $t('dashboard.totalTasks') }}</p>
                 <p class="text-2xl font-bold mt-2" :class="isDark ? 'text-white' : 'text-gray-900'">{{ taskStats.total }}</p>
               </div>
 
               <!-- Completed Tasks -->
               <div :class="['p-4 rounded-lg', isDark ? 'bg-green-600/20' : 'bg-green-50']">
-                <p class="text-xs font-medium uppercase tracking-wide" :class="isDark ? 'text-green-400' : 'text-green-600'">Completed</p>
+                <p class="text-xs font-medium uppercase tracking-wide" :class="isDark ? 'text-green-400' : 'text-green-600'">{{ $t('dashboard.completed') }}</p>
                 <p class="text-2xl font-bold mt-2" :class="isDark ? 'text-green-400' : 'text-green-600'">{{ taskStats.completed }}</p>
               </div>
 
               <!-- Pending Tasks -->
               <div :class="['p-4 rounded-lg', isDark ? 'bg-yellow-600/20' : 'bg-yellow-50']">
-                <p class="text-xs font-medium uppercase tracking-wide" :class="isDark ? 'text-yellow-400' : 'text-yellow-600'">Pending</p>
+                <p class="text-xs font-medium uppercase tracking-wide" :class="isDark ? 'text-yellow-400' : 'text-yellow-600'">{{ $t('dashboard.pending') }}</p>
                 <p class="text-2xl font-bold mt-2" :class="isDark ? 'text-yellow-400' : 'text-yellow-600'">{{ taskStats.pending }}</p>
               </div>
             </div>
@@ -135,13 +135,13 @@
             
             <!-- Badge -->
             <div class="mt-4 inline-block px-3 py-1 rounded-full text-xs font-medium" :class="isDark ? 'bg-blue-600/20 text-blue-400' : 'bg-blue-100 text-blue-600'">
-              Active User
+              {{ $t('profile.activeUser') }}
             </div>
           </div>
 
           <!-- Quick Actions -->
           <div :class="['rounded-xl border shadow-sm p-6', isDark ? 'bg-[#1a1f2e] border-gray-700' : 'bg-white border-gray-200']">
-            <h3 class="text-sm font-bold mb-4 uppercase tracking-wide" :class="isDark ? 'text-gray-300' : 'text-gray-700'">Quick Actions</h3>
+            <h3 class="text-sm font-bold mb-4 uppercase tracking-wide" :class="isDark ? 'text-gray-300' : 'text-gray-700'">{{ $t('profile.quickActions') }}</h3>
             
             <div class="space-y-2">
               <button 
@@ -154,7 +154,7 @@
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-3m0 0l7-4 7 4M5 9v10a1 1 0 001 1h12a1 1 0 001-1V9m-9 11l4-4m0 0l4 4m-4-4V8" />
                 </svg>
-                Go to Dashboard
+                {{ $t('profile.goToDashboard') }}
               </button>
 
               <button 
@@ -167,7 +167,7 @@
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
-                View All Tasks
+                {{ $t('profile.viewAllTasks') }}
               </button>
 
               <button 
@@ -180,7 +180,7 @@
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                 </svg>
-                Logout
+                {{ $t('common.logout') }}
               </button>
             </div>
           </div>
@@ -192,12 +192,15 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useThemeStore } from '@/stores/theme'
 import { useAuthStore } from '@/stores/auth'
 import { useTaskStore } from '@/stores/tasks'
 import AppLayout from '@/layouts/AppLayout.vue'
 import api from '@/services/api'
 import router from '@/router'
+
+const { t } = useI18n()
 
 const themeStore = useThemeStore()
 const authStore = useAuthStore()

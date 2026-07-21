@@ -3,7 +3,7 @@
     <div class="p-3 sm:p-6">
       <div class="mb-6 sm:mb-8">
         <h1 class="text-2xl sm:text-3xl font-bold" :class="isDark ? 'text-white' : 'text-gray-900'">
-          Welcome back, {{ authStore.user?.name }}! 
+          {{ $t('dashboard.welcomeBackUser', { name: authStore.user?.name || 'User' }) }}
         </h1>
         <p class="mt-1 sm:mt-2 text-sm sm:text-base" :class="isDark ? 'text-gray-400' : 'text-gray-600'">
           {{ getGreeting() }}
@@ -20,7 +20,7 @@
         ]">
           <div class="flex items-center justify-between gap-2">
             <div class="min-w-0">
-              <p class="text-xs sm:text-sm font-medium" :class="isDark ? 'text-gray-400' : 'text-gray-600'">Total Tasks</p>
+              <p class="text-xs sm:text-sm font-medium" :class="isDark ? 'text-gray-400' : 'text-gray-600'">{{ $t('dashboard.totalTasks') }}</p>
               <p class="text-2xl sm:text-3xl font-bold mt-1 sm:mt-2" :class="isDark ? 'text-white' : 'text-gray-900'">{{ taskStore.stats?.total || 0 }}</p>
             </div>
             <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-blue-600/20 flex-shrink-0 flex items-center justify-center">
@@ -39,9 +39,9 @@
         ]">
           <div class="flex items-center justify-between gap-2">
             <div class="min-w-0">
-              <p class="text-xs sm:text-sm font-medium" :class="isDark ? 'text-gray-400' : 'text-gray-600'">Completed</p>
+              <p class="text-xs sm:text-sm font-medium" :class="isDark ? 'text-gray-400' : 'text-gray-600'">{{ $t('dashboard.completed') }}</p>
               <p class="text-2xl sm:text-3xl font-bold mt-1 sm:mt-2" :class="isDark ? 'text-white' : 'text-gray-900'">{{ taskStore.stats?.completed || 0 }}</p>
-              <p class="text-xs mt-0.5 sm:mt-1" :class="isDark ? 'text-gray-500' : 'text-gray-500'">{{ completionRate }}% done</p>
+              <p class="text-xs mt-0.5 sm:mt-1" :class="isDark ? 'text-gray-500' : 'text-gray-500'">{{ completionRate }}% {{ $t('dashboard.done') }}</p>
             </div>
             <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-green-600/20 flex-shrink-0 flex items-center justify-center">
               <svg class="w-5 h-5 sm:w-6 sm:h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -59,7 +59,7 @@
         ]">
           <div class="flex items-center justify-between gap-2">
             <div class="min-w-0">
-              <p class="text-xs sm:text-sm font-medium" :class="isDark ? 'text-gray-400' : 'text-gray-600'">Pending</p>
+              <p class="text-xs sm:text-sm font-medium" :class="isDark ? 'text-gray-400' : 'text-gray-600'">{{ $t('dashboard.pending') }}</p>
               <p class="text-2xl sm:text-3xl font-bold mt-1 sm:mt-2" :class="isDark ? 'text-white' : 'text-gray-900'">{{ taskStore.stats?.pending || 0 }}</p>
             </div>
             <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-yellow-600/20 flex-shrink-0 flex items-center justify-center">
@@ -78,7 +78,7 @@
         ]">
           <div class="flex items-center justify-between gap-2">
             <div class="min-w-0">
-              <p class="text-xs sm:text-sm font-medium" :class="isDark ? 'text-gray-400' : 'text-gray-600'">Overdue</p>
+              <p class="text-xs sm:text-sm font-medium" :class="isDark ? 'text-gray-400' : 'text-gray-600'">{{ $t('dashboard.overdue') }}</p>
               <p class="text-2xl sm:text-3xl font-bold mt-1 sm:mt-2" :class="isDark ? 'text-white' : 'text-gray-900'">{{ taskStore.stats?.overdue || 0 }}</p>
             </div>
             <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-red-600/20 flex-shrink-0 flex items-center justify-center">
@@ -105,15 +105,15 @@
         isDark ? 'bg-[#1a1f2e] border-gray-700' : 'bg-white border-gray-200'
       ]">
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-2">
-          <h2 class="text-lg sm:text-xl font-bold" :class="isDark ? 'text-white' : 'text-gray-900'">Recent Tasks</h2>
-          <router-link to="/tasks" class="text-blue-600 hover:text-blue-700 text-xs sm:text-sm font-medium whitespace-nowrap">View All →</router-link>
+          <h2 class="text-lg sm:text-xl font-bold" :class="isDark ? 'text-white' : 'text-gray-900'">{{ $t('dashboard.recentTasks') }}</h2>
+          <router-link to="/tasks" class="text-blue-600 hover:text-blue-700 text-xs sm:text-sm font-medium whitespace-nowrap">{{ $t('dashboard.viewAll') }} →</router-link>
         </div>
 
         <div v-if="taskStore.tasks.length === 0" class="text-center py-6 sm:py-8">
           <svg class="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-2 sm:mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
           </svg>
-          <p class="text-xs sm:text-sm" :class="isDark ? 'text-gray-400' : 'text-gray-600'">No tasks yet. Create one to get started!</p>
+          <p class="text-xs sm:text-sm" :class="isDark ? 'text-gray-400' : 'text-gray-600'">{{ $t('dashboard.noTasksYet') }}</p>
         </div>
 
         <div class="space-y-2">
@@ -139,7 +139,7 @@
                 {{ task.title }}
               </p>
               <p v-if="task.due_date" class="text-xs mt-0.5 sm:mt-1 truncate" :class="isDark ? 'text-gray-500' : 'text-gray-500'">
-              Due: {{ formatDateWithTime(task.due_date, task.due_time || '') }} 
+              {{ $t('dashboard.due') }} {{ formatDateWithTime(task.due_date, task.due_time || '') }} 
             </p>
             </div>
             <span :class="[
@@ -148,7 +148,7 @@
               task.priority === 'medium' ? 'bg-yellow-600/20 text-yellow-600' :
               'bg-blue-600/20 text-blue-600'
             ]">
-              {{ task.priority }}
+              {{ $t(`tasks.${task.priority}`) }}
             </span>
           </div>
         </div>
@@ -158,7 +158,8 @@
 </template>
 
 <script setup lang="ts">
-import {  computed, onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import { useThemeStore } from '@/stores/theme'
 import { useTaskStore } from '@/stores/tasks'
@@ -168,6 +169,7 @@ import TasksLineChart from '@/components/TasksLineChart.vue'
 import TasksBarChart from '@/components/TasksBarChart.vue'
 import TasksStatusChart from '@/components/TasksStatusChart.vue'
 
+const { t } = useI18n()
 const authStore = useAuthStore()
 const themeStore = useThemeStore()
 const taskStore = useTaskStore()
@@ -182,9 +184,9 @@ const completionRate = computed(() => {
 
 const getGreeting = () => {
   const hour = new Date().getHours()
-  if (hour < 12) return "Good morning! Let's get things done today."
-  if (hour < 18) return "Good afternoon! Keep up the momentum."
-  return "Good evening! What's on your agenda?"
+  if (hour < 12) return t('dashboard.goodMorning')
+  if (hour < 18) return t('dashboard.goodAfternoon')
+  return t('dashboard.goodEvening')
 }
 
 const formatDateWithTime = (date: string, time: string | null): string => {

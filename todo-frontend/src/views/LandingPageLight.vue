@@ -12,10 +12,8 @@
               </svg>
             </div>
             <div class="logo-text">
-              <span class="logo-brand">Todo</span>
-              <span class="logo-highlight">List</span>
+              <span class="logo-brand">{{ $t('common.appName') }}</span>
             </div>
-            
           </router-link>
 
           <!-- Desktop Navigation Links -->
@@ -27,7 +25,7 @@
               @click.prevent="scrollToSection('features')"
             >
               <span class="nav-icon">✨</span>
-              <span>Features</span>
+              <span>{{ $t('landing.features') }}</span>
             </a>
             <a 
               href="#how-it-works" 
@@ -36,7 +34,7 @@
               @click.prevent="scrollToSection('how-it-works')"
             >
               <span class="nav-icon">🚀</span>
-              <span>How It Works</span>
+              <span>{{ $t('landing.how_it_works') }}</span>
             </a>
             <a 
               href="#faq" 
@@ -45,13 +43,15 @@
               @click.prevent="scrollToSection('faq')"
             >
               <span class="nav-icon">💡</span>
-              <span>FAQ</span>
+              <span>{{ $t('landing.faq') }}</span>
             </a>
           </div>
 
           <!-- Right Actions -->
           <div class="nav-actions">
-            <button @click="themeStore.toggleTheme" class="theme-toggle" :title="themeStore.isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'">
+            
+
+            <button @click="themeStore.toggleTheme" class="theme-toggle" :title="themeStore.isDark ? $t('landing.light_mode') : $t('landing.dark_mode')">
               <span v-if="!themeStore.isDark" class="theme-icon">🌙</span>
               <span v-else class="theme-icon">☀</span>
             </button>
@@ -60,11 +60,11 @@
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
               </svg>
-              <span>Log In</span>
+              <span>{{ $t('auth.signIn') }}</span>
             </router-link>
             
             <router-link to="/register" class="nav-btn signup-btn">
-              <span>Get Started</span>
+              <span>{{ $t('landing.get_started') }}</span>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
@@ -84,24 +84,24 @@
           <div v-if="mobileMenuOpen" class="mobile-menu">
             <a href="#features" class="mobile-link" @click.prevent="scrollToSection('features'); mobileMenuOpen = false">
               <span class="mobile-icon">✨</span>
-              <span>Features</span>
+              <span>{{ $t('landing.features') }}</span>
             </a>
             <a href="#how-it-works" class="mobile-link" @click.prevent="scrollToSection('how-it-works'); mobileMenuOpen = false">
               <span class="mobile-icon">🚀</span>
-              <span>How It Works</span>
+              <span>{{ $t('landing.how_it_works') }}</span>
             </a>
             <a href="#faq" class="mobile-link" @click.prevent="scrollToSection('faq'); mobileMenuOpen = false">
               <span class="mobile-icon">💡</span>
-              <span>FAQ</span>
+              <span>{{ $t('landing.faq') }}</span>
             </a>
             <div class="mobile-divider"></div>
             <router-link to="/login" class="mobile-link mobile-login" @click="mobileMenuOpen = false">
               <span class="mobile-icon">🔑</span>
-              <span>Log In</span>
+              <span>{{ $t('auth.login') }}</span>
             </router-link>
             <router-link to="/register" class="mobile-link mobile-signup" @click="mobileMenuOpen = false">
               <span class="mobile-icon">🚀</span>
-              <span>Get Started</span>
+              <span>{{ $t('landing.get_started') }}</span>
             </router-link>
           </div>
         </transition>
@@ -111,32 +111,32 @@
     <!-- ===== HERO SECTION ===== -->
     <main class="hero">
       <div class="hero-content">
-        <div class="badge">🚀 Smart Task Management</div>
-        <h1>Organize Your Life<br><span class="accent">One Task at a Time</span></h1>
-        <p class="subtitle">The ultimate todo list app with start dates, due dates, priorities, and calendar view.</p>
+        <div class="badge">🚀 {{ $t('landing.smart_task_management') }}</div>
+        <h1>{{ $t('landing.organize_your_life') }}<br><span class="accent">{{ $t('landing.one_task_at_a_time') }}</span></h1>
+        <p class="subtitle">{{ $t('landing.hero_subtitle') }}</p>
         
         <div class="cta-buttons">
           <router-link to="/register" class="btn btn-primary">
-            Start Free
+            {{ $t('landing.start_free') }}
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
             </svg>
           </router-link>
-          <button class="btn btn-secondary">
+          <button class="btn btn-secondary" @click="watchDemo">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
               <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            Watch Demo
+            {{ $t('landing.watch_demo') }}
           </button>
         </div>
 
         <div class="trust-badges">
-          <span>⭐ 4.9/5 Rating</span>
+          <span>⭐ {{ $t('landing.rating') }}</span>
           <span>•</span>
-          <span>50K+ Tasks Done</span>
+          <span>{{ $t('landing.tasks_done') }}</span>
           <span>•</span>
-          <span>No Credit Card</span>
+          <span>{{ $t('landing.no_credit_card') }}</span>
         </div>
       </div>
 
@@ -148,18 +148,18 @@
     <!-- ===== FEATURES SECTION ===== -->
     <section id="features" class="features-section">
       <div class="section-header">
-        <span class="section-badge">Features</span>
-        <h2>Everything You Need to Stay Productive</h2>
-        <p class="section-subtitle">Built specifically for task management with powerful features</p>
+        <span class="section-badge">{{ $t('landing.features') }}</span>
+        <h2>{{ $t('landing.everything_you_need') }}</h2>
+        <p class="section-subtitle">{{ $t('landing.features_subtitle') }}</p>
       </div>
 
       <div class="features-grid">
-        <div class="feature-card" v-for="feature in features" :key="feature.title">
+        <div class="feature-card" v-for="feature in features" :key="feature.key">
           <div class="feature-icon-wrapper" :style="{ background: feature.color }">
             <span class="feature-icon">{{ feature.icon }}</span>
           </div>
-          <h3>{{ feature.title }}</h3>
-          <p>{{ feature.description }}</p>
+          <h3>{{ $t('landing.' + feature.key + '_title') }}</h3>
+          <p>{{ $t('landing.' + feature.key + '_desc') }}</p>
         </div>
       </div>
     </section>
@@ -167,17 +167,17 @@
     <!-- ===== HOW IT WORKS ===== -->
     <section id="how-it-works" class="how-it-works">
       <div class="section-header">
-        <span class="section-badge">How It Works</span>
-        <h2>Manage Tasks in 3 Simple Steps</h2>
-        <p class="section-subtitle">From task creation to completion in minutes</p>
+        <span class="section-badge">{{ $t('landing.how_it_works') }}</span>
+        <h2>{{ $t('landing.manage_tasks_in_steps') }}</h2>
+        <p class="section-subtitle">{{ $t('landing.steps_subtitle') }}</p>
       </div>
 
       <div class="steps">
         <div class="step" v-for="(step, index) in steps" :key="index">
           <div class="step-number">{{ index + 1 }}</div>
           <div class="step-content">
-            <h3>{{ step.title }}</h3>
-            <p>{{ step.description }}</p>
+            <h3>{{ $t('landing.step_' + (index + 1) + '_title') }}</h3>
+            <p>{{ $t('landing.step_' + (index + 1) + '_desc') }}</p>
           </div>
         </div>
       </div>
@@ -186,17 +186,17 @@
     <!-- ===== KEY APP FEATURES ===== -->
     <section class="key-features">
       <div class="section-header">
-        <span class="section-badge">Key Features</span>
-        <h2>Built for Task Management</h2>
-        <p class="section-subtitle">Features designed to make task management effortless</p>
+        <span class="section-badge">{{ $t('landing.key_features') }}</span>
+        <h2>{{ $t('landing.built_for_task_management') }}</h2>
+        <p class="section-subtitle">{{ $t('landing.key_features_subtitle') }}</p>
       </div>
 
       <div class="key-features-grid">
-        <div class="key-feature" v-for="feature in keyFeatures" :key="feature.title">
+        <div class="key-feature" v-for="feature in keyFeatures" :key="feature.key">
           <div class="key-feature-icon">{{ feature.icon }}</div>
           <div class="key-feature-content">
-            <h3>{{ feature.title }}</h3>
-            <p>{{ feature.description }}</p>
+            <h3>{{ $t('landing.' + feature.key + '_title') }}</h3>
+            <p>{{ $t('landing.' + feature.key + '_desc') }}</p>
           </div>
         </div>
       </div>
@@ -205,9 +205,9 @@
     <!-- ===== STATS ===== -->
     <section class="stats-section">
       <div class="stats-container">
-        <div class="stat-item" v-for="stat in stats" :key="stat.label">
+        <div class="stat-item" v-for="stat in stats" :key="stat.key">
           <div class="stat-number">{{ stat.count }}</div>
-          <div class="stat-label">{{ stat.label }}</div>
+          <div class="stat-label">{{ $t('landing.' + stat.key) }}</div>
         </div>
       </div>
     </section>
@@ -215,20 +215,20 @@
     <!-- ===== FAQ SECTION ===== -->
     <section id="faq" class="faq-section">
       <div class="section-header">
-        <span class="section-badge">FAQ</span>
-        <h2>Frequently Asked Questions</h2>
-        <p class="section-subtitle">Everything you need to know about TodoList</p>
+        <span class="section-badge">{{ $t('landing.faq') }}</span>
+        <h2>{{ $t('landing.faq_title') }}</h2>
+        <p class="section-subtitle">{{ $t('landing.faq_subtitle') }}</p>
       </div>
 
       <div class="faq-grid">
         <div class="faq-item" v-for="(faq, index) in faqs" :key="index">
           <div class="faq-question" @click="toggleFaq(index)">
-            <span>{{ faq.question }}</span>
+            <span>{{ $t('landing.faq_' + (index + 1) + '_q') }}</span>
             <span class="faq-icon">{{ activeFaq === index ? '−' : '+' }}</span>
           </div>
           <transition name="faq-expand">
             <div v-if="activeFaq === index" class="faq-answer">
-              <p>{{ faq.answer }}</p>
+              <p>{{ $t('landing.faq_' + (index + 1) + '_a') }}</p>
             </div>
           </transition>
         </div>
@@ -238,9 +238,9 @@
     <!-- ===== CTA SECTION ===== -->
     <section class="cta-section">
       <div class="cta-content">
-        <h2>Ready to Get Things Done?</h2>
-        <p>Join thousands of users who have transformed their productivity</p>
-        <router-link to="/register" class="btn btn-primary cta-btn">Start Free Trial</router-link>
+        <h2>{{ $t('landing.cta_title') }}</h2>
+        <p>{{ $t('landing.cta_subtitle') }}</p>
+        <router-link to="/register" class="btn btn-primary cta-btn">{{ $t('landing.start_free_trial') }}</router-link>
       </div>
     </section>
 
@@ -254,42 +254,55 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <span>TodoList</span>
+            <span>{{ $t('common.appName') }}</span>
           </div>
-          <p>Simple task management for everyone</p>
+          <p>{{ $t('landing.footer_tagline') }}</p>
         </div>
         <div class="footer-links">
           <div class="footer-column">
-            <h4>Product</h4>
-            <a href="#features" @click.prevent="scrollToSection('features')">Features</a>
-            <a href="#how-it-works" @click.prevent="scrollToSection('how-it-works')">How It Works</a>
-            <a href="#">Integrations</a>
+            <h4>{{ $t('landing.product') }}</h4>
+            <a href="#features" @click.prevent="scrollToSection('features')">{{ $t('landing.features') }}</a>
+            <a href="#how-it-works" @click.prevent="scrollToSection('how-it-works')">{{ $t('landing.how_it_works') }}</a>
+            <a href="#">{{ $t('landing.integrations') }}</a>
           </div>
           
           <div class="footer-column">
-            <h4>Support</h4>
-            <a href="#">Help Center</a>
-            <a href="#">Contact</a>
-            <a href="#">Privacy</a>
+            <h4>{{ $t('landing.support') }}</h4>
+            <a href="#">{{ $t('landing.help_center') }}</a>
+            <a href="#">{{ $t('landing.contact') }}</a>
+            <a href="#">{{ $t('landing.privacy') }}</a>
           </div>
         </div>
       </div>
       <div class="footer-bottom">
-        <p>&copy; 2026 TodoList. All rights reserved.</p>
-        
+        <p>&copy; 2026 {{ $t('common.appName') }}. {{ $t('landing.all_rights_reserved') }}</p>
       </div>
     </footer>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useThemeStore } from '@/stores/theme'
 
+const { t, locale } = useI18n()
 const themeStore = useThemeStore()
 const mobileMenuOpen = ref(false)
 const activeFaq = ref<number | null>(null)
 const activeSection = ref('')
+
+// ─── Language Toggle ───
+const currentFlag = computed(() => {
+  return locale.value === 'am' ? '🇪🇹' : '🇬🇧'
+})
+
+const toggleLanguage = () => {
+  const newLocale = locale.value === 'en' ? 'am' : 'en'
+  locale.value = newLocale
+  localStorage.setItem('locale', newLocale)
+  document.documentElement.lang = newLocale
+}
 
 // ─── Smooth Scroll Function ───
 const scrollToSection = (sectionId: string) => {
@@ -305,6 +318,11 @@ const scrollToSection = (sectionId: string) => {
       behavior: 'smooth'
     })
   }
+}
+
+// ─── Watch Demo ───
+const watchDemo = () => {
+  alert(t('landing.demo_coming_soon'))
 }
 
 // ─── Detect Active Section on Scroll ───
@@ -341,120 +359,45 @@ const toggleFaq = (index: number) => {
 
 // ─── Feature Data ───
 const features = [
-  {
-    icon: '📅',
-    title: 'Start & Due Dates',
-    description: 'Set start dates and due dates for better task planning and tracking',
-    color: 'linear-gradient(135deg, #3b82f6, #8b5cf6)'
-  },
-  {
-    icon: '🎯',
-    title: 'Priority Levels',
-    description: 'Organize tasks with High, Medium, or Low priority to focus on what matters',
-    color: 'linear-gradient(135deg, #f59e0b, #ef4444)'
-  },
-  {
-    icon: '📊',
-    title: 'Calendar View',
-    description: 'Visualize all your tasks and deadlines in an interactive calendar',
-    color: 'linear-gradient(135deg, #10b981, #06b6d4)'
-  },
-  {
-    icon: '🔍',
-    title: 'Smart Filters',
-    description: 'Search, filter, and sort tasks by status, priority, or date range',
-    color: 'linear-gradient(135deg, #8b5cf6, #ec4899)'
-  },
-  {
-    icon: '👥',
-    title: 'Task Collaboration',
-    description: 'Share tasks and track progress with your team members',
-    color: 'linear-gradient(135deg, #06b6d4, #3b82f6)'
-  },
-  {
-    icon: '📱',
-    title: 'Responsive Design',
-    description: 'Access your tasks anywhere, anytime on any device',
-    color: 'linear-gradient(135deg, #10b981, #f59e0b)'
-  }
+  { key: 'dates', icon: '📅', color: 'linear-gradient(135deg, #3b82f6, #8b5cf6)' },
+  { key: 'priority', icon: '🎯', color: 'linear-gradient(135deg, #f59e0b, #ef4444)' },
+  { key: 'calendar', icon: '📊', color: 'linear-gradient(135deg, #10b981, #06b6d4)' },
+  { key: 'filters', icon: '🔍', color: 'linear-gradient(135deg, #8b5cf6, #ec4899)' },
+  { key: 'collaboration', icon: '👥', color: 'linear-gradient(135deg, #06b6d4, #3b82f6)' },
+  { key: 'responsive', icon: '📱', color: 'linear-gradient(135deg, #10b981, #f59e0b)' }
 ]
 
 // ─── Key App Features ───
 const keyFeatures = [
-  {
-    icon: '✅',
-    title: 'Task Management',
-    description: 'Create, edit, delete, and complete tasks with one click'
-  },
-  {
-    icon: '📅',
-    title: 'Smart Scheduling',
-    description: 'Set start dates, due dates, and get reminders'
-  },
-  {
-    icon: '🎯',
-    title: 'Priority System',
-    description: 'High, Medium, Low priority levels for better organization'
-  },
-  {
-    icon: '📊',
-    title: 'Progress Tracking',
-    description: 'Visualize your productivity with task completion stats'
-  },
-  {
-    icon: '🔍',
-    title: 'Advanced Filters',
-    description: 'Filter by status, priority, date, and search tasks'
-  },
-  {
-    icon: '🌙',
-    title: 'Dark Mode',
-    description: 'Work comfortably in any lighting condition'
-  }
+  { key: 'task_management', icon: '✅' },
+  { key: 'smart_scheduling', icon: '📅' },
+  { key: 'priority_system', icon: '🎯' },
+  { key: 'progress_tracking', icon: '📊' },
+  { key: 'advanced_filters', icon: '🔍' },
+  { key: 'dark_mode', icon: '🌙' }
 ]
 
 // ─── Stats Data ───
 const stats = [
-  { count: '50K+', label: 'Active Users' },
-  { count: '1M+', label: 'Tasks Completed' },
-  { count: '99.9%', label: 'Uptime' },
-  { count: '4.9★', label: 'User Rating' }
+  { key: 'active_users', count: '50K+' },
+  { key: 'tasks_completed', count: '1M+' },
+  { key: 'uptime', count: '99.9%' },
+  { key: 'user_rating', count: '4.9★' }
 ]
 
 // ─── Steps Data ───
 const steps = [
-  {
-    title: 'Create Your Account',
-    description: 'Sign up in seconds with your email or Google account'
-  },
-  {
-    title: 'Create Your Tasks',
-    description: 'Add tasks with titles, descriptions, start dates, due dates, and priority levels'
-  },
-  {
-    title: 'Stay Productive',
-    description: 'Track progress, filter tasks, and complete them efficiently'
-  }
+  { title: 'step_1_title', description: 'step_1_desc' },
+  { title: 'step_2_title', description: 'step_2_desc' },
+  { title: 'step_3_title', description: 'step_3_desc' }
 ]
 
 // ─── FAQ Data ───
 const faqs = [
-  {
-    question: 'What is TodoList?',
-    answer: 'TodoList is a powerful task management application that helps you organize your tasks with start dates, due dates, priorities, and a calendar view.'
-  },
-  {
-    question: 'Is TodoList free to use?',
-    answer: 'Yes! TodoList offers a free plan with up to 10 tasks, basic filters, and calendar view. For unlimited tasks and advanced features, check out our Pro plan.'
-  },
-  {
-    question: 'Can I use TodoList on mobile?',
-    answer: 'Absolutely! TodoList is fully responsive and works on all devices including mobile phones, tablets, and desktop computers.'
-  },
-  {
-    question: 'How do start dates and due dates work?',
-    answer: 'Start dates help you plan when to begin a task, while due dates are when the task needs to be completed. This helps you better manage your workflow.'
-  }
+  { question: 'faq_1_q', answer: 'faq_1_a' },
+  { question: 'faq_2_q', answer: 'faq_2_a' },
+  { question: 'faq_3_q', answer: 'faq_3_a' },
+  { question: 'faq_4_q', answer: 'faq_4_a' }
 ]
 </script>
 
@@ -569,31 +512,6 @@ const faqs = [
 
 .landing-container.dark-mode .logo-brand {
   color: #f0f0f0;
-}
-
-.logo-highlight {
-  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.logo-badge {
-  font-size: 0.55rem;
-  font-weight: 600;
-  padding: 0.15rem 0.6rem;
-  background: rgba(59, 130, 246, 0.12);
-  color: #3b82f6;
-  border-radius: 50px;
-  letter-spacing: 0.3px;
-  margin-left: 0.25rem;
-  border: 1px solid rgba(59, 130, 246, 0.15);
-}
-
-.landing-container.dark-mode .logo-badge {
-  background: rgba(139, 92, 246, 0.15);
-  color: #a78bfa;
-  border-color: rgba(139, 92, 246, 0.2);
 }
 
 /* ─── Navigation Links ─── */
@@ -1629,10 +1547,6 @@ h1 {
   .logo-icon svg {
     width: 18px;
     height: 18px;
-  }
-
-  .logo-badge {
-    display: none;
   }
 
   .mobile-menu {

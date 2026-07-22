@@ -5,7 +5,7 @@
       <!-- Header -->
       <div class="sticky top-0 flex items-center justify-between p-6 border-b z-10" :class="isDark ? 'border-gray-700 bg-[#1a1f2e]' : 'border-gray-200 bg-white'">
         <h2 class="text-xl font-bold" :class="isDark ? 'text-white' : 'text-gray-900'">
-          {{ task ? 'Edit Task' : 'New Task' }}
+          {{ task ? $t('tasks.editTask') : $t('tasks.createTask') }}
         </h2>
         <button @click="$emit('close')" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">✕</button>
       </div>
@@ -14,13 +14,13 @@
         
         <!-- Task Title -->
         <div>
-          <label class="block text-sm font-medium mb-1.5" :class="isDark ? 'text-white' : 'text-gray-900'">Task Title *</label>
+          <label class="block text-sm font-medium mb-1.5" :class="isDark ? 'text-white' : 'text-gray-900'">{{ $t('tasks.taskTitle') }} </label>
           <input 
             v-model="formData.title" 
             type="text" 
             class="w-full px-4 py-2.5 rounded-lg border bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
             :class="{ 'border-red-500 dark:border-red-400': titleError }"
-            placeholder="Enter task title"
+            :placeholder="$t('tasks.enterTaskTitle')"
           >
           <FormError :message="titleError" />
         </div>
@@ -28,7 +28,7 @@
         <!-- Description -->
         <div>
           <label class="block text-sm font-medium mb-1.5" :class="isDark ? 'text-white' : 'text-gray-900'">
-            Description
+            {{ $t('tasks.description') }}
             <span v-if="shouldShowDescriptionWarning" class="text-red-500">*</span>
           </label>
           <textarea 
@@ -36,41 +36,41 @@
             rows="3" 
             class="w-full px-4 py-2.5 rounded-lg border bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
             :class="{ 'border-red-500 dark:border-red-400': descriptionError }"
-            placeholder="Add task description (optional)"
+            :placeholder="$t('tasks.enterDescription')"
           ></textarea>
           <FormError :message="descriptionError" />
           <!-- Warning for High/Urgent priority without description -->
           <div v-if="shouldShowDescriptionWarning && !hasDescription" class="mt-2 p-2 bg-yellow-50 dark:bg-yellow-900/20 rounded border border-yellow-200 dark:border-yellow-700">
             <p class="text-xs text-yellow-700 dark:text-yellow-300">
-              ⚠️ {{ formData.priority.charAt(0).toUpperCase() + formData.priority.slice(1) }} priority tasks should have a description for clarity
+              ⚠️ {{ formData.priority.charAt(0).toUpperCase() + formData.priority.slice(1) }} {{ $t('tasks.priority') }} {{ $t('tasks.tasks') }} {{ $t('tasks.description') }}
             </p>
           </div>
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Max 1000 characters</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ $t('validation.max') }} 1000 {{ $t('validation.minLength') }}</p>
         </div>
 
         <!-- Priority -->
         <div>
-          <label class="block text-sm font-medium mb-1.5" :class="isDark ? 'text-white' : 'text-gray-900'">Priority</label>
+          <label class="block text-sm font-medium mb-1.5" :class="isDark ? 'text-white' : 'text-gray-900'">{{ $t('tasks.priority') }}</label>
           <select 
             v-model="formData.priority" 
             class="w-full px-4 py-2.5 rounded-lg border bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
           >
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
-            <option value="urgent">Urgent</option>
+            <option value="low">{{ $t('tasks.low') }}</option>
+            <option value="medium">{{ $t('tasks.medium') }}</option>
+            <option value="high">{{ $t('tasks.high') }}</option>
+            <option value="urgent">{{ $t('common.error') }}</option>
           </select>
         </div>
 
         <!-- Category -->
         <div>
-          <label class="block text-sm font-medium mb-1.5" :class="isDark ? 'text-white' : 'text-gray-900'">Category</label>
+          <label class="block text-sm font-medium mb-1.5" :class="isDark ? 'text-white' : 'text-gray-900'">{{ $t('tasks.category') }}</label>
           <div class="flex gap-2">
             <select 
               v-model="formData.category_id" 
               class="flex-1 px-4 py-2.5 rounded-lg border bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
             >
-              <option value="">No Category</option>
+              <option value="">{{ $t('tasks.allcategories') }}</option>
               <option v-for="cat in categoryStore.categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
             </select>
             <button 
@@ -85,7 +85,7 @@
 
         <!-- Start Date & Time -->
         <div>
-          <label class="block text-sm font-medium mb-1.5" :class="isDark ? 'text-white' : 'text-gray-900'">Start Date & Time</label>
+          <label class="block text-sm font-medium mb-1.5" :class="isDark ? 'text-white' : 'text-gray-900'">{{ $t('tasks.startdate') }} & {{ $t('tasks.starttime') }}</label>
           <input 
             v-model="formData.start_datetime" 
             type="datetime-local" 
@@ -94,13 +94,13 @@
             :min="today + 'T00:00'"
           >
           <FormError :message="startDateError" />
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Optional - When the task begins (cannot be in the past)</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1"></p>
         </div>
 
         <!-- Due Date & Time -->
         <div>
           <label class="block text-sm font-medium mb-1.5" :class="isDark ? 'text-white' : 'text-gray-900'">
-            Due Date & Time *
+            {{ $t('tasks.dueDate') }} & {{ $t('tasks.dueTime') }} *
             <span v-if="formData.priority === 'urgent'" class="text-red-500 text-xs ml-1">(48-hour rule)</span>
           </label>
           <input 
@@ -119,8 +119,7 @@
             </p>
           </div>
           
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-            Required - Must be after start date
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1"> 
             <span v-if="formData.priority === 'urgent'" class="block text-orange-600 dark:text-orange-400">Urgent tasks deadline: within 48 hours</span>
           </p>
         </div>
@@ -132,14 +131,14 @@
             @click="$emit('close')" 
             class="flex-1 px-4 py-2.5 bg-gray-200 dark:bg-gray-700 rounded-lg text-gray-900 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600"
           >
-            Cancel
+            {{ $t('common.cancel') }}
           </button>
           <button 
             type="submit" 
             :disabled="loading" 
             class="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {{ loading ? 'Saving...' : (task ? 'Update Task' : 'Create Task') }}
+            {{ loading ? $t('common.loading') : (task ? $t('tasks.updateTask') : $t('tasks.createTask')) }}
           </button>
         </div>
       </form>
@@ -156,6 +155,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useThemeStore } from '@/stores/theme'
 import { useTaskStore } from '@/stores/tasks'
 import { useCategoryStore } from '@/stores/categories'
@@ -167,6 +167,9 @@ import {
 } from '@/utils/validation'
 import FormError from './FormError.vue'
 import CategoryModal from './CategoryModal.vue'
+
+// ─── i18n ───
+const { t } = useI18n()
 
 // ─── Props ───
 const props = defineProps<{ 

@@ -93,6 +93,7 @@ export function validatePasswordConfirmation(password: string, confirmation: str
 
 /**
  * Validate name/title
+ * Supports Unicode letters including Amharic, Arabic, Chinese, etc.
  */
 export function validateName(name: string, fieldName: string = 'Name'): ValidationError[] {
   const errors: ValidationError[] = []
@@ -110,8 +111,11 @@ export function validateName(name: string, fieldName: string = 'Name'): Validati
     errors.push({ field: 'name', message: `${fieldName} must not exceed 100 characters` })
   }
   
-  // Check for valid characters (alphanumeric, spaces, hyphens, apostrophes)
-  if (!/^[a-zA-Z0-9\s\-']*$/.test(name)) {
+  // Check for valid characters using blacklist approach
+  // Allow: Unicode letters, spaces, hyphens, apostrophes
+  // Reject: dangerous characters like <, >, {, }, etc.
+  const invalidCharactersRegex = /[<>{}[\]\\^`|]/
+  if (invalidCharactersRegex.test(name)) {
     errors.push({ field: 'name', message: `${fieldName} contains invalid characters` })
   }
   
@@ -448,15 +452,19 @@ export function validateRestrictedKeywords(title: string): ValidationError[] {
 
 /**
  * Validate no special characters except basic punctuation
+ * Supports Unicode letters including Amharic, Arabic, Chinese, etc.
  */
 export function validateTitleCharacters(title: string): ValidationError[] {
   const errors: ValidationError[] = []
   
-  // Allow alphanumeric, spaces, and basic punctuation (. , - ')
-  if (!/^[a-zA-Z0-9\s\.\,\-\'!?]*$/.test(title)) {
+  // Allow Unicode letters (including Amharic, Arabic, etc.), numbers, spaces, and basic punctuation
+  // Uses a blacklist approach - reject only clearly invalid/dangerous characters
+  const invalidCharactersRegex = /[<>{}[\]\\^`|]/
+  
+  if (invalidCharactersRegex.test(title)) {
     errors.push({ 
       field: 'title', 
-      message: 'Title contains invalid characters. Only letters, numbers, and basic punctuation allowed.' 
+      message: 'Title contains invalid characters. Please use letters, numbers, and basic punctuation.' 
     })
   }
   

@@ -59,7 +59,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />
               </svg>
               {{ t('tasks.filterBy') }} & {{ t('tasks.sortBy') }}
-              <span v-if="hasActiveFilters" class="ml-1 px-1.5 py-0.5 text-[10px] bg-blue-600 text-white rounded-full">{{ t('common.error') }}</span>
+              <span v-if="hasActiveFilters" class="ml-1 px-1.5 py-0.5 text-[10px] bg-blue-600 text-white rounded-full">{{ t('common.active') }}</span>
             </span>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 transition-transform" :class="{ 'rotate-180': showMobileFilters }">
               <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
@@ -218,11 +218,11 @@
                   ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' 
                   : 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'"
               >
-               {{ viewMode === 'list' ? '📋 ' + $t('tasks.list') : '📊 ' + $t('tasks.grid') }}
+               {{ viewMode === 'list' ? '📋 ' + t('tasks.list') : '📊 ' + t('tasks.grid') }}
               </span>
             </div>
             <span class="text-xs text-gray-500 dark:text-gray-400">
-           {{ filteredTasks.length }} {{ filteredTasks.length === 1 ? t('tasks.filterBy') : t('tasks.tasks') }}
+           {{ filteredTasks.length }} {{ filteredTasks.length === 1 ? t('tasks.task') : t('tasks.tasks') }}
            </span>
           </div>
         </div>
@@ -273,7 +273,7 @@
               {{ t('calendar.calendar') }}
             </h1>
             <p class="mt-1 text-sm" :class="isDark ? 'text-gray-400' : 'text-gray-600'">
-              View your tasks with start and due dates
+              {{ t('calendar.subtitle') }}
             </p>
           </div>
           
@@ -357,7 +357,7 @@
             <!-- Calendar Days Grid -->
             <div class="grid grid-cols-7 gap-1.5">
               <div 
-                v-for="day in [t('calendar.sunday'), t('calendar.monday'), t('calendar.tuesday'), t('calendar.wednesday'), t('calendar.thursday'), t('calendar.friday'), t('calendar.saturday')]" 
+                v-for="day in dayHeaders" 
                 :key="day" 
                 class="text-center text-xs font-bold uppercase tracking-wider py-1"
                 :class="isDark ? 'text-gray-400' : 'text-gray-500'"
@@ -400,7 +400,7 @@
                   </span>
                 </div>
                 
-                <!-- Task Indicators - WITH TIME DISPLAY -->
+                <!-- Task Indicators -->
                 <div class="flex-1 space-y-0.5 overflow-hidden mt-1 w-full">
                   <div 
                     v-for="task in day.sortedTasks.slice(0, 3)" 
@@ -423,10 +423,8 @@
                     <span v-else-if="isDueDate(task, day.fullDate)" class="mr-0.5">●</span>
                     <span v-else class="mr-0.5">━</span>
                     
-                    <!-- Task Title -->
                     <span class="truncate">{{ task.title }}</span>
                     
-                    <!-- ✅ SHOW TIME IF AVAILABLE -->
                     <span v-if="isDueDate(task, day.fullDate) && task.due_time" class="ml-0.5 text-[7px] opacity-70 font-mono">
                       {{ formatTimeShort(task.due_time) }}
                     </span>
@@ -440,7 +438,7 @@
                     class="text-[8px] text-center opacity-60"
                     :class="day.isToday ? 'text-white' : ''"
                   >
-                    +{{ day.sortedTasks.length - 3 }} more
+                    +{{ day.sortedTasks.length - 3 }} {{ t('calendar.more') }}
                   </div>
                 </div>
               </div>
@@ -450,15 +448,15 @@
             <div class="mt-4 pt-4 border-t flex flex-wrap gap-4 text-xs" :class="isDark ? 'border-gray-700 text-gray-400' : 'border-gray-200 text-gray-600'">
               <div class="flex items-center gap-1.5">
                 <span class="inline-block w-3 h-3 rounded-full bg-red-500/40 border border-red-500/30"></span>
-                <span>{{ t('tasks.high') }} Priority</span>
+                <span>{{ t('tasks.high') }} {{ t('tasks.priority') }}</span>
               </div>
               <div class="flex items-center gap-1.5">
                 <span class="inline-block w-3 h-3 rounded-full bg-yellow-500/40 border border-yellow-500/30"></span>
-                <span>{{ t('tasks.medium') }} Priority</span>
+                <span>{{ t('tasks.medium') }} {{ t('tasks.priority') }}</span>
               </div>
               <div class="flex items-center gap-1.5">
                 <span class="inline-block w-3 h-3 rounded-full bg-blue-500/40 border border-blue-500/30"></span>
-                <span>{{ t('tasks.low') }} Priority</span>
+                <span>{{ t('tasks.low') }} {{ t('tasks.priority') }}</span>
               </div>
               <div class="flex items-center gap-1.5">
                 <span class="inline-block w-3 h-3 rounded-full bg-blue-600"></span>
@@ -466,32 +464,30 @@
               </div>
               <div class="flex items-center gap-1.5 ml-0 md:ml-auto">
                 <span class="text-green-400">▶</span>
-                <span>Start Date</span>
-                <span class="text-[10px] text-gray-400">(with time)</span>
+                <span>{{ t('tasks.startdate') }}</span>
               </div>
               <div class="flex items-center gap-1.5">
                 <span class="text-orange-400">●</span>
-                <span>Due Date</span>
-                <span class="text-[10px] text-gray-400">(with time)</span>
+                <span>{{ t('tasks.dueDate') }}</span>
               </div>
               <div class="flex items-center gap-1.5">
                 <span class="text-purple-400">⚡</span>
-                <span>Same Day</span>
+                <span>{{ t('calendar.same_day') }}</span>
               </div>
             </div>
           </div>
 
-          <!-- Upcoming Tasks Sidebar -->
+          <!-- Upcoming Tasks Sidebar with FULL MONTH NAMES -->
           <div :class="[
             'p-6 rounded-xl border',
             isDark ? 'bg-[#1a1f2e] border-gray-700' : 'bg-white border-gray-200 shadow-sm'
           ]">
             <h3 class="text-lg font-bold mb-4" :class="isDark ? 'text-white' : 'text-gray-900'">
-              Upcoming Tasks
+              {{ t('calendar.upcoming') }}
             </h3>
             
             <div v-if="upcomingTasks.length === 0" class="text-center text-sm py-12" :class="isDark ? 'text-gray-400' : 'text-gray-500'">
-              {{ t('tasks.noTasks') }}
+              {{ t('calendar.no_upcoming') }}
             </div>
             
             <div v-else class="space-y-3 max-h-[500px] overflow-y-auto pr-1">
@@ -514,18 +510,18 @@
                 </p>
                 
                 <div class="flex flex-col gap-0.5 mt-1.5 text-xs" :class="isDark ? 'text-gray-400' : 'text-gray-600'">
-                  <!-- ✅ START DATE WITH TIME -->
+                  <!-- START DATE WITH TIME -->
                   <div v-if="task.start_date" class="flex items-center gap-1.5">
                     <span class="text-green-400">▶</span>
-                    <span>Starts: {{ formatDate(task.start_date) }}</span>
+                    <span>{{ t('tasks.startdate') }}: {{ formatDateWithMonth(task.start_date) }}</span>
                     <span v-if="task.start_time" class="font-semibold text-gray-400">{{ formatTime(task.start_time) }}</span>
                   </div>
                   
-                  <!-- ✅ DUE DATE WITH TIME -->
+                  <!-- DUE DATE WITH TIME -->
                   <div v-if="task.due_date" class="flex items-center gap-1.5">
                     <span :class="isOverdue(task) ? 'text-red-400' : 'text-orange-400'">●</span>
                     <span :class="isOverdue(task) ? 'text-red-400 font-medium' : ''">
-                      Due: {{ formatDate(task.due_date) }}
+                      {{ t('tasks.dueDate') }}: {{ formatDateWithMonth(task.due_date) }}
                     </span>
                     <span v-if="task.due_time" class="font-semibold text-gray-400">{{ formatTime(task.due_time) }}</span>
                     <span v-if="isOverdue(task)" class="text-red-400 font-bold ml-1">⚠️</span>
@@ -545,7 +541,7 @@
         @save="handleSave"
       />
 
-      <!-- ===== TASK DETAIL MODAL ===== -->
+      <!-- Task Detail Modal -->
       <TaskDetailModal
         :show="showTaskDetail"
         :task="selectedTask"
@@ -570,10 +566,7 @@ import TaskFormModal from '@/components/TaskFormModal.vue'
 import TaskCard from '@/components/TaskCard.vue'
 import TaskDetailModal from '@/components/TaskDetailModal.vue'
 
-// ─── i18n ───
 const { t } = useI18n()
-
-// ─── Stores ───
 const themeStore = useThemeStore()
 const taskStore = useTaskStore()
 
@@ -586,10 +579,48 @@ const showMobileFilters = ref(false)
 const editingTask = ref<Task | null>(null)
 const currentDate = ref(new Date())
 const viewMode = ref<'list' | 'grid'>('list')
-
-// ─── Task Detail Modal State ───
 const showTaskDetail = ref(false)
 const selectedTask = ref<Task | null>(null)
+
+// ─── Day Headers ───
+const dayHeaders = computed(() => [
+  t('calendar.sunday'),
+  t('calendar.monday'),
+  t('calendar.tuesday'),
+  t('calendar.wednesday'),
+  t('calendar.thursday'),
+  t('calendar.friday'),
+  t('calendar.saturday')
+])
+
+// ─── Current Month with Translation ───
+const currentMonth = computed(() => {
+  const monthIndex = currentDate.value.getMonth()
+  const year = currentDate.value.getFullYear()
+  const monthName = t(`calendar.months.${monthIndex}`)
+  return `${monthName} ${year}`
+})
+
+// ─── Format Date with Month Translation ───
+const formatDateWithMonth = (dateString: string): string => {
+  if (!dateString) return ''
+  const date = new Date(dateString)
+  const day = date.getDate()
+  const monthIndex = date.getMonth()
+  const year = date.getFullYear()
+  const monthName = t(`calendar.months.${monthIndex}`)
+  return `${monthName} ${day}, ${year}`
+}
+
+const formatTime = (time: string): string => {
+  if (!time) return ''
+  const [hours, minutes] = time.split(':')
+  const hour = parseInt(hours, 10)
+  const minute = minutes || '00'
+  const period = hour >= 12 ? 'PM' : 'AM'
+  const displayHour = hour % 12 || 12
+  return `${displayHour}:${minute} ${period}`
+}
 
 // ─── Load saved view preference ───
 onMounted(() => {
@@ -599,7 +630,6 @@ onMounted(() => {
   }
 })
 
-// ─── Watch view mode changes ───
 watch(viewMode, (newMode) => {
   localStorage.setItem('taskViewMode', newMode)
 })
@@ -610,14 +640,6 @@ const filterStatus = ref('all')
 const filterPriority = ref('all')
 const filterDateRange = ref('all')
 const sortBy = ref('created_at')
-
-// ─── Computed ───
-const currentMonth = computed(() => {
-  return currentDate.value.toLocaleString('default', { 
-    month: 'long', 
-    year: 'numeric' 
-  })
-})
 
 const hasActiveFilters = computed(() => {
   return searchQuery.value !== '' ||
@@ -646,7 +668,7 @@ const getPriorityWeight = (priority: string): number => {
   return priorityMap[priority?.toLowerCase?.()] ?? 3
 }
 
-// ─── Format Time Short (for calendar) ───
+// ─── Format Time Short ───
 const formatTimeShort = (time: string): string => {
   if (!time) return ''
   const [hours, minutes] = time.split(':')
@@ -825,27 +847,6 @@ const filteredTasks = computed(() => {
   return tasks
 })
 
-// ─── Date Helpers ───
-const formatDate = (dateString: string): string => {
-  if (!dateString) return ''
-  const date = new Date(dateString)
-  return date.toLocaleDateString('en-US', { 
-    month: 'short', 
-    day: 'numeric', 
-    year: 'numeric' 
-  })
-}
-
-const formatTime = (time: string): string => {
-  if (!time) return ''
-  const [hours, minutes] = time.split(':')
-  const hour = parseInt(hours, 10)
-  const minute = minutes || '00'
-  const period = hour >= 12 ? 'PM' : 'AM'
-  const displayHour = hour % 12 || 12
-  return `${displayHour}:${minute} ${period}`
-}
-
 const isOverdue = (task: Task): boolean => {
   if (!task.due_date || isTaskCompleted(task)) return false
   const dueDate = new Date(task.due_date)
@@ -876,13 +877,13 @@ const isDueDate = (task: Task, dateString: string): boolean => {
 const getTaskTooltip = (task: Task): string => {
   let tooltip = task.title
   if (task.start_date) {
-    tooltip += `\n▶ Starts: ${formatDate(task.start_date)}`
+    tooltip += `\n▶ ${t('tasks.startdate')}: ${formatDateWithMonth(task.start_date)}`
   }
   if (task.due_date) {
-    tooltip += `\n● Due: ${formatDate(task.due_date)}`
+    tooltip += `\n● ${t('tasks.dueDate')}: ${formatDateWithMonth(task.due_date)}`
   }
   if (task.priority) {
-    tooltip += `\nPriority: ${task.priority.toUpperCase()}`
+    tooltip += `\n${t('tasks.priority')}: ${task.priority.toUpperCase()}`
   }
   return tooltip
 }
@@ -1045,7 +1046,6 @@ const handleViewChange = () => {
   localStorage.setItem('taskViewMode', viewMode.value)
 }
 
-// ─── Apply Filters ───
 const applyFilters = () => {
   taskStore.fetchTasks()
 }

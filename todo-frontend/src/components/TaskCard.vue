@@ -55,7 +55,7 @@
               <button
                 @click="emit('edit', task)"
                 class="p-1.5 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-150"
-                title="Edit Task"
+                :title="$t('tasks.editTask')"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -64,7 +64,7 @@
               <button
                 @click="handleDelete"
                 class="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-150"
-                title="Delete Task"
+                :title="$t('tasks.deleteTask')"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -89,9 +89,9 @@
               <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M6 2a1 1 0 000 2h8a1 1 0 100-2H6zM4 5a2 2 0 012-2 1 1 0 000 2h8a1 1 0 100-2 2 2 0 012 2v10a2 2 0 01-2 2H6a2 2 0 01-2-2V5z" />
               </svg>
-              <span>Due: {{ formatDate(task.due_date) }}</span>
+              <span>{{ $t('tasks.dueDate') }}: {{ formatDateWithMonth(task.due_date) }}</span>
               <span v-if="task.due_time" class="font-semibold">{{ formatTime(task.due_time) }}</span>
-              <span v-else class="text-gray-400 dark:text-gray-500">No time set</span>
+              <span v-else class="text-gray-400 dark:text-gray-500">{{ $t('tasks.no_time_set') }}</span>
             </span>
           </div>
 
@@ -104,7 +104,7 @@
                 ? 'bg-emerald-50 dark:bg-emerald-900/25 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/50'
                 : 'bg-blue-50 dark:bg-blue-900/25 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800/50'"
             >
-              {{ task.is_completed ? '✓ Completed' : '○ Pending' }}
+              {{ task.is_completed ? '✓ ' + $t('tasks.completed') : '○ ' + $t('tasks.pending') }}
             </span>
 
             <!-- Category Badge -->
@@ -117,7 +117,7 @@
 
             <!-- Overdue Badge -->
             <span v-if="task.is_overdue" class="text-xs px-1.5 py-0.5 rounded-full border font-medium bg-red-50 dark:bg-red-900/25 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800/50">
-              ⚠️ Overdue
+              ⚠️ {{ $t('tasks.overdue') }}
             </span>
           </div>
 
@@ -129,7 +129,7 @@
               <div class="flex items-center gap-2">
                 <span class="text-xs font-medium px-2 py-0.5 rounded-full border inline-flex items-center gap-1 flex-shrink-0" :class="priorityClasses">
                   <span>{{ priorityEmoji }}</span>
-                  <span class="capitalize">{{ task.priority }}</span>
+                  <span class="capitalize">{{ $t('tasks.' + task.priority) }}</span>
                 </span>
               </div>
 
@@ -141,9 +141,9 @@
                   <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M5.5 13a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1 4.5 4.5 0 11-4.814 6.98z" />
                   </svg>
-                  <span>Started: {{ formatDate(task.start_date) }}</span>
+                  <span>{{ $t('tasks.startdate') }}: {{ formatDateWithMonth(task.start_date) }}</span>
                   <span v-if="task.start_time" class="font-semibold">{{ formatTime(task.start_time) }}</span>
-                  <span v-else class="text-gray-400 dark:text-gray-500">No time set</span>
+                  <span v-else class="text-gray-400 dark:text-gray-500">{{ $t('tasks.no_time_set') }}</span>
                 </span>
               </div>
 
@@ -152,7 +152,7 @@
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                Created: {{ timeAgo(task.created_at) }}
+                {{ $t('common.created_at') }}: {{ timeAgo(task.created_at) }}
               </div>
             </div>
           </div>
@@ -164,7 +164,11 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { Task } from '@/types'
+
+// ─── i18n ───
+const { t } = useI18n()
 
 // ─── Props ───
 const props = defineProps<{
@@ -200,14 +204,19 @@ const priorityEmoji = computed(() => {
   return emojis[props.task.priority] || '🟡'
 })
 
-// ─── Date Helpers ───
-const formatDate = (date: string): string => {
+// ─── Date Helpers with Month Translation ───
+const formatDateWithMonth = (date: string): string => {
   if (!date) return ''
-  return new Date(date).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  })
+  
+  const dateObj = new Date(date)
+  const monthIndex = dateObj.getMonth()
+  const day = dateObj.getDate()
+  const year = dateObj.getFullYear()
+  
+  // Get translated month name from calendar structure
+  const monthName = t(`calendar.months.${monthIndex}`)
+  
+  return `${monthName} ${day}, ${year}`
 }
 
 const formatTime = (time: string): string => {
@@ -230,16 +239,16 @@ const timeAgo = (date: string): string => {
   const hours = Math.floor(diff / 3600000)
   const days = Math.floor(diff / 86400000)
   
-  if (minutes < 1) return 'just now'
-  if (minutes < 60) return `${minutes}m ago`
-  if (hours < 24) return `${hours}h ago`
-  if (days < 7) return `${days}d ago`
-  return formatDate(date)
+  if (minutes < 1) return t('common.just_now')
+  if (minutes < 60) return `${minutes}m ${t('common.ago')}`
+  if (hours < 24) return `${hours}h ${t('common.ago')}`
+  if (days < 7) return `${days}d ${t('common.ago')}`
+  return formatDateWithMonth(date)
 }
 
 // ─── Methods ───
 const handleDelete = (): void => {
-  if (confirm('Are you sure you want to delete this task?')) {
+  if (confirm(t('tasks.deleteConfirmation'))) {
     emit('delete', props.task.id)
   }
 }

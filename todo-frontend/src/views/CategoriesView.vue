@@ -3,8 +3,12 @@
     <div class="p-6">
       <div class="flex items-center justify-between mb-8">
         <div>
-          <h1 class="text-3xl font-bold" :class="isDark ? 'text-white' : 'text-gray-900'">Categories</h1>
-          <p class="mt-2" :class="isDark ? 'text-gray-400' : 'text-gray-600'">Organize your tasks with custom categories</p>
+          <h1 class="text-3xl font-bold" :class="isDark ? 'text-white' : 'text-gray-900'">
+            {{ $t('categories.title') }}
+          </h1>
+          <p class="mt-2" :class="isDark ? 'text-gray-400' : 'text-gray-600'">
+            {{ $t('categories.subtitle') }}
+          </p>
         </div>
         <button 
           @click="showCreateModal = true"
@@ -13,12 +17,14 @@
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
           </svg>
-          New Category
+          {{ $t('categories.new_category') }}
         </button>
       </div>
 
       <div v-if="categoryStore.categories.length === 0" class="text-center py-12">
-        <p :class="isDark ? 'text-gray-400' : 'text-gray-600'">No categories yet.</p>
+        <p :class="isDark ? 'text-gray-400' : 'text-gray-600'">
+          {{ $t('categories.no_categories') }}
+        </p>
       </div>
 
       <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -40,7 +46,7 @@
               </h3>
             </div>
             <span class="text-xs font-medium px-2 py-1 rounded-full" :class="isDark ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-600'">
-              {{ category.tasks_count }} tasks
+              {{ category.tasks_count || 0 }} {{ $t('categories.tasks') }}
             </span>
           </div>
 
@@ -49,13 +55,13 @@
               @click="editCategory(category)"
               class="flex-1 px-3 py-2 bg-blue-600/20 text-blue-600 rounded-lg hover:bg-blue-600/30 text-sm font-medium transition-colors"
             >
-              Edit
+              {{ $t('common.edit') }}
             </button>
             <button 
               @click="deleteCategory(category.id)"
               class="flex-1 px-3 py-2 bg-red-600/20 text-red-600 rounded-lg hover:bg-red-600/30 text-sm font-medium transition-colors"
             >
-              Delete
+              {{ $t('common.delete') }}
             </button>
           </div>
         </div>
@@ -73,11 +79,14 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useThemeStore } from '@/stores/theme'
 import { useCategoryStore } from '@/stores/categories'
 import type { Category } from '@/types'
 import AppLayout from '@/layouts/AppLayout.vue'
 import CategoryFormModal from '@/components/CategoryFormModal.vue'
+
+const { t } = useI18n()
 
 const themeStore = useThemeStore()
 const categoryStore = useCategoryStore()
@@ -92,8 +101,11 @@ const editCategory = (category: Category) => {
 }
 
 const deleteCategory = async (id: number) => {
-  if (confirm('Delete this category?')) {
-    await categoryStore.deleteCategory(id)
+  if (confirm(t('categories.delete_confirmation'))) {
+    const result = await categoryStore.deleteCategory(id)
+    if (!result.success) {
+      alert(result.message || t('common.error'))
+    }
   }
 }
 

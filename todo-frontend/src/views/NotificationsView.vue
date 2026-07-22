@@ -9,17 +9,15 @@
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
               </svg>
-              {{ $t('notifications.title') }}
+              {{ $t('notifications.notifications') }}
             </h1>
-            <p class="mt-2 text-sm text-gray-600 dark:text-gray-400 space-y-1">
-              <span v-if="notificationStore.unreadCount > 0" class="block">
-                <span class="font-semibold text-primary-600">{{ notificationStore.unreadCount }}</span>
-                <span class="text-gray-600 dark:text-gray-400"> {{ $t('notifications.unread') }} notification{{ notificationStore.unreadCount !== 1 ? 's' : '' }} waiting for your attention</span>
+            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+              <span v-if="notificationStore.unreadCount > 0" class="font-semibold text-primary-600">
+                {{ notificationStore.unreadCount }} {{ $t('notifications.noNotifications') }}
               </span>
-              <span v-else class="block text-gray-500">{{ $t('notifications.all_caught_up') }} — {{ $t('notifications.all_caught_up_message') }}</span>
-              <span class="block text-xs text-gray-500">
-                {{ notificationStore.notifications.length }} {{ $t('notifications.total') }} notification{{ notificationStore.notifications.length !== 1 ? 's' : '' }}
-              </span>
+              <span v-else class="text-gray-500">{{ $t('notifications.noNotifications') }}</span>
+              <span class="mx-2 text-gray-400">•</span>
+              <span>{{ notificationStore.notifications.length }} total</span>
             </p>
           </div>
 
@@ -30,7 +28,6 @@
               @click="markAllAsRead"
               :disabled="notificationStore.isSubmitting"
               class="btn-secondary inline-flex items-center gap-2 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
-              :title="`Mark ${notificationStore.unreadCount} notification${notificationStore.unreadCount !== 1 ? 's' : ''} as read`"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
@@ -42,12 +39,11 @@
               @click="deleteAllRead"
               :disabled="notificationStore.isSubmitting"
               class="btn-secondary inline-flex items-center gap-2 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed text-red-600 hover:text-red-700"
-              :title="`Delete ${notificationStore.readNotifications.length} read notification${notificationStore.readNotifications.length !== 1 ? 's' : ''}`"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
               </svg>
-              {{ $t('notifications.clear_read') }}
+              {{ $t('notifications.clearAll') }}
             </button>
           </div>
         </div>
@@ -63,9 +59,8 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0a2 2 0 01-2 2H6a2 2 0 01-2-2m16 0V5a2 2 0 00-2-2H6a2 2 0 00-2 2v14a2 2 0 002 2h12a2 2 0 002-2z" />
           </svg>
         </div>
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">{{ $t('notifications.all_caught_up') }}</h3>
-        <p class="text-gray-600 dark:text-gray-400 text-center max-w-sm">{{ $t('notifications.all_caught_up_message') }}</p>
-        <p class="text-xs text-gray-500 dark:text-gray-500 mt-3">✓ All your notifications have been reviewed</p>
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">{{ $t('notifications.noNotifications') }}</h3>
+        <p class="text-gray-600 dark:text-gray-400">{{ $t('notifications.noNotificationsYet') }}</p>
       </div>
 
       <!-- Notifications List -->
@@ -115,7 +110,7 @@ const markAllAsRead = async () => {
 }
 
 const deleteAllRead = async () => {
-  if (!confirm(t('notifications.delete_all_read_confirmation'))) {
+  if (!confirm(t('notifications.deleteNotification'))) {
     return
   }
   const result = await notificationStore.deleteAllRead()

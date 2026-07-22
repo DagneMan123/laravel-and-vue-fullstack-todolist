@@ -31,7 +31,7 @@
                   task?.is_completed ? 'line-through opacity-60' : ''
                 ]"
               >
-                {{ task?.title || 'Task Details' }}
+                {{ task?.title || t('tasks.taskDetails') }}
               </h2>
             </div>
             <button
@@ -48,7 +48,9 @@
           <div class="p-6 space-y-6">
             <!-- Description -->
             <div v-if="task?.description" class="space-y-1">
-              <p class="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Description</p>
+              <p class="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                {{ t('tasks.description') }}
+              </p>
               <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg">
                 {{ task.description }}
               </p>
@@ -60,9 +62,11 @@
               <div class="flex items-center gap-3 p-3 rounded-lg border" :class="isDark ? 'border-gray-700 bg-gray-800/50' : 'border-gray-100 bg-gray-50'">
                 <span class="text-xl">{{ priorityEmoji }}</span>
                 <div>
-                  <p class="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Priority</p>
+                  <p class="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                    {{ t('tasks.priority') }}
+                  </p>
                   <p class="text-sm font-semibold capitalize" :class="priorityColor">
-                    {{ task?.priority || 'Not set' }}
+                    {{ task?.priority ? t('tasks.' + task.priority) : t('common.not_set') }}
                   </p>
                 </div>
               </div>
@@ -71,9 +75,11 @@
               <div class="flex items-center gap-3 p-3 rounded-lg border" :class="isDark ? 'border-gray-700 bg-gray-800/50' : 'border-gray-100 bg-gray-50'">
                 <span class="text-xl">{{ task?.is_completed ? '✅' : '⏳' }}</span>
                 <div>
-                  <p class="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Status</p>
+                  <p class="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                    {{ t('tasks.status') }}
+                  </p>
                   <p class="text-sm font-semibold" :class="task?.is_completed ? 'text-emerald-600 dark:text-emerald-400' : 'text-blue-600 dark:text-blue-400'">
-                    {{ task?.is_completed ? 'Completed' : 'Pending' }}
+                    {{ task?.is_completed ? t('tasks.completed') : t('tasks.pending') }}
                   </p>
                 </div>
               </div>
@@ -82,11 +88,13 @@
               <div v-if="task?.start_date" class="flex items-center gap-3 p-3 rounded-lg border" :class="isDark ? 'border-gray-700 bg-gray-800/50' : 'border-gray-100 bg-gray-50'">
                 <span class="text-xl">📅</span>
                 <div>
-                  <p class="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Start Date</p>
+                  <p class="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                    {{ t('tasks.startdate') }}
+                  </p>
                   <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    {{ formatDate(task.start_date) }}
+                    {{ formatDateWithDayAndMonth(task.start_date) }}
                     <span v-if="task.start_time" class="font-normal text-gray-500 dark:text-gray-400">
-                      at {{ formatTime(task.start_time) }}
+                      {{ t('common.at') }} {{ formatTime(task.start_time) }}
                     </span>
                   </p>
                 </div>
@@ -96,13 +104,15 @@
               <div v-if="task?.due_date" class="flex items-center gap-3 p-3 rounded-lg border" :class="isDark ? 'border-gray-700 bg-gray-800/50' : 'border-gray-100 bg-gray-50'">
                 <span class="text-xl">📅</span>
                 <div>
-                  <p class="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Due Date</p>
+                  <p class="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                    {{ t('tasks.dueDate') }}
+                  </p>
                   <p class="text-sm font-semibold" :class="task?.is_overdue ? 'text-red-600 dark:text-red-400' : 'text-gray-700 dark:text-gray-300'">
-                    {{ formatDate(task.due_date) }}
+                    {{ formatDateWithDayAndMonth(task.due_date) }}
                     <span v-if="task.due_time" class="font-normal text-gray-500 dark:text-gray-400">
-                      at {{ formatTime(task.due_time) }}
+                      {{ t('common.at') }} {{ formatTime(task.due_time) }}
                     </span>
-                    <span v-if="task?.is_overdue" class="ml-2 text-xs font-bold text-red-600 dark:text-red-400 animate-pulse">⚠️ OVERDUE</span>
+                    <span v-if="task?.is_overdue" class="ml-2 text-xs font-bold text-red-600 dark:text-red-400 animate-pulse">⚠️ {{ t('tasks.overdue') }}</span>
                   </p>
                 </div>
               </div>
@@ -111,7 +121,9 @@
               <div v-if="categoryName" class="flex items-center gap-3 p-3 rounded-lg border" :class="isDark ? 'border-gray-700 bg-gray-800/50' : 'border-gray-100 bg-gray-50'">
                 <span class="text-xl">🏷️</span>
                 <div>
-                  <p class="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Category</p>
+                  <p class="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                    {{ t('tasks.category') }}
+                  </p>
                   <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">
                     {{ categoryName }}
                   </p>
@@ -122,7 +134,9 @@
               <div class="flex items-center gap-3 p-3 rounded-lg border" :class="isDark ? 'border-gray-700 bg-gray-800/50' : 'border-gray-100 bg-gray-50'">
                 <span class="text-xl">🕐</span>
                 <div>
-                  <p class="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Created</p>
+                  <p class="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                    {{ t('common.created_at') }}
+                  </p>
                   <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">
                     {{ getTimeAgo() }}
                   </p>
@@ -139,19 +153,19 @@
                   ? 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
                   : 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-lg shadow-emerald-600/30 hover:shadow-emerald-600/50'"
               >
-                <span>{{ task?.is_completed ? '↩️ Mark as Pending' : '✅ Mark as Done' }}</span>
+                <span>{{ task?.is_completed ? '↩️ ' + t('tasks.markAsPending') : '✅ ' + t('tasks.markAsComplete') }}</span>
               </button>
               <button
                 @click="handleEdit"
                 class="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-blue-600/30 hover:shadow-blue-600/50"
               >
-                ✏️ Edit Task
+                ✏️ {{ t('common.edit') }}
               </button>
               <button
                 @click="handleDelete"
                 class="px-4 py-2.5 bg-red-500/10 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-500/20 transition-all duration-200 flex items-center justify-center gap-2"
               >
-                🗑️ Delete
+                🗑️ {{ t('common.delete') }}
               </button>
             </div>
           </div>
@@ -163,6 +177,7 @@
 
 <script setup lang="ts">
 import { computed, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useThemeStore } from '@/stores/theme'
 import type { Task } from '@/types'
 
@@ -179,6 +194,9 @@ const emit = defineEmits<{
   (e: 'edit', task: Task): void
   (e: 'delete', id: number): void
 }>()
+
+// ─── i18n ───
+const { t } = useI18n()
 
 // ─── Stores ───
 const themeStore = useThemeStore()
@@ -207,15 +225,27 @@ const priorityColor = computed(() => {
   return colors[props.task?.priority || 'medium'] || 'text-gray-600 dark:text-gray-400'
 })
 
-// ─── Date Helpers ───
-const formatDate = (date: string): string => {
-  if (!date) return ''
-  return new Date(date).toLocaleDateString('en-US', {
-    weekday: 'short',
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  })
+// ─── Date Helper with Day & Month from your calendar structure ───
+const formatDateWithDayAndMonth = (date: string): string => {
+  if (!date) return t('common.no_data')
+  
+  const dateObj = new Date(date)
+  const dayIndex = dateObj.getDay() // 0 = Sunday, 1 = Monday, etc.
+  const monthIndex = dateObj.getMonth() // 0 = January, 1 = February, etc.
+  const day = dateObj.getDate()
+  const year = dateObj.getFullYear()
+  
+  // Get day and month names from your calendar structure
+  const dayName = t(`calendar.${getDayKey(dayIndex)}`)
+  const monthName = t(`calendar.months.${monthIndex}`)
+  
+  return `${dayName}, ${monthName} ${day}, ${year}`
+}
+
+// Helper function to map day index to translation key
+const getDayKey = (index: number): string => {
+  const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+  return days[index] || 'sunday'
 }
 
 const formatTime = (time: string): string => {
@@ -228,22 +258,21 @@ const formatTime = (time: string): string => {
   return `${displayHour}:${minute} ${period}`
 }
 
-// ─── FIXED: Safe timeAgo function ───
+// ─── Safe timeAgo function ───
 const getTimeAgo = (): string => {
-  if (!props.task) return 'Recently'
+  if (!props.task) return t('common.recently')
   
-  // Try multiple possible date fields
   const dateStr = props.task.created_at || 
                   (props.task as any).createdAt || 
                   props.task.updated_at || 
                   (props.task as any).updatedAt || 
                   ''
   
-  if (!dateStr) return 'Recently'
+  if (!dateStr) return t('common.recently')
   
   try {
     const past = new Date(dateStr)
-    if (isNaN(past.getTime())) return 'Recently'
+    if (isNaN(past.getTime())) return t('common.recently')
     
     const now = new Date()
     const diff = now.getTime() - past.getTime()
@@ -255,15 +284,15 @@ const getTimeAgo = (): string => {
     const months = Math.floor(days / 30)
     const years = Math.floor(days / 365)
     
-    if (minutes < 1) return 'just now'
-    if (minutes < 60) return `${minutes}m ago`
-    if (hours < 24) return `${hours}h ago`
-    if (days < 7) return `${days}d ago`
-    if (weeks < 4) return `${weeks}w ago`
-    if (months < 12) return `${months}mo ago`
-    return `${years}y ago`
+    if (minutes < 1) return t('common.just_now')
+    if (minutes < 60) return `${minutes}m ${t('common.ago')}`
+    if (hours < 24) return `${hours}h ${t('common.ago')}`
+    if (days < 7) return `${days}d ${t('common.ago')}`
+    if (weeks < 4) return `${weeks}w ${t('common.ago')}`
+    if (months < 12) return `${months}mo ${t('common.ago')}`
+    return `${years}y ${t('common.ago')}`
   } catch (error) {
-    return 'Recently'
+    return t('common.recently')
   }
 }
 
@@ -287,7 +316,7 @@ const handleEdit = () => {
 }
 
 const handleDelete = () => {
-  if (props.task && confirm('Are you sure you want to delete this task?')) {
+  if (props.task && confirm(t('tasks.deleteConfirmation'))) {
     emit('delete', props.task.id)
     emit('close')
   }

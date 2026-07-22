@@ -36,7 +36,6 @@
                 'inline-block px-2 py-0.5 text-xs font-medium rounded-full whitespace-nowrap',
                 getTypeClasses(notification.type).badge
               ]"
-              :title="`${$t('notifications.activity_type')}: ${formatType(notification.type)}`"
             >
               {{ formatType(notification.type) }}
             </span>
@@ -73,7 +72,6 @@
                 ? 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
                 : 'text-primary-600 hover:text-primary-700 dark:text-primary-400'
             ]"
-            aria-label="Toggle notification read status"
           >
             <svg v-if="notification.is_read" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21h18M3 10h18M5 6h14M7 6V4a1 1 0 011-1h8a1 1 0 011 1v2" />
@@ -90,7 +88,6 @@
               'p-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed',
               'text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20'
             ]"
-            aria-label="Delete notification"
           >
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -103,7 +100,7 @@
       <div v-if="isLoading" class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
         <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
           <div class="w-3 h-3 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
-          <span>{{ $t('common.loading') }}</span>
+          {{ $t('notifications.processing') }}
         </div>
       </div>
     </div>
@@ -112,6 +109,7 @@
 
 <script setup lang="ts">
 import type { Notification } from '@/types'
+import { useI18n } from 'vue-i18n'
 import { useNotificationUtils } from '@/composables/useNotificationUtils'
 
 interface Props {
@@ -128,6 +126,7 @@ const props = withDefaults(defineProps<Props>(), {
   isLoading: false,
 })
 
+const { t } = useI18n()
 const emit = defineEmits<Emits>()
 
 const { getTypeClasses, formatType, formatTime } = useNotificationUtils()

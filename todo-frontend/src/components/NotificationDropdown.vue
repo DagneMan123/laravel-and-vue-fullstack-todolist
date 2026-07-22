@@ -10,8 +10,8 @@
           ? 'hover:bg-gray-800 text-gray-300 focus:ring-blue-500 focus:ring-offset-[#0f1419]' 
           : 'hover:bg-gray-100 text-gray-600 focus:ring-blue-500 focus:ring-offset-white'
       ]"
-      title="Notifications"
-      aria-label="View notifications"
+      :title="$t('notifications.notifications')"
+      :aria-label="$t('notifications.notifications')"
       aria-expanded="isOpen"
     >
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -53,7 +53,7 @@
             <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
             </svg>
-            <span class="font-semibold text-sm">{{ $t('notifications.title') }}</span>
+            <span class="font-semibold text-sm">{{ $t('notifications.notifications') }}</span>
             <span v-if="notificationStore.unreadCount > 0" :class="[
               'text-xs font-bold rounded-full px-2 py-0.5',
               isDark ? 'bg-red-500/20 text-red-400' : 'bg-red-100 text-red-600'
@@ -85,11 +85,11 @@
             <svg class="w-12 h-12 mx-auto mb-3 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0a2 2 0 01-2 2H6a2 2 0 01-2-2m16 0V5a2 2 0 00-2-2H6a2 2 0 00-2 2v14a2 2 0 002 2h12a2 2 0 002-2z" />
             </svg>
-            <p :class="isDark ? 'text-gray-400' : 'text-gray-500'" class="text-sm font-medium">
-              {{ $t('notifications.all_caught_up') }}
+            <p :class="isDark ? 'text-gray-400' : 'text-gray-500'" class="text-sm">
+              {{ $t('notifications.allCaughtUp') }}
             </p>
             <p :class="isDark ? 'text-gray-500' : 'text-gray-400'" class="text-xs mt-1">
-              {{ $t('notifications.all_caught_up_message') }}
+              {{ $t('notifications.noNotificationsYet') }}
             </p>
           </div>
 
@@ -144,7 +144,7 @@
                         'flex-shrink-0 p-1 rounded hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors disabled:opacity-50',
                         isDark ? 'text-gray-500 hover:text-red-400' : 'text-gray-400 hover:text-red-600'
                       ]"
-                      title="Delete notification"
+                      :title="$t('notifications.deleteNotification')"
                     >
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -184,7 +184,7 @@
               : 'border-gray-100 text-blue-600 hover:bg-gray-50 hover:text-blue-700'
           ]"
         >
-          {{ $t('common.view') }} {{ $t('notifications.title').toLowerCase() }} →
+          {{ $t('notifications.viewAll') }} →
         </router-link>
       </div>
     </transition>
@@ -203,10 +203,12 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useNotificationStore } from '@/stores/notifications'
 import { useNotificationUtils } from '@/composables/useNotificationUtils'
 import type { Notification } from '@/types'
 
+const { t } = useI18n()
 const notificationStore = useNotificationStore()
 const { isDark, getTypeClasses, getNotificationColor, formatType, formatTime } = useNotificationUtils()
 

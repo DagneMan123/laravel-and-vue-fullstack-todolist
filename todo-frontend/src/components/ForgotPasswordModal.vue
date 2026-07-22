@@ -17,27 +17,29 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7v3a1 1 0 01-1 1h-4a1 1 0 01-1-1V7" />
             </svg>
           </div>
-          <h3 class="mt-4 text-2xl font-bold gradient-text">Reset Password</h3>
+          <h3 class="mt-4 text-2xl font-bold gradient-text">{{ t('auth.forgotPasswordTitle') }}</h3>
           <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">
-            Enter your email and we'll send you a reset link
+            {{ t('auth.forgotPasswordDescription') }}
           </p>
         </div>
 
         <form @submit.prevent="handleSubmit" class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Email Address</label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+              {{ t('auth.emailAddress') }}
+            </label>
             <input
               v-model="email"
               type="email"
               class="input-field"
               :class="{ 'border-red-500 dark:border-red-400': error }"
-              placeholder="Enter your email"
+              :placeholder="t('auth.enterEmail')"
               :disabled="loading"
               @input="error = ''"
             />
             <p v-if="error" class="mt-1 text-sm text-red-500 dark:text-red-400">{{ error }}</p>
             <p v-if="success" class="mt-1 text-sm text-green-500 dark:text-green-400">
-              ✅ Reset link sent! Check your email.
+              ✅ {{ t('auth.resetLinkSent') }}
             </p>
           </div>
 
@@ -48,15 +50,15 @@
               class="flex-1 px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition font-medium"
               :disabled="loading"
             >
-              Cancel
+              {{ t('common.cancel') }}
             </button>
             <button
               type="submit"
-              class="flex-1 px-4 py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-lg hover:shadow-lg hover:shadow-primary-500/25 transition font-medium"
+              class="flex-1 px-4 py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-lg hover:shadow-lg hover:shadow-primary-500/25 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               :disabled="loading || !email"
             >
               <span v-if="loading" class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></span>
-              {{ loading ? 'Sending...' : 'Send Reset Link' }}
+              {{ loading ? t('common.sending') : t('auth.sendResetLink') }}
             </button>
           </div>
         </form>
@@ -67,6 +69,9 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   show: boolean
@@ -103,12 +108,12 @@ const handleSubmit = async () => {
   
   // Validate email
   if (!email.value) {
-    error.value = 'Email is required'
+    error.value = t('auth.emailRequired')
     return
   }
   
   if (!isValidEmail(email.value)) {
-    error.value = 'Please enter a valid email address'
+    error.value = t('auth.invalidEmail')
     return
   }
   
@@ -128,7 +133,7 @@ const handleSubmit = async () => {
     }, 3000)
     
   } catch (err) {
-    error.value = 'Failed to send reset link. Please try again.'
+    error.value = t('auth.resetLinkFailed')
   } finally {
     loading.value = false
   }

@@ -94,9 +94,10 @@
     "sendResetLink": "Send Reset Link",
     "resetLinkSent": "Reset link sent! Check your email.",
     "resetLinkFailed": "Failed to send reset link. Please try again.",
-    "register_success": "Account created successfully! 🎉",
+    "registerSuccess": "Account created successfully! 🎉",
+    "registerFailed": "Registration failed",
     "logout_success": "Logged out successfully",
-    "invalid_credentials": "Invalid login credentials"
+    "invalid_credentials": "The provided credentials are incorrect"
   },
   "layout": {
     "menu": "Menu",
@@ -180,7 +181,21 @@
     "no_time_set": "No time set",
     "created": "Created",
     "upcoming": "Upcoming",
-    "more": "more"
+    "more": "more",
+    "taskTitleRequired": "Task title is required",
+    "taskTitleTooShort": "Task title must be at least 3 characters",
+    "taskTitleTooLong": "Task title must not exceed 255 characters",
+    "descriptionTooLong": "Description must not exceed 1000 characters",
+    "invalidPriority": "Please select a valid priority",
+    "startDateInPast": "Start date cannot be in the past",
+    "dueDateBeforeStart": "Due date must be after or equal to start date",
+    "urgentDeadlineTooFar": "Urgent tasks must have a deadline within 48 hours",
+    "highPriorityRequiresDescription": "High priority tasks require a description",
+    "urgentPriorityRequiresDescription": "Urgent priority tasks require a description",
+    "urgentDeadlineHint": "Suggest setting deadline within 48 hours",
+    "mustBeWithin48Hours": "Urgent tasks must be within 48 hours",
+    "hoursUntilDeadline": "{hours} hours until deadline",
+    "deadlineHasPassed": "Deadline has passed!"
   },
   "categories": {
     "title": "Categories",
@@ -290,7 +305,24 @@
     "good": "Good",
     "strong": "Strong",
     "invalidName": "Full name can only contain letters and spaces",
-    "max":"Max"
+    "max":"Max",
+    "valid": "Valid",
+    "nameRequired": "Name is required",
+    "nameTooShort": "Name must be at least 2 characters long",
+    "nameTooLong": "Name must not exceed 100 characters",
+    "nameNoNumbers": "Name cannot contain numbers",
+    "nameInvalidChars": "Name contains invalid characters",
+    "emailTooLong": "Email must not exceed 255 characters",
+    "emailDisposable": "Please use a permanent email address, not a temporary email service",
+    "emailTypo": "Did you mean {suggestion}?",
+    "passwordTooShort": "Password must be at least 8 characters long",
+    "passwordNoUppercase": "Password must contain at least one uppercase letter",
+    "passwordNoLowercase": "Password must contain at least one lowercase letter",
+    "passwordNoNumber": "Password must contain at least one number",
+    "passwordSequential": "Password cannot contain sequential numbers like 123",
+    "passwordRepeated": "Password cannot contain repeated characters (aaa, 111, etc.)",
+    "passwordCommon": "Password is too common. Please choose a stronger password",
+    "passwordCompromised": "This password has been compromised in a data breach. Please choose a different password"
   },
   "charts": {
     "taskCompletionTrend": "Task Completion Trend",

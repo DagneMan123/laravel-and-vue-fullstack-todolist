@@ -17,7 +17,8 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7v3a1 1 0 01-1 1h-4a1 1 0 01-1-1V7" />
             </svg>
           </div>
-          <h3 class="mt-4 text-2xl font-bold gradient-text">{{ t('auth.forgotPasswordTitle') }}</h3>
+          <h3 class="mt-4 text-2xl font-bold text-blue-600 dark:text-blue-400">{{ t('auth.forgotPasswordTitle') }}
+        </h3>
           <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">
             {{ t('auth.forgotPasswordDescription') }}
           </p>

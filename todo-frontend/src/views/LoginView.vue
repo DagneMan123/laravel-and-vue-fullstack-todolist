@@ -17,7 +17,7 @@
           <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">{{ $t('auth.signInToAccount') }}</p>
         </div>
 
-        <form @submit.prevent="handleLogin" class="space-y-4">
+        <form @submit.prevent="handleLogin" class="space-y-4" @input="validateOnInput">
           <!-- Email -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">{{ $t('auth.emailAddress') }}</label>
@@ -28,9 +28,9 @@
               :class="{ 'border-red-500 dark:border-red-400': emailError }"
               :placeholder="$t('auth.enterEmail')"
               :disabled="authStore.isLoading"
-              @input="validateOnInput"
             />
-            <p v-if="emailError" class="mt-1 text-sm text-red-500 dark:text-red-400">{{ emailError }}</p>
+            <FormError :message="emailError" />
+            <p v-if="credentials.email && !emailError" class="mt-1 text-xs text-green-600 dark:text-green-400"></p>
           </div>
 
           <!-- Password -->
@@ -44,7 +44,6 @@
                 :class="{ 'border-red-500 dark:border-red-400': passwordError }"
                 :placeholder="$t('auth.enterPassword')"
                 :disabled="authStore.isLoading"
-                @input="validateOnInput"
               />
               <button
                 type="button"
@@ -61,7 +60,8 @@
                 </svg>
               </button>
             </div>
-            <p v-if="passwordError" class="mt-1 text-sm text-red-500 dark:text-red-400">{{ passwordError }}</p>
+            <FormError :message="passwordError" />
+            <p v-if="credentials.password && !passwordError" class="mt-1 text-xs text-green-600 dark:text-green-400"></p>
           </div>
 
           <!-- Remember Me & Forgot Password -->
@@ -115,7 +115,7 @@
           <button
             type="submit"
             class="btn-primary w-full py-3 text-base"
-            :disabled="authStore.isLoading"
+            :disabled="authStore.isLoading || !isFormValid"
           >
             <span v-if="authStore.isLoading" class="inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></span>
             {{ authStore.isLoading ? $t('auth.signingIn') : $t('auth.signIn') }}
@@ -141,24 +141,38 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, onMounted } from 'vue'
+import { reactive, ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import { useThemeStore } from '@/stores/theme'
+import { useFormValidation } from '@/composables/useFormValidation'
 import ForgotPasswordModal from '@/components/ForgotPasswordModal.vue'
+import FormError from '@/components/FormError.vue'
 import type { LoginCredentials } from '@/types'
 
 const router = useRouter()
 const authStore = useAuthStore()
 const themeStore = useThemeStore()
+const validation = useFormValidation()
+const { t } = useI18n()
 const showPassword = ref(false)
 const rememberMe = ref(false)
 const showForgotPassword = ref(false)
 
 // Form validation errors
-const emailError = ref('')
-const passwordError = ref('')
+const emailError = computed(() => validation.getError('email'))
+const passwordError = computed(() => validation.getError('password'))
+
+// Check if form is valid
+const isFormValid = computed(() => {
+  return (
+    credentials.email.trim() !== '' &&
+    credentials.password !== '' &&
+    !emailError.value &&
+    !passwordError.value
+  )
+})
 
 // Credentials
 const credentials = reactive<LoginCredentials>({
@@ -177,50 +191,15 @@ onMounted(() => {
   }
 })
 
-// Validation function
+// Real-time validation
 const validateOnInput = () => {
-  emailError.value = ''
-  passwordError.value = ''
-  
-  if (credentials.email && !isValidEmail(credentials.email)) {
-    emailError.value = 'Please enter a valid email address'
-  }
-  
-  if (credentials.password && credentials.password.length < 6) {
-    passwordError.value = 'Password must be at least 6 characters'
-  }
-}
-
-const isValidEmail = (email: string): boolean => {
-  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  return regex.test(email)
+  validation.validateLogin(credentials)
 }
 
 // Handle login
 const handleLogin = async () => {
-  // Clear previous errors
-  emailError.value = ''
-  passwordError.value = ''
-  
-  // Validate email
-  if (!credentials.email) {
-    emailError.value = 'Email is required'
-    return
-  }
-  
-  if (!isValidEmail(credentials.email)) {
-    emailError.value = 'Please enter a valid email address'
-    return
-  }
-  
-  // Validate password
-  if (!credentials.password) {
-    passwordError.value = 'Password is required'
-    return
-  }
-  
-  if (credentials.password.length < 6) {
-    passwordError.value = 'Password must be at least 6 characters'
+  // Validate form before submitting
+  if (!validation.validateLogin(credentials)) {
     return
   }
   

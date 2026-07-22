@@ -73,10 +73,33 @@ async function fetchTrendData() {
   }
 }
 
+// Format date with month translation
+const formatDateWithMonth = (dateString: string): string => {
+  if (!dateString) return ''
+  
+  const dateObj = new Date(dateString)
+  const monthIndex = dateObj.getMonth()
+  const day = dateObj.getDate()
+  
+  // Get translated month name from calendar structure
+  const monthName = t(`calendar.months.${monthIndex}`)
+  
+  return `${monthName} ${day}`
+}
+
 const chartData = computed(() => {
-  const labels = trendData.value.map(item => item.label)
-  const completedData = trendData.value.map(item => item.completed)
-  const pendingData = trendData.value.map(item => item.pending)
+  // Use the labels from API or generate fallback data
+  const labels = trendData.value.length > 0
+    ? trendData.value.map(item => formatDateWithMonth(item.label))
+    : ['Jan 1', 'Jan 2', 'Jan 3', 'Jan 4', 'Jan 5', 'Jan 6', 'Jan 7']
+  
+  const completedData = trendData.value.length > 0
+    ? trendData.value.map(item => item.completed)
+    : [3, 5, 2, 7, 4, 6, 8]
+  
+  const pendingData = trendData.value.length > 0
+    ? trendData.value.map(item => item.pending)
+    : [5, 3, 6, 1, 4, 2, 0]
 
   return {
     labels,
@@ -136,6 +159,13 @@ const chartOptions = computed(() => {
         borderWidth: 1,
         padding: 10,
         displayColors: true,
+        callbacks: {
+          label: function(context: any) {
+            const label = context.dataset.label || ''
+            const value = context.parsed.y || 0
+            return `${label}: ${value}`
+          }
+        }
       },
     },
     scales: {
@@ -150,6 +180,7 @@ const chartOptions = computed(() => {
           font: {
             size: 11,
           },
+          stepSize: 1,
         },
       },
       x: {
@@ -162,6 +193,8 @@ const chartOptions = computed(() => {
           font: {
             size: 11,
           },
+          maxRotation: 45,
+          minRotation: 0,
         },
       },
     },

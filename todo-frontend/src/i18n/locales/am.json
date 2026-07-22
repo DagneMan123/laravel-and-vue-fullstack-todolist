@@ -94,9 +94,9 @@
     "resetLinkSent": "የዳግም ማስጀመሪያ አገናኝ ተልኳል! ኢሜይልዎን ያረጋግጡ።",
     "resetLinkFailed": "የዳግም ማስጀመሪያ አገናኝ መላክ አልተሳካም። እባክዎ እንደገና ይሞክሩ።",
     "login_success": "በተሳካ ሁኔታ ገብተዋል! 🎉",
-    "register_success": "መለያ በተሳካ ሁኔታ ተፈጥሯል! 🎉",
+    "registerSuccess": "መለያ በተሳካ ሁኔታ ተፈጥሯል! 🎉",
     "logout_success": "በተሳካ ሁኔታ ወጥተዋል",
-    "invalid_credentials": "የግቤት መረጃ የተሳሳተ ነው"
+    "invalid_credentials": "የቀረበው ምስክር ነቀሳ ትክክል አይደለም"
   },
   "layout": {
     "menu": "ዝርዝር",
@@ -180,7 +180,21 @@
     "no_time_set": "ሰዓት አልተዘጋጀም",
     "created": "ተፈጥሯል",
     "upcoming": "ሚመጡ",
-    "more": "ተጨማሪ"
+    "more": "ተጨማሪ",
+    "taskTitleRequired": "የተግባር ርዕስ ያስፈልጋል",
+    "taskTitleTooShort": "የተግባር ርዕስ ቢያንስ 3 ቁምፊዎች መሆን አለበት",
+    "taskTitleTooLong": "የተግባር ርዕስ 255 ቁምፊዎች ላይ ሊሸፈን አይችልም",
+    "descriptionTooLong": "መግለጫ 1000 ቁምፊዎች ላይ ሊሸፈን አይችልም",
+    "invalidPriority": "እባክዎ ትክክለኛ ቅድሚያ ምረጡ",
+    "startDateInPast": "የመጀመሪያ ቀን ሊያልፍ አይችልም",
+    "dueDateBeforeStart": "የመጨረሻ ቀን ከመጀመሪያ ቀን በኋላ ወይም እኩል መሆን አለበት",
+    "urgentDeadlineTooFar": "ወሰን ተግባራት 48 ሰአት ውስጥ መቅረብ አለባቸው",
+    "highPriorityRequiresDescription": "ከፍተኛ ቅድሚያ ተግባራት መግለጫ ያስፈልጋቸዋል",
+    "urgentPriorityRequiresDescription": "ወሰን ተግባራት መግለጫ ያስፈልጋቸዋል",
+    "urgentDeadlineHint": "ውስጥ 48 ሰአት ውስጥ ቅርብ ይመክሩ",
+    "mustBeWithin48Hours": "ወሰን ተግባራት 48 ሰአት ውስጥ መሆን አለበት",
+    "hoursUntilDeadline": "{hours} ሰአት መጨረሻ ድረስ",
+    "deadlineHasPassed": "መጨረሻ ሰዓት አልፏል!"
   },
    "categories": {
     "title": "ምድቦች",
@@ -290,7 +304,24 @@
     "good": "ጥሩ",
     "strong": "ጠንካራ",
     "invalidName": "ሙሉ ስም ፊደላትን እና ክፍተቶችን ብቻ ይይዛል",
-    "max":"ከፍተኛ"
+    "max":"ከፍተኛ",
+    "valid": "ትክክል",
+    "nameRequired": "ስም ያስፈልጋል",
+    "nameTooShort": "ስም ቢያንስ 2 ቁምፊዎች መሆን አለበት",
+    "nameTooLong": "ስም 100 ቁምፊዎች ላይ ሊሸፈን አይችልም",
+    "nameNoNumbers": "ስም ቁጥሮችን ሊይዝ አይችልም",
+    "nameInvalidChars": "ስም ትክክለኛ ያልሆነ ቁምፊዎች ይይዛል",
+    "emailTooLong": "ኢሜይል 255 ቁምፊዎች ላይ ሊሸፈን አይችልም",
+    "emailDisposable": "እባክዎ ቋሚ ኢሜይል ይጠቀሙ፣ ጊዜያዊ ኢሜይል አገልግሎት አይደለም",
+    "emailTypo": "{suggestion} ይሞክሩ?",
+    "passwordTooShort": "የይለፍ ቃል ቢያንስ 8 ቁምፊዎች መሆን አለበት",
+    "passwordNoUppercase": "የይለፍ ቃል ቢያንስ አንድ ወደ ላይ አንደኛ ፊደል መያዝ አለበት",
+    "passwordNoLowercase": "የይለፍ ቃል ቢያንስ አንድ ተኮ ፊደል መያዝ አለበት",
+    "passwordNoNumber": "የይለፍ ቃል ቢያንስ አንድ ቁጥር መያዝ አለበት",
+    "passwordSequential": "የይለፍ ቃል ተከታታይ ቁጥሮችን ሊይዝ አይችልም (123 ያሉ)",
+    "passwordRepeated": "የይለፍ ቃል ተደጋግሞ የሚታይ ቁምፊዎችን ሊይዝ አይችልም (aaa፣ 111፣ ወዘተ)",
+    "passwordCommon": "የይለፍ ቃል በጣም የተለመደ ነው። ሌላ የይለፍ ቃል ይምረጡ",
+    "passwordCompromised": "ይህ የይለፍ ቃል በመረጃ ጣልቃገብነት ውስጥ ተገልጋይ ነበር። ሌላ የይለፍ ቃል ይምረጡ"
   },
   "charts": {
     "taskCompletionTrend": "የተግባር ማጠናቀቅ አዝማሚያ",

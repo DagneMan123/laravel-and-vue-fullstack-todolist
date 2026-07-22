@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { User, LoginCredentials, RegisterData } from '@/types'
 import type { ValidationError } from '@/utils/validation'
 import { validateLoginForm, validateRegisterForm } from '@/utils/validation'
@@ -7,6 +8,7 @@ import api from '@/services/api'
 import router from '@/router'
 
 export const useAuthStore = defineStore('auth', () => {
+  const { t } = useI18n()
   const user = ref<User | null>(null)
   const token = ref<string | undefined>(localStorage.getItem('auth_token') ?? undefined)
   const isLoading = ref(false)
@@ -42,7 +44,15 @@ export const useAuthStore = defineStore('auth', () => {
       await router.push('/dashboard')
       return { success: true }
     } catch (err: any) {
-      error.value = err.response?.data?.message || 'Login failed'
+      // Check for specific error codes/messages and translate them
+      const backendMessage = err.response?.data?.message
+      
+      if (backendMessage && backendMessage.toLowerCase().includes('credential')) {
+        error.value = t('auth.invalid_credentials', 'The provided credentials are incorrect')
+      } else {
+        error.value = err.response?.data?.message || t('common.error', 'Login failed')
+      }
+      
       return { success: false, message: error.value }
     } finally {
       isLoading.value = false

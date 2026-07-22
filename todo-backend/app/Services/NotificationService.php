@@ -36,10 +36,13 @@ class NotificationService
      */
     public static function notifyTaskCreated(User $user, array $taskData): void
     {
+        $title = __('notifications.taskCreated');
+        $message = __('notifications.taskCreatedMessage', ['name' => $taskData['title']]);
+        
         self::createNotification(
             $user,
-            'New Task Created',
-            "Task '{$taskData['title']}' has been created successfully.",
+            $title,
+            $message,
             'info',
             'Task',
             $taskData['id'] ?? null,
@@ -52,10 +55,13 @@ class NotificationService
      */
     public static function notifyTaskCompleted(User $user, array $taskData): void
     {
+        $title = __('notifications.taskCompleted');
+        $message = __('notifications.taskCompletedMessage', ['name' => $taskData['title']]);
+        
         self::createNotification(
             $user,
-            'Task Completed',
-            "Great! You've completed '{$taskData['title']}'.",
+            $title,
+            $message,
             'success',
             'Task',
             $taskData['id'] ?? null,
@@ -68,10 +74,13 @@ class NotificationService
      */
     public static function notifyTaskOverdue(User $user, array $taskData): void
     {
+        $title = __('notifications.taskOverdue');
+        $message = __('notifications.taskOverdueMessage', ['name' => $taskData['title']]);
+        
         self::createNotification(
             $user,
-            'Task Overdue',
-            "Task '{$taskData['title']}' is now overdue.",
+            $title,
+            $message,
             'warning',
             'Task',
             $taskData['id'] ?? null,
@@ -84,10 +93,13 @@ class NotificationService
      */
     public static function notifyTaskReminder(User $user, array $taskData): void
     {
+        $title = __('notifications.reminder');
+        $message = __('notifications.taskReminderMessage', ['name' => $taskData['title']]);
+        
         self::createNotification(
             $user,
-            'Task Reminder',
-            "Reminder: '{$taskData['title']}' is due soon.",
+            $title,
+            $message,
             'warning',
             'Task',
             $taskData['id'] ?? null,
@@ -100,10 +112,13 @@ class NotificationService
      */
     public static function notifyProjectCreated(User $user, array $projectData): void
     {
+        $title = __('notifications.projectCreated');
+        $message = __('notifications.projectCreatedMessage', ['name' => $projectData['name']]);
+        
         self::createNotification(
             $user,
-            'New Project Created',
-            "Project '{$projectData['name']}' has been created successfully.",
+            $title,
+            $message,
             'success',
             'Project',
             $projectData['id'] ?? null,
@@ -116,10 +131,13 @@ class NotificationService
      */
     public static function notifyCategoryCreated(User $user, array $categoryData): void
     {
+        $title = __('notifications.categoryCreated');
+        $message = __('notifications.categoryCreatedMessage', ['name' => $categoryData['name']]);
+        
         self::createNotification(
             $user,
-            'New Category Created',
-            "Category '{$categoryData['name']}' has been created successfully.",
+            $title,
+            $message,
             'info',
             'Category',
             $categoryData['id'] ?? null,
@@ -127,5 +145,3 @@ class NotificationService
         );
     }
 }
-
-

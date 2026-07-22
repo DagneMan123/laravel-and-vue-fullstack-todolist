@@ -15,42 +15,48 @@
           <div :class="['rounded-xl border shadow-sm p-6 mb-6', isDark ? 'bg-[#1a1f2e] border-gray-700' : 'bg-white border-gray-200']">
             <h2 class="text-lg font-bold mb-6" :class="isDark ? 'text-white' : 'text-gray-900'">{{ $t('profile.personalInformation') }}</h2>
 
-            <div class="space-y-4">
+            <form @submit.prevent="saveProfile" @input="validateOnInput" class="space-y-4">
               <!-- Name Field -->
               <div>
                 <label :class="['block text-sm font-medium mb-2', isDark ? 'text-gray-300' : 'text-gray-700']">{{ $t('profile.firstName') }}</label>
-                <input 
-                  v-model="form.name"
-                  type="text"
-                  :placeholder="$t('auth.enterFirstName')"
-                  @input="validateName"
-                  pattern="[a-zA-Z\s]*"
-                  :title="$t('validation.invalidName')"
-                  :class="[
-                    'w-full px-4 py-2 rounded-lg border transition-colors',
-                    nameError ? 'border-red-500' : isDark
-                      ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500 focus:border-blue-500'
-                      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-blue-500'
-                  ]"
-                />
-                <p v-if="nameError" class="text-xs text-red-600 dark:text-red-400 mt-1">{{ nameError }}</p>
+                <div class="flex items-center gap-2">
+                  <input 
+                    v-model="form.name"
+                    type="text"
+                    :placeholder="$t('auth.enterFirstName')"
+                    @input="onNameInput"
+                    :class="[
+                      'flex-1 px-4 py-2 rounded-lg border transition-colors',
+                      hasNameError ? 'border-red-500' : isDark
+                        ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500 focus:border-blue-500'
+                        : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-blue-500'
+                    ]"
+                  />
+                  <span v-if="!hasNameError && form.name" class="text-green-500 text-xl">✓</span>
+                </div>
+                <p v-if="nameErrorMessage" class="text-xs text-red-600 dark:text-red-400 mt-1">{{ nameErrorMessage }}</p>
               </div>
 
               <!-- Email Field -->
               <div>
                 <label :class="['block text-sm font-medium mb-2', isDark ? 'text-gray-300' : 'text-gray-700']">{{ $t('profile.email') }}</label>
-                <input 
-                  v-model="form.email"
-                  type="email"
-                  :placeholder="$t('auth.enterEmail')"
-                  :class="[
-                    'w-full px-4 py-2 rounded-lg border transition-colors',
-                    isDark
-                      ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500 focus:border-blue-500'
-                      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-blue-500'
-                  ]"
-                />
-                <p v-if="form.email !== authStore.user?.email" class="text-xs mt-1" :class="isDark ? 'text-yellow-400' : 'text-yellow-600'">
+                <div class="flex items-center gap-2">
+                  <input 
+                    v-model="form.email"
+                    type="email"
+                    :placeholder="$t('auth.enterEmail')"
+                    @input="validateOnInput"
+                    :class="[
+                      'flex-1 px-4 py-2 rounded-lg border transition-colors',
+                      hasEmailError ? 'border-red-500' : isDark
+                        ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500 focus:border-blue-500'
+                        : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-blue-500'
+                    ]"
+                  />
+                  <span v-if="!hasEmailError && form.email" class="text-green-500 text-xl">✓</span>
+                </div>
+                <p v-if="emailErrorMessage" class="text-xs text-red-600 dark:text-red-400 mt-1">{{ emailErrorMessage }}</p>
+                <p v-if="form.email !== authStore.user?.email && !hasEmailError" class="text-xs mt-1" :class="isDark ? 'text-yellow-400' : 'text-yellow-600'">
                   {{ $t('profile.emailWillUpdate') }}
                 </p>
               </div>
@@ -69,13 +75,14 @@
               <!-- Action Buttons -->
               <div class="flex gap-3 pt-4">
                 <button 
-                  @click="saveProfile"
+                  type="submit"
                   :disabled="isLoading"
                   class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {{ isLoading ? $t('profile.saving') : $t('profile.updateProfile') }}
                 </button>
                 <button 
+                  type="button"
                   @click="resetForm"
                   class="px-6 py-2 border rounded-lg font-medium text-sm transition-colors"
                   :class="isDark ? 'bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700' : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'"
@@ -91,7 +98,7 @@
               <div v-if="errorMessage" class="mt-4 p-3 rounded-lg bg-red-600/20 text-red-400 text-sm border border-red-600/30">
                 {{ errorMessage }}
               </div>
-            </div>
+            </form>
           </div>
 
           <!-- Account Statistics Section -->
@@ -196,6 +203,7 @@ import { useI18n } from 'vue-i18n'
 import { useThemeStore } from '@/stores/theme'
 import { useAuthStore } from '@/stores/auth'
 import { useTaskStore } from '@/stores/tasks'
+import { useFormValidation } from '@/composables/useFormValidation'
 import AppLayout from '@/layouts/AppLayout.vue'
 import api from '@/services/api'
 import router from '@/router'
@@ -205,6 +213,7 @@ const { t } = useI18n()
 const themeStore = useThemeStore()
 const authStore = useAuthStore()
 const taskStore = useTaskStore()
+const validation = useFormValidation()
 
 const isDark = computed(() => themeStore.isDark)
 
@@ -218,7 +227,6 @@ const form = ref({
 const isLoading = ref(false)
 const successMessage = ref('')
 const errorMessage = ref('')
-const nameError = ref('')
 
 // Task Statistics
 const taskStats = ref({
@@ -228,6 +236,13 @@ const taskStats = ref({
   overdue: 0,
   upcoming: 0
 })
+
+// Computed error properties
+const hasNameError = computed(() => validation.hasError('name'))
+const nameErrorMessage = computed(() => validation.getError('name'))
+
+const hasEmailError = computed(() => validation.hasError('email'))
+const emailErrorMessage = computed(() => validation.getError('email'))
 
 // Format date helper
 const formatDate = (dateString: string | undefined) => {
@@ -248,6 +263,7 @@ const initializeForm = () => {
       email: authStore.user.email
     }
   }
+  validation.clearErrors()
 }
 
 // Calculate task statistics
@@ -262,33 +278,38 @@ const calculateStats = () => {
   }
 }
 
-// Validate name - only letters and spaces
-const validateName = (event: Event) => {
+// Real-time validation
+const validateOnInput = () => {
+  validation.validateProfile({
+    name: form.value.name,
+    email: form.value.email
+  })
+}
+
+// Filter numbers from name input
+const onNameInput = (event: Event) => {
   const input = event.target as HTMLInputElement
   const name = input.value
   
-  // Allow only letters (a-z, A-Z) and spaces
-  const isValid = /^[a-zA-Z\s]*$/.test(name)
+  // Allow Unicode letters (including Amharic, Arabic, Chinese, etc.), spaces, hyphens, apostrophes
+  // Only remove numbers and dangerous special characters
+  const filtered = name.replace(/[\d<>{}[\]\\^`|]/g, '')
   
-  if (!isValid) {
-    nameError.value = 'Full name can only contain letters and spaces'
-    // Remove invalid characters
-    form.value.name = name.replace(/[^a-zA-Z\s]/g, '')
-  } else {
-    nameError.value = ''
+  if (filtered !== name) {
+    form.value.name = filtered
+    input.value = filtered
   }
+  
+  validateOnInput()
 }
 
 // Save profile
 const saveProfile = async () => {
-  // Validate name before saving
-  if (!form.value.name.trim()) {
-    errorMessage.value = 'Full name is required'
-    return
-  }
-  
-  if (!/^[a-zA-Z\s]+$/.test(form.value.name.trim())) {
-    errorMessage.value = 'Full name can only contain letters and spaces'
+  // Validate before saving
+  if (!validation.validateProfile({
+    name: form.value.name,
+    email: form.value.email
+  })) {
     return
   }
 
@@ -309,7 +330,7 @@ const saveProfile = async () => {
       authStore.persistUser(response.data.user)
     }
 
-    successMessage.value = 'Profile updated successfully!'
+    successMessage.value = t('profile.profileUpdated', 'Profile updated successfully!')
     setTimeout(() => {
       successMessage.value = ''
     }, 3000)
@@ -319,8 +340,10 @@ const saveProfile = async () => {
       form.value.name = authStore.user.name
       form.value.email = authStore.user.email
     }
+    
+    validation.clearErrors()
   } catch (err: any) {
-    errorMessage.value = err.response?.data?.message || 'Failed to update profile'
+    errorMessage.value = err.response?.data?.message || t('common.error', 'Failed to update profile')
     console.error('Profile update error:', err)
   } finally {
     isLoading.value = false
@@ -345,7 +368,7 @@ const goToTasks = () => {
 
 // Logout handler
 const handleLogout = async () => {
-  if (confirm('Are you sure you want to logout?')) {
+  if (confirm(t('common.confirm', 'Are you sure?'))) {
     await authStore.logout()
   }
 }

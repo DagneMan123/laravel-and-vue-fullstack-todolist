@@ -20,7 +20,7 @@
         ]">
           <div class="flex items-center justify-between gap-2">
             <div class="min-w-0">
-              <p class="text-xs sm:text-sm font-medium" :class="isDark ? 'text-gray-400' : 'text-gray-600'">{{ $t('dashboard.totalTasks') }}</p>
+              <p class="text-xs sm:text-sm font-medium" :class="isDark ? 'text-gray-400' : 'text-gray-600'">{{ $t('stats.total_tasks') }}</p>
               <p class="text-2xl sm:text-3xl font-bold mt-1 sm:mt-2" :class="isDark ? 'text-white' : 'text-gray-900'">{{ taskStore.stats?.total || 0 }}</p>
             </div>
             <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-blue-600/20 flex-shrink-0 flex items-center justify-center">
@@ -39,7 +39,7 @@
         ]">
           <div class="flex items-center justify-between gap-2">
             <div class="min-w-0">
-              <p class="text-xs sm:text-sm font-medium" :class="isDark ? 'text-gray-400' : 'text-gray-600'">{{ $t('dashboard.completed') }}</p>
+              <p class="text-xs sm:text-sm font-medium" :class="isDark ? 'text-gray-400' : 'text-gray-600'">{{ $t('stats.completed_tasks') }}</p>
               <p class="text-2xl sm:text-3xl font-bold mt-1 sm:mt-2" :class="isDark ? 'text-white' : 'text-gray-900'">{{ taskStore.stats?.completed || 0 }}</p>
               <p class="text-xs mt-0.5 sm:mt-1" :class="isDark ? 'text-gray-500' : 'text-gray-500'">{{ completionRate }}% {{ $t('dashboard.done') }}</p>
             </div>
@@ -59,7 +59,7 @@
         ]">
           <div class="flex items-center justify-between gap-2">
             <div class="min-w-0">
-              <p class="text-xs sm:text-sm font-medium" :class="isDark ? 'text-gray-400' : 'text-gray-600'">{{ $t('dashboard.pending') }}</p>
+              <p class="text-xs sm:text-sm font-medium" :class="isDark ? 'text-gray-400' : 'text-gray-600'">{{ $t('stats.pending_tasks') }}</p>
               <p class="text-2xl sm:text-3xl font-bold mt-1 sm:mt-2" :class="isDark ? 'text-white' : 'text-gray-900'">{{ taskStore.stats?.pending || 0 }}</p>
             </div>
             <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-yellow-600/20 flex-shrink-0 flex items-center justify-center">
@@ -78,7 +78,7 @@
         ]">
           <div class="flex items-center justify-between gap-2">
             <div class="min-w-0">
-              <p class="text-xs sm:text-sm font-medium" :class="isDark ? 'text-gray-400' : 'text-gray-600'">{{ $t('dashboard.overdue') }}</p>
+              <p class="text-xs sm:text-sm font-medium" :class="isDark ? 'text-gray-400' : 'text-gray-600'">{{ $t('stats.overdue_tasks') }}</p>
               <p class="text-2xl sm:text-3xl font-bold mt-1 sm:mt-2" :class="isDark ? 'text-white' : 'text-gray-900'">{{ taskStore.stats?.overdue || 0 }}</p>
             </div>
             <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-red-600/20 flex-shrink-0 flex items-center justify-center">
@@ -90,7 +90,7 @@
         </div>
       </div>
 
-      <!-- Charts Section - BELOW STATS CARDS -->
+      <!-- Charts Section -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-6 mb-6 sm:mb-8">
         <TasksLineChart />
         <TasksStatusChart />
@@ -100,6 +100,7 @@
         <TasksBarChart />
       </div>
 
+      <!-- Recent Tasks -->
       <div :class="[
         'w-full p-4 sm:p-6 rounded-lg border',
         isDark ? 'bg-[#1a1f2e] border-gray-700' : 'bg-white border-gray-200'
@@ -139,8 +140,8 @@
                 {{ task.title }}
               </p>
               <p v-if="task.due_date" class="text-xs mt-0.5 sm:mt-1 truncate" :class="isDark ? 'text-gray-500' : 'text-gray-500'">
-              {{ $t('dashboard.due') }} {{ formatDateWithTime(task.due_date, task.due_time || '') }} 
-            </p>
+                {{ $t('dashboard.due') }} {{ formatDateWithMonthAndTime(task.due_date, task.due_time || '') }}
+              </p>
             </div>
             <span :class="[
               'px-2 py-0.5 sm:py-1 rounded text-xs font-medium flex-shrink-0',
@@ -148,7 +149,7 @@
               task.priority === 'medium' ? 'bg-yellow-600/20 text-yellow-600' :
               'bg-blue-600/20 text-blue-600'
             ]">
-              {{ $t(`tasks.${task.priority}`) }}
+              {{ $t('tasks.' + task.priority) }}
             </span>
           </div>
         </div>
@@ -163,7 +164,6 @@ import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import { useThemeStore } from '@/stores/theme'
 import { useTaskStore } from '@/stores/tasks'
-import { useToast } from '@/composables/useToast'
 import AppLayout from '@/layouts/AppLayout.vue'
 import TasksLineChart from '@/components/TasksLineChart.vue'
 import TasksBarChart from '@/components/TasksBarChart.vue'
@@ -173,7 +173,6 @@ const { t } = useI18n()
 const authStore = useAuthStore()
 const themeStore = useThemeStore()
 const taskStore = useTaskStore()
-const toast = useToast()
 
 const isDark = computed(() => themeStore.isDark)
 
@@ -189,22 +188,30 @@ const getGreeting = () => {
   return t('dashboard.goodEvening')
 }
 
-const formatDateWithTime = (date: string, time: string | null): string => {
+// ─── Date Helper with Month Translation ───
+const formatDateWithMonthAndTime = (date: string, time: string | null): string => {
   if (!date) return ''
-  const formattedDate = new Date(date).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  })
+  
+  const dateObj = new Date(date)
+  const monthIndex = dateObj.getMonth()
+  const day = dateObj.getDate()
+  const year = dateObj.getFullYear()
+  
+  // Get translated month name from calendar structure
+  const monthName = t(`calendar.months.${monthIndex}`)
+  const formattedDate = `${monthName} ${day}, ${year}`
+  
   if (!time) {
     return `${formattedDate} 12:00 AM`
   }
+  
   const [hours, minutes] = time.split(':')
   const hour = parseInt(hours, 10)
   const minute = minutes || '00'
   const period = hour >= 12 ? 'PM' : 'AM'
   const displayHour = hour % 12 || 12
   const formattedTime = `${displayHour}:${minute} ${period}`
+  
   return `${formattedDate} ${formattedTime}`
 }
 
@@ -213,7 +220,6 @@ onMounted(async () => {
     await taskStore.fetchStats()
     await taskStore.fetchTasks()
   } catch (err) {
-    toast.showError('Failed to load dashboard data')
     console.error('Dashboard error:', err)
   }
 })

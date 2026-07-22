@@ -29,8 +29,10 @@
               :class="{ 'border-red-500 dark:border-red-400': nameError }"
               :placeholder="$t('auth.enterFirstName')"
               :disabled="authStore.isLoading"
+              @input="filterNameInput"
             />
             <FormError :message="nameError" />
+            <p v-if="formData.name && !nameError" class="mt-1 text-xs text-green-600 dark:text-green-400"></p>
           </div>
 
           <!-- Email -->
@@ -45,6 +47,7 @@
               :disabled="authStore.isLoading"
             />
             <FormError :message="emailError" />
+            <p v-if="formData.email && !emailError" class="mt-1 text-xs text-green-600 dark:text-green-400"></p>
           </div>
 
           <!-- Password -->
@@ -81,11 +84,34 @@
             </div>
             <!-- Password Strength Indicator -->
             <div v-if="formData.password" class="mt-2">
-              <div class="flex gap-1">
+              <div class="flex gap-1 mb-2">
                 <div class="flex-1 h-1 rounded bg-gray-200 dark:bg-gray-700" :class="{ [passwordStrengthColor]: passwordStrength >= 1 }"></div>
                 <div class="flex-1 h-1 rounded bg-gray-200 dark:bg-gray-700" :class="{ [passwordStrengthColor]: passwordStrength >= 2 }"></div>
                 <div class="flex-1 h-1 rounded bg-gray-200 dark:bg-gray-700" :class="{ [passwordStrengthColor]: passwordStrength >= 3 }"></div>
                 <div class="flex-1 h-1 rounded bg-gray-200 dark:bg-gray-700" :class="{ [passwordStrengthColor]: passwordStrength >= 4 }"></div>
+              </div>
+              <!-- Password requirements checklist -->
+              <div class="text-xs space-y-1">
+                <p :class="{ 'text-green-600 dark:text-green-400': formData.password.length >= 8, 'text-gray-500 dark:text-gray-400': formData.password.length < 8 }">
+                  <span v-if="formData.password.length >= 8">✓</span>
+                  <span v-else>○</span>
+                  At least 8 characters
+                </p>
+                <p :class="{ 'text-green-600 dark:text-green-400': /[A-Z]/.test(formData.password), 'text-gray-500 dark:text-gray-400': !/[A-Z]/.test(formData.password) }">
+                  <span v-if="/[A-Z]/.test(formData.password)">✓</span>
+                  <span v-else>○</span>
+                  One uppercase letter
+                </p>
+                <p :class="{ 'text-green-600 dark:text-green-400': /[a-z]/.test(formData.password), 'text-gray-500 dark:text-gray-400': !/[a-z]/.test(formData.password) }">
+                  <span v-if="/[a-z]/.test(formData.password)">✓</span>
+                  <span v-else>○</span>
+                  One lowercase letter
+                </p>
+                <p :class="{ 'text-green-600 dark:text-green-400': /\d/.test(formData.password), 'text-gray-500 dark:text-gray-400': !/\d/.test(formData.password) }">
+                  <span v-if="/\d/.test(formData.password)">✓</span>
+                  <span v-else>○</span>
+                  One number
+                </p>
               </div>
             </div>
             <FormError :message="passwordError" />
@@ -119,6 +145,7 @@
               </button>
             </div>
             <FormError :message="passwordConfirmError" />
+            <p v-if="formData.password && formData.password_confirmation && !passwordConfirmError" class="mt-1 text-xs text-green-600 dark:text-green-400">✓ Passwords match</p>
           </div>
 
           <!-- API Error -->
@@ -130,7 +157,7 @@
           <button
             type="submit"
             class="btn-primary w-full py-3 text-base"
-            :disabled="authStore.isLoading"
+            :disabled="authStore.isLoading || !isFormValid"
           >
             <span v-if="authStore.isLoading" class="inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></span>
             {{ authStore.isLoading ? $t('auth.signingUp') : $t('auth.signUp') }}
@@ -180,6 +207,20 @@ const nameError = computed(() => validation.getError('name'))
 const emailError = computed(() => validation.getError('email'))
 const passwordError = computed(() => validation.getError('password'))
 const passwordConfirmError = computed(() => validation.getError('password_confirmation'))
+
+// Computed for form validity
+const isFormValid = computed(() => {
+  return (
+    formData.name.trim() !== '' &&
+    formData.email.trim() !== '' &&
+    formData.password !== '' &&
+    formData.password_confirmation !== '' &&
+    !nameError.value &&
+    !emailError.value &&
+    !passwordError.value &&
+    !passwordConfirmError.value
+  )
+})
 
 // Computed for password strength indicator
 const passwordStrength = computed(() => {
@@ -236,6 +277,12 @@ const handleRegister = async () => {
 
 // Real-time validation as user types
 const validateOnInput = () => {
+  validation.validateRegister(formData)
+}
+
+// Filter out numbers from name input
+const filterNameInput = () => {
+  formData.name = formData.name.replace(/\d/g, '')
   validation.validateRegister(formData)
 }
 </script>

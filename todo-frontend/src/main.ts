@@ -3,6 +3,7 @@ import { createPinia } from 'pinia'
 import router from './router'
 import App from './App.vue'
 import { i18n } from './i18n'
+import { setI18n } from './utils/validation'
 import './style.css'
 import './styles/notifications.css'
 
@@ -12,5 +13,8 @@ const pinia = createPinia()
 app.use(pinia)
 app.use(router)
 app.use(i18n)
+
+// Initialize i18n for validation utilities
+setI18n(i18n)
 
 app.mount('#app')

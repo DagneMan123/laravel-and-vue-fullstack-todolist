@@ -1,8 +1,10 @@
 import { computed } from 'vue'
 import { useThemeStore } from '@/stores/theme'
+import { useI18n } from 'vue-i18n'
 
 export function useNotificationUtils() {
   const themeStore = useThemeStore()
+  const { t } = useI18n()
   const isDark = computed(() => themeStore.isDark)
 
   /**
@@ -62,10 +64,35 @@ export function useNotificationUtils() {
     const now = new Date()
     const seconds = Math.floor((now.getTime() - date.getTime()) / 1000)
 
-    if (seconds < 60) return 'just now'
-    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`
-    if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`
-    if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`
+    if (seconds < 60) return t('common.just_now')
+    
+    const minutes = Math.floor(seconds / 60)
+    if (minutes < 60) {
+      return minutes === 1 
+        ? t('common.minuteAgo')
+        : t('common.minutesAgo', { minutes })
+    }
+    
+    const hours = Math.floor(seconds / 3600)
+    if (hours < 24) {
+      return hours === 1
+        ? t('common.hourAgo')
+        : t('common.hoursAgo', { hours })
+    }
+    
+    const days = Math.floor(seconds / 86400)
+    if (days < 7) {
+      return days === 1
+        ? t('common.dayAgo')
+        : t('common.daysAgo', { days })
+    }
+
+    const weeks = Math.floor(seconds / 604800)
+    if (weeks < 4) {
+      return weeks === 1
+        ? t('common.weekAgo')
+        : t('common.weeksAgo', { weeks })
+    }
 
     return date.toLocaleDateString('en-US', {
       month: 'short',

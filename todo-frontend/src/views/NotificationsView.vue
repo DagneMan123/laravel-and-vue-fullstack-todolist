@@ -13,11 +13,18 @@
             </h1>
             <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
               <span v-if="notificationStore.unreadCount > 0" class="font-semibold text-primary-600">
-                {{ notificationStore.unreadCount }} {{ $t('notifications.noNotifications') }}
+                {{ notificationStore.unreadCount }} {{ $t('common.unread') }}
               </span>
-              <span v-else class="text-gray-500">{{ $t('notifications.noNotifications') }}</span>
+              <span v-else class="text-gray-500">{{ $t('notifications.allCaughtUp') }}</span>
               <span class="mx-2 text-gray-400">•</span>
-              <span>{{ notificationStore.notifications.length }} total</span>
+              <span class="font-semibold text-gray-700 dark:text-gray-300">{{ $t('common.total') }}: {{ notificationStore.notifications.length }}</span>
+              <span class="mx-2 text-gray-400">•</span>
+              <span class="inline-flex items-center gap-1">
+                <svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                </svg>
+                <span class="text-green-600 dark:text-green-400 font-medium"></span>
+              </span>
             </p>
           </div>
 
@@ -101,6 +108,11 @@ const themeStore = useThemeStore()
 const notificationStore = useNotificationStore()
 
 const isDark = computed(() => themeStore.isDark)
+
+// Calculate success notifications count
+const successCount = computed(() => {
+  return notificationStore.notifications.filter(n => n.type === 'success').length
+})
 
 const markAllAsRead = async () => {
   const result = await notificationStore.markAllAsRead()

@@ -121,8 +121,8 @@ export interface Notification {
   type: string
   title: string
   message: string
-  related_model?: string
-  related_id?: number
+  title_params: Record<string, any>
+  message_params: Record<string, any>
   is_read: boolean
   read_at?: string
   created_at: string

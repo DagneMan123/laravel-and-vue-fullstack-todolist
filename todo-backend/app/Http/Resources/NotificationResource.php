@@ -15,12 +15,47 @@ class NotificationResource extends JsonResource
             'type' => $this->type,
             'title' => $this->title,
             'message' => $this->message,
-            'related_model' => $this->related_model,
-            'related_id' => $this->related_id,
+            'title_params' => $this->getTitleParams(),
+            'message_params' => $this->getMessageParams(),
             'is_read' => $this->is_read,
             'read_at' => $this->read_at,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
+    }
+
+    /**
+     * Extract parameters needed for title translation from data
+     */
+    private function getTitleParams(): array
+    {
+        $data = $this->data ?? [];
+        $params = [];
+        
+        // Map common parameters
+        if (isset($data['name'])) {
+            $params['name'] = $data['name'];
+        }
+        
+        return $params;
+    }
+
+    /**
+     * Extract parameters needed for message translation from data
+     */
+    private function getMessageParams(): array
+    {
+        $data = $this->data ?? [];
+        $params = [];
+        
+        // Map common parameters
+        if (isset($data['name'])) {
+            $params['name'] = $data['name'];
+        }
+        if (isset($data['hours'])) {
+            $params['hours'] = $data['hours'];
+        }
+        
+        return $params;
     }
 }

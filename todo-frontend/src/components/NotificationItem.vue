@@ -28,7 +28,7 @@
                   : 'text-gray-900 dark:text-white'
               ]"
             >
-              {{ notification.title }}
+              {{ $t(notification.title, notification.title_params) }}
             </h3>
             <span 
               v-if="notification.type"
@@ -37,7 +37,7 @@
                 getTypeClasses(notification.type).badge
               ]"
             >
-              {{ formatType(notification.type) }}
+              {{ $t(`notifications.type${formatType(notification.type)}`) }}
             </span>
           </div>
 
@@ -50,7 +50,7 @@
                 : 'text-gray-700 dark:text-gray-300'
             ]"
           >
-            {{ notification.message }}
+            {{ $t(notification.message, notification.message_params) }}
           </p>
 
           <!-- Timestamp -->
